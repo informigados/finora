@@ -157,13 +157,6 @@ Or:
 ### 2026-03-02 (1.0.0)
 
 - Initial release.
-- Added a welcome-first public flow before authentication.
-- Improved dark mode accessibility and visual consistency across pages.
-- Added profile tabs (`Edit Profile`, `Change Password`, `Danger Zone`) and per-user session timeout options with renewal warning.
-- Added `About` page with project overview, authors, and repository link.
-- Improved navbar UX with user avatar support when a profile image is uploaded.
-- Completed and compiled translation catalogs for Portuguese, English, and Spanish.
-- Added runtime SQLite compatibility patch for `user.session_timeout_minutes`.
 
 ## 👥 Authors
 
