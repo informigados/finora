@@ -1,4 +1,4 @@
-# 💼 Finora
+# Finora
 
 ![Python](https://img.shields.io/badge/python-3.12%2B-blue)
 ![Flask](https://img.shields.io/badge/flask-3.x-black)
@@ -130,6 +130,19 @@ Or:
 - Import limits configured (`MAX_CONTENT_LENGTH`, row limit)
 - Cookie hardening and secure production settings in `config.py`
 
+## 📝 Changelog
+
+### 2026-03-02 (1.0.0)
+
+- Initial release.
+- Added a welcome-first public flow before authentication.
+- Improved dark mode accessibility and visual consistency across pages.
+- Added profile tabs (`Edit Profile`, `Change Password`, `Danger Zone`) and per-user session timeout options with renewal warning.
+- Added `About` page with project overview, authors, and repository link.
+- Improved navbar UX with user avatar support when a profile image is uploaded.
+- Completed and compiled translation catalogs for Portuguese, English, and Spanish.
+- Added runtime SQLite compatibility patch for `user.session_timeout_minutes`.
+
 ## 👥 Authors
 
 - INformigados: https://github.com/informigados/
@@ -137,4 +150,4 @@ Or:
 
 ## 📜 License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
