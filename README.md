@@ -82,6 +82,28 @@ Or use the helper script:
 .\run_app.bat
 ```
 
+## 👤 Optional Default Test User
+
+Finora supports an optional default user seed for local development.
+
+- Disabled by default (`ENABLE_DEFAULT_USER_SEED=False`)
+- Only runs in development mode when `ENABLE_DEFAULT_USER_SEED=1`
+- Requires `DEFAULT_USER_PASSWORD` to be set (otherwise seed is skipped)
+
+Default values used by the seed:
+
+- `DEFAULT_USER_USERNAME=example`
+- `DEFAULT_USER_EMAIL=user@example.com.br`
+
+Example `.env` setup:
+
+```ini
+ENABLE_DEFAULT_USER_SEED=1
+DEFAULT_USER_USERNAME=example
+DEFAULT_USER_EMAIL=user@example.com.br
+DEFAULT_USER_PASSWORD=change_this_password
+```
+
 ## 🗄️ Database Notes
 
 - Default database: `database/finora.db`
