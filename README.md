@@ -1,16 +1,21 @@
-# Finora
+# 💼 Finora
 
-Finora is a local-first personal finance application built with Flask.
+![Python](https://img.shields.io/badge/python-3.12%2B-blue)
+![Flask](https://img.shields.io/badge/flask-3.x-black)
+![Database](https://img.shields.io/badge/database-sqlite%20%7C%20mysql-0f766e)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+Finora is a local-first personal finance application built with Flask.  
 It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, backups, profile management, and multilingual UI.
 
-## Tech Stack
+## 🧱 Tech Stack
 
 - Python 3.12+ (tested with Python 3.14)
 - Flask, Flask-Login, Flask-Babel, Flask-SQLAlchemy, Flask-Migrate
 - SQLite (default), MySQL support via SQLAlchemy URL
 - Jinja2 templates + Bootstrap + custom CSS/JS
 
-## Core Features
+## 🚀 Core Features
 
 - Welcome landing page before authentication
 - Secure authentication flow (register/login/recovery/profile)
@@ -24,7 +29,7 @@ It provides expense/income tracking, recurring entries, budgets, goals, imports/
 - Local backup download
 - Internationalization: Portuguese (default), English, Spanish
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 app.py
@@ -40,7 +45,7 @@ migrations/
 tests/
 ```
 
-## Local Setup
+## ⚙️ Local Setup
 
 1. Create virtual environment and install dependencies:
 
@@ -77,7 +82,7 @@ Or use the helper script:
 .\run_app.bat
 ```
 
-## Database Notes
+## 🗄️ Database Notes
 
 - Default database: `database/finora.db`
 - Production recommendation: managed MySQL or PostgreSQL
@@ -89,7 +94,7 @@ Example MySQL URL:
 DATABASE_URL=mysql+pymysql://user:password@host:3306/finora
 ```
 
-## Internationalization Workflow
+## 🌍 Internationalization Workflow
 
 Update translation catalog:
 
@@ -104,7 +109,7 @@ Compile translations:
 pybabel compile -d translations
 ```
 
-## Testing
+## 🧪 Testing
 
 Run full test suite:
 
@@ -118,18 +123,18 @@ Or:
 .\run_tests.bat
 ```
 
-## Security and Reliability Notes
+## 🔐 Security and Reliability Notes
 
 - CSRF protection enabled for form and JSON flows
 - Runtime compatibility patch included for legacy SQLite schema fields
 - Import limits configured (`MAX_CONTENT_LENGTH`, row limit)
 - Cookie hardening and secure production settings in `config.py`
 
-## Authors
+## 👥 Authors
 
 - INformigados: https://github.com/informigados/
 - Alex Brito: https://github.com/AlexBritoDEV
 
-## License
+## 📜 License
 
 MIT
