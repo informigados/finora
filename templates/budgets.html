@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="mb-0 d-flex align-items-center"><i data-lucide="wallet" class="me-2 icon-md"></i>{{ _('Orçamentos') }}</h2>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex justify-content-end gap-2">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#budgetModal">
+            <i data-lucide="plus" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Novo Orçamento') }}
+        </button>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% for item in budget_status %}
+    <div class="col-md-4">
+        <div class="card card-premium h-100 border-top border-4 {% if item.over_budget %}border-danger{% elif item.percentage > 80 %}border-warning{% else %}border-success{% endif %}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title fw-bold">{{ item.budget.category }}</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown" aria-label="{{ _('Opções') }}" title="{{ _('Opções') }}">
+                            <i data-lucide="more-vertical" class="icon-sm"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" data-budget='{{ item.budget.to_dict()|tojson }}' onclick='prepareEdit(JSON.parse(this.getAttribute("data-budget")))' data-bs-toggle="modal" data-bs-target="#editBudgetModal">{{ _('Editar') }}</a></li>
+                            <li>
+                                <form action="{{ url_for('budgets.delete_budget', id=item.budget.id) }}" method="POST" data-confirm="{{ _('Tem certeza?') }}" onsubmit="return confirm(this.getAttribute('data-confirm'));">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button class="dropdown-item text-danger" type="submit">{{ _('Excluir') }}</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <p class="text-muted small mb-2">
+                    {{ _('Período') }}: {{ _(item.budget.period) }}
+                </p>
+                
+                <div class="d-flex justify-content-between align-items-end mb-1">
+                    <span class="text-danger fw-bold">R$ {{ "%.2f"|format(item.spent) }}</span>
+                    <span class="text-muted small">de R$ {{ "%.2f"|format(item.budget.limit_amount) }}</span>
+                </div>
+                
+                <div class="progress mb-3 progress-sm">
+                    <div class="progress-bar {% if item.over_budget %}bg-danger{% elif item.percentage > 80 %}bg-warning{% else %}bg-success{% endif %}" 
+                         data-width="{{ item.percentage }}%" title="{{ _('Progresso do orçamento') }}"></div>
+                </div>
+                
+                <small class="text-muted">
+                    {% if item.remaining >= 0 %}
+                    {{ _('Restante') }}: R$ {{ "%.2f"|format(item.remaining) }}
+                    {% else %}
+                    {{ _('Excedido') }}: R$ {{ "%.2f"|format(item.remaining * -1) }}
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="empty-state-premium">
+            <i data-lucide="wallet" class="icon-xl text-muted mb-3"></i>
+            <h4>{{ _('Nenhum orçamento definido.') }}</h4>
+            <p>{{ _('Defina limites de gastos para suas categorias.') }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="budgetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('budgets.add_budget') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ _('Novo Orçamento') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar') }}" title="{{ _('Fechar') }}"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="budgetCategory" class="form-label">{{ _('Categoria') }}</label>
+                        <input type="text" name="category" class="form-control" list="catList" id="budgetCategory" required>
+                         <datalist id="catList">
+                            <option value="{{ _('Alimentação') }}"></option>
+                            <option value="{{ _('Moradia') }}"></option>
+                            <option value="{{ _('Transporte') }}"></option>
+                            <option value="{{ _('Lazer') }}"></option>
+                            <option value="{{ _('Saúde') }}"></option>
+                            <option value="{{ _('Educação') }}"></option>
+                            <option value="{{ _('Salário') }}"></option>
+                            <option value="{{ _('Investimento') }}"></option>
+                        </datalist>
+                    </div>
+                    <div class="mb-3">
+                        <label for="budgetLimit" class="form-label">{{ _('Limite (R$)') }}</label>
+                        <input type="number" step="0.01" name="limit_amount" class="form-control" id="budgetLimit" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="budgetPeriod" class="form-label">{{ _('Período') }}</label>
+                        <select name="period" class="form-select" id="budgetPeriod">
+                            <option value="Mensal">{{ _('Mensal') }}</option>
+                            <option value="Anual">{{ _('Anual') }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ _('Salvar') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editBudgetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="" method="POST" id="editBudgetForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ _('Editar Orçamento') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar') }}" title="{{ _('Fechar') }}"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editCategory" class="form-label">{{ _('Categoria') }}</label>
+                        <input type="text" name="category" class="form-control" id="editCategory" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editLimit" class="form-label">{{ _('Limite (R$)') }}</label>
+                        <input type="number" step="0.01" name="limit_amount" class="form-control" id="editLimit" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPeriod" class="form-label">{{ _('Período') }}</label>
+                        <select name="period" class="form-select" id="editPeriod">
+                            <option value="Mensal">{{ _('Mensal') }}</option>
+                            <option value="Anual">{{ _('Anual') }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ _('Atualizar') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function prepareEdit(budget) {
+    const form = document.getElementById('editBudgetForm');
+    form.action = "/budgets/edit/" + budget.id;
+    
+    document.getElementById('editCategory').value = budget.category;
+    document.getElementById('editLimit').value = budget.limit_amount;
+    document.getElementById('editPeriod').value = budget.period;
+}
+</script>
+{% endblock %}

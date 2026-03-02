@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="mb-0 d-flex align-items-center"><i data-lucide="target" class="me-2 icon-md"></i>{{ _('Metas Financeiras') }}</h2>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#goalModal">
+            <i data-lucide="plus" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Nova Meta') }}
+        </button>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% for goal in goals %}
+    <div class="col-md-4">
+        <div class="card card-premium h-100 border-top border-4 border-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title fw-bold text-primary">{{ goal.name }}</h5>
+                    <form action="{{ url_for('goals.delete_goal', id=goal.id) }}" method="POST" data-confirm="{{ _('Tem certeza?') }}" onsubmit="return confirm(this.getAttribute('data-confirm'));">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-sm text-danger border-0" aria-label="{{ _('Excluir') }}" title="{{ _('Excluir') }}"><i data-lucide="trash-2" class="icon-sm"></i></button>
+                    </form>
+                </div>
+                
+                <p class="text-muted small mb-2">
+                    {{ _('Alvo') }}: R$ {{ "%.2f"|format(goal.target_amount) }}
+                    {% if goal.deadline %}
+                    <br>{{ _('Prazo') }}: {{ goal.deadline.strftime('%d/%m/%Y') }}
+                    {% endif %}
+                </p>
+                
+                <h3 class="text-primary mb-3">R$ {{ "%.2f"|format(goal.current_amount) }}</h3>
+                
+                <div class="progress mb-3 progress-sm">
+                    <div class="progress-bar bg-success" 
+                         data-width="{{ goal.to_dict().progress }}%" title="{{ _('Progresso da meta') }}"></div>
+                </div>
+                
+                <form action="{{ url_for('goals.update_goal', id=goal.id) }}" method="POST" class="d-flex gap-2">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="number" step="0.01" name="current_amount" class="form-control form-control-sm" 
+                           placeholder="{{ _('Novo valor') }}" value="{{ goal.current_amount }}">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">{{ _('Atualizar') }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="empty-state-premium">
+            <i data-lucide="target" class="icon-xl text-muted mb-3"></i>
+            <h4>{{ _('Nenhuma meta definida ainda.') }}</h4>
+            <p>{{ _('Crie metas para realizar seus sonhos!') }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="goalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('goals.add_goal') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ _('Nova Meta') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar') }}" title="{{ _('Fechar') }}"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="goalName" class="form-label">{{ _('Nome da Meta') }}</label>
+                        <input type="text" name="name" class="form-control" id="goalName" required placeholder="Ex: Viagem, Carro Novo...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="goalTarget" class="form-label">{{ _('Valor Alvo (R$)') }}</label>
+                        <input type="number" step="0.01" name="target_amount" class="form-control" id="goalTarget" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="goalCurrent" class="form-label">{{ _('Valor Atual (R$)') }}</label>
+                        <input type="number" step="0.01" name="current_amount" class="form-control" id="goalCurrent" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="goalDeadline" class="form-label">{{ _('Prazo (Opcional)') }}</label>
+                        <input type="date" name="deadline" class="form-control" id="goalDeadline">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ _('Salvar') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

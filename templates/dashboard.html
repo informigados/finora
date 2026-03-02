@@ -1,0 +1,430 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Top Controls -->
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <form action="{{ url_for('dashboard.change_period') }}" method="POST" class="d-flex align-items-center gap-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <select name="month" class="form-select w-auto" aria-label="{{ _('Mês') }}" title="{{ _('Selecione o Mês') }}" onchange="this.form.submit()">
+                {% set months = [_('Janeiro'), _('Fevereiro'), _('Março'), _('Abril'), _('Maio'), _('Junho'), _('Julho'), _('Agosto'), _('Setembro'), _('Outubro'), _('Novembro'), _('Dezembro')] %}
+                {% for m in range(1, 13) %}
+                <option value="{{ m }}"{% if m == month %} selected{% endif %}>
+                    {{ months[m-1] }}
+                </option>
+                {% endfor %}
+            </select>
+            <select name="year" class="form-select w-auto" aria-label="{{ _('Ano') }}" title="{{ _('Selecione o Ano') }}" onchange="this.form.submit()">
+                {% for y in range(today.year - 2, today.year + 3) %}
+                <option value="{{ y }}"{% if y == year %} selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+            <a href="{{ url_for('dashboard.view_year', year=year) }}" class="btn btn-outline-primary" title="{{ _('Ver Resumo Anual') }}">
+                <i data-lucide="calendar" class="me-1 icon-sm"></i> {{ _('Resumo Anual') }}
+            </a>
+        </form>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#entryModal" onclick="prepareAdd()">
+            <i data-lucide="plus" class="me-2 icon-sm"></i>{{ _('Novo Lançamento') }}
+        </button>
+    </div>
+</div>
+
+<!-- Dashboard Cards -->
+<div class="row g-3 mb-4">
+    <!-- Balance Card -->
+    <div class="col-12 col-lg-4">
+        <div class="balance-card-premium h-100 p-4 d-flex flex-column justify-content-center">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-uppercase small mb-0 opacity-75">{{ _('Saldo Geral') }}</h6>
+                <i data-lucide="wallet" class="opacity-75 icon-md"></i>
+            </div>
+            <h2 class="fw-bold mb-1 balance-amount">R$ {{ "%.2f"|format(stats.total_geral) }}</h2>
+            <small class="opacity-75">{{ _('* (Receitas - Despesas)') }}</small>
+        </div>
+    </div>
+    
+    <!-- Other metrics -->
+    <div class="col-12 col-lg-8">
+        <div class="row g-3 h-100">
+            <div class="col-md-4">
+                <div class="card card-premium h-100 border-top border-4 border-success">
+                    <div class="card-body position-relative">
+                        <i data-lucide="check-circle" class="text-success opacity-25 position-absolute top-0 end-0 m-3 icon-xl"></i>
+                        <h6 class="text-muted text-uppercase small mb-3">{{ _('Total Pago (Desp)') }}</h6>
+                        <h3 class="fw-bold text-success mb-0">R$ {{ "%.2f"|format(stats.total_pago) }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-premium h-100 border-top border-4 border-warning">
+                    <div class="card-body position-relative">
+                        <i data-lucide="clock" class="text-warning opacity-25 position-absolute top-0 end-0 m-3 icon-xl"></i>
+                        <h6 class="text-muted text-uppercase small mb-3">{{ _('Total Pendente') }}</h6>
+                        <h3 class="fw-bold text-warning mb-0">R$ {{ "%.2f"|format(stats.total_pendente) }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-premium h-100 border-top border-4 border-danger">
+                    <div class="card-body position-relative">
+                        <i data-lucide="alert-triangle" class="text-danger opacity-25 position-absolute top-0 end-0 m-3 icon-xl"></i>
+                        <h6 class="text-muted text-uppercase small mb-3">{{ _('Total Atrasado') }}</h6>
+                        <h3 class="fw-bold text-danger mb-0">R$ {{ "%.2f"|format(stats.total_atrasado) }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Main Table -->
+    <div class="col-lg-8">
+        <div class="card card-premium h-100">
+            <div class="card-header card-header-premium d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                <div>
+                    <i data-lucide="list" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Lançamentos do Mês') }}
+                    <span class="badge bg-secondary ms-2" id="itemCount">{{ entries|length }} {{ _('itens') }}</span>
+                </div>
+                <div class="position-relative search-container">
+                    <i data-lucide="search" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted icon-sm"></i>
+                    <input type="text" id="searchInput" class="form-control form-control-sm ps-5 rounded-pill" placeholder="{{ _('Buscar lançamentos...') }}" onkeyup="filterTable()">
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-premium align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th scope="col" class="ps-3">{{ _('Dia') }}</th>
+                                <th scope="col">{{ _('Descrição') }}</th>
+                                <th scope="col">{{ _('Categoria') }}</th>
+                                <th scope="col">{{ _('Valor') }}</th>
+                                <th scope="col">{{ _('Status') }}</th>
+                                <th scope="col" class="text-end pe-3">{{ _('Ações') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in entries %}
+                            <tr>
+                                <td class="ps-3 fw-bold text-muted">{{ entry.due_date.strftime('%d') }}</td>
+                                <td>
+                                    <div class="fw-bold">{{ entry.description }}</div>
+                                    <small class="text-muted">{{ _(entry.type) }}</small>
+                                </td>
+                                <td><span class="badge category-badge">{{ _(entry.category) }}</span></td>
+                                <td class="fw-bold {% if entry.type == 'Receita' %}amount-positive{% else %}amount-negative{% endif %}">
+                                    {% if entry.type == 'Despesa' %}-{% endif %}R$ {{ "%.2f"|format(entry.value) }}
+                                </td>
+                                <td>
+                                    {% if entry.status == 'Pago' %}
+                                    <span class="badge-status badge-pago">{{ _('Pago') }}</span>
+                                    {% elif entry.status == 'Pendente' %}
+                                    <span class="badge-status badge-pendente">{{ _('Pendente') }}</span>
+                                    {% else %}
+                                    <span class="badge-status badge-atrasado">{{ _('Atrasado') }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-3">
+                                    <button type="button" class="btn btn-sm btn-outline-primary border-0" 
+                                            onclick="prepareEdit(this.dataset.entry)"
+                                            data-entry='{{ entry.to_dict()|tojson|safe }}'
+                                            aria-label="{{ _('Editar') }}">
+                                        <i data-lucide="edit" class="icon-sm"></i>
+                                    </button>
+                                    <form action="{{ url_for('entries.delete_entry', id=entry.id) }}" method="POST" class="d-inline" data-confirm-msg="{{ _('Tem certeza?') }}" onsubmit="return confirm(this.dataset.confirmMsg);">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0" aria-label="{{ _('Excluir') }}">
+                                            <i data-lucide="trash-2" class="icon-sm"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    {{ _('Nenhum lançamento neste mês.') }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart & Summary -->
+    <div class="col-lg-4">
+        <div class="card card-premium mb-3">
+            <div class="card-header card-header-premium"><i data-lucide="pie-chart" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Despesas por Categoria') }}</div>
+            <div class="card-body card-body-premium">
+                <canvas id="catChart" 
+                        data-labels='{{ stats.chart_labels|tojson }}' 
+                        data-values='{{ stats.chart_values|tojson }}'></canvas>
+            </div>
+        </div>
+        
+        <div class="card card-premium">
+            <div class="card-header card-header-premium"><i data-lucide="download-cloud" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Exportar & Importar') }}</div>
+            <div class="card-body card-body-premium d-grid gap-2">
+                <a href="{{ url_for('export.export_data', type='pdf', year=year, month=month) }}" class="btn btn-outline-danger d-flex justify-content-center align-items-center">
+                    <i data-lucide="file-text" class="me-2 icon-sm"></i>{{ _('Relatório PDF') }}
+                </a>
+                <a href="{{ url_for('export.export_data', type='csv', year=year, month=month) }}" class="btn btn-outline-success d-flex justify-content-center align-items-center">
+                    <i data-lucide="file-spreadsheet" class="me-2 icon-sm"></i>{{ _('Planilha CSV') }}
+                </a>
+                <a href="{{ url_for('export.export_data', type='txt', year=year, month=month) }}" class="btn btn-outline-secondary d-flex justify-content-center align-items-center">
+                    <i data-lucide="file" class="me-2 icon-sm"></i>{{ _('Arquivo TXT') }}
+                </a>
+                <hr>
+                <form action="{{ url_for('import.import_file') }}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="input-group">
+                        <input type="file" name="file" class="form-control" accept=".csv, .xlsx" required aria-label="{{ _('Arquivo para importação') }}">
+                        <button class="btn btn-primary d-flex align-items-center" type="submit" aria-label="{{ _('Importar') }}"><i data-lucide="upload" class="icon-sm"></i></button>
+                    </div>
+                    <small class="text-muted">{{ _('CSV ou XLSX (máx. 10 MB)') }}</small>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Entry Modal -->
+<div class="modal fade" id="entryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content modal-content-premium">
+            <form action="{{ url_for('entries.add_entry') }}" method="POST" id="entryForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="modal-header modal-header-premium">
+                    <h5 class="modal-title" id="modalTitle">{{ _('Novo Lançamento') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar') }}" title="{{ _('Fechar modal') }}"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="descInput" class="form-label">{{ _('Descrição') }}</label>
+                        <input type="text" id="descInput" name="description" class="form-control" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label for="valInput" class="form-label">{{ _('Valor (R$)') }}</label>
+                            <input type="number" id="valInput" step="0.01" name="value" class="form-control" required>
+                        </div>
+                        <div class="col-6">
+                            <label for="typeInput" class="form-label">{{ _('Tipo') }}</label>
+                            <select id="typeInput" name="type" class="form-select">
+                                <option value="Despesa">{{ _('Despesa') }}</option>
+                                <option value="Receita">{{ _('Receita') }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label for="catInput" class="form-label">{{ _('Categoria') }}</label>
+                            <input type="text" id="catInput" name="category" class="form-control" list="catList" required>
+                            <datalist id="catList">
+                                <option value="{{ _('Alimentação') }}"></option>
+                                <option value="{{ _('Moradia') }}"></option>
+                                <option value="{{ _('Transporte') }}"></option>
+                                <option value="{{ _('Lazer') }}"></option>
+                                <option value="{{ _('Saúde') }}"></option>
+                                <option value="{{ _('Educação') }}"></option>
+                                <option value="{{ _('Salário') }}"></option>
+                                <option value="{{ _('Investimento') }}"></option>
+                            </datalist>
+                        </div>
+                        <div class="col-6">
+                            <label for="statusInput" class="form-label">{{ _('Status') }}</label>
+                            <select id="statusInput" name="status" class="form-select">
+                                <option value="Pendente">{{ _('Pendente') }}</option>
+                                <option value="Pago">{{ _('Pago') }}</option>
+                                <option value="Atrasado">{{ _('Atrasado') }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label for="dueInput" class="form-label">{{ _('Vencimento') }}</label>
+                            <input type="date" id="dueInput" name="due_date" class="form-control" required value="{{ year }}-{{ '%02d'|format(month) }}-01">
+                        </div>
+                        <div class="col-6">
+                            <label for="payInput" class="form-label">{{ _('Pagamento') }}</label>
+                            <input type="date" id="payInput" name="payment_date" class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- Recurring Options -->
+                    <div id="recurringSection">
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="isRecurring" name="is_recurring" onchange="toggleRecurring()">
+                                <label class="form-check-label" for="isRecurring">{{ _('Repetir (Recorrência)') }}</label>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3 d-none" id="recurringOptions">
+                            <div class="col-6">
+                                <label for="freqInput" class="form-label">{{ _('Frequência') }}</label>
+                                <select id="freqInput" name="frequency" class="form-select">
+                                    <option value="Mensal">{{ _('Mensal') }}</option>
+                                    <option value="Semanal">{{ _('Semanal') }}</option>
+                                    <option value="Diário">{{ _('Diário') }}</option>
+                                    <option value="Anual">{{ _('Anual') }}</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="endInput" class="form-label">{{ _('Data Final (Opcional)') }}</label>
+                                <input type="date" id="endInput" name="end_date" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="obsInput" class="form-label">{{ _('Observações') }}</label>
+                        <textarea id="obsInput" name="observations" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ _('Salvar') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Chart
+    const chartCanvas = document.getElementById('catChart');
+    if (chartCanvas) {
+        const ctx = chartCanvas.getContext('2d');
+        const labels = JSON.parse(chartCanvas.dataset.labels || '[]');
+        const dataValues = JSON.parse(chartCanvas.dataset.values || '[]');
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: dataValues,
+                    backgroundColor: [
+                        '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+
+    // Modal Handling
+    const modalTitle = document.getElementById('modalTitle');
+    const entryForm = document.getElementById('entryForm');
+    const entryModalEl = document.getElementById('entryModal');
+    let entryModal = null;
+    
+    if (entryModalEl) {
+        entryModal = new bootstrap.Modal(entryModalEl);
+    }
+
+    function toggleRecurring() {
+        const isRecurring = document.getElementById('isRecurring');
+        const options = document.getElementById('recurringOptions');
+        if (isRecurring && options) {
+            if (isRecurring.checked) {
+                options.classList.remove('d-none');
+            } else {
+                options.classList.add('d-none');
+            }
+        }
+    }
+
+    function prepareAdd() {
+        if (!entryForm) return;
+        modalTitle.innerText = "{{ _('Novo Lançamento') }}";
+        entryForm.action = "{{ url_for('entries.add_entry') }}";
+        entryForm.reset();
+        
+        // Show recurring section
+        const recSection = document.getElementById('recurringSection');
+        if(recSection) recSection.classList.remove('d-none');
+        // Reset recurring toggle state
+        toggleRecurring();
+
+        // Set default date to current month view
+        const dateInputs = entryForm.querySelectorAll('input[type="date"]');
+        if(dateInputs[0]) dateInputs[0].value = "{{ year }}-{{ '%02d'|format(month) }}-01";
+    }
+
+    function prepareEdit(entryData) {
+        const entry = typeof entryData === 'string' ? JSON.parse(entryData) : entryData;
+        if (!entryForm || !entryModal) return;
+        modalTitle.innerText = "{{ _('Editar Lançamento') }}";
+        entryForm.action = "/entries/edit/" + entry.id;
+        
+        // Hide recurring section for editing
+        const recSection = document.getElementById('recurringSection');
+        if(recSection) recSection.classList.add('d-none');
+        
+        const descInput = entryForm.querySelector('[name="description"]');
+        if (descInput) descInput.value = entry.description;
+        
+        const valInput = entryForm.querySelector('[name="value"]');
+        if (valInput) valInput.value = entry.value;
+        
+        const typeInput = entryForm.querySelector('[name="type"]');
+        if (typeInput) typeInput.value = entry.type;
+        
+        const catInput = entryForm.querySelector('[name="category"]');
+        if (catInput) catInput.value = entry.category;
+        
+        const statusInput = entryForm.querySelector('[name="status"]');
+        if (statusInput) statusInput.value = entry.status;
+        
+        const dueInput = entryForm.querySelector('[name="due_date"]');
+        if (dueInput) dueInput.value = entry.due_date;
+        
+        const payInput = entryForm.querySelector('[name="payment_date"]');
+        if (payInput) payInput.value = entry.payment_date || '';
+        
+        const obsInput = entryForm.querySelector('[name="observations"]');
+        if (obsInput) obsInput.value = entry.observations || '';
+        
+        entryModal.show();
+    }
+
+    function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase();
+        const tbody = document.querySelector(".table-premium tbody");
+        const rows = tbody.getElementsByTagName("tr");
+        let visibleCount = 0;
+
+        for (let i = 0; i < rows.length; i++) {
+            // Skip the "No entries" message row which has a colspan
+            if (rows[i].cells.length === 1) continue; 
+            
+            const textContent = rows[i].textContent.toLowerCase();
+            if (textContent.indexOf(filter) > -1) {
+                rows[i].style.display = "";
+                visibleCount++;
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+        
+        const badge = document.getElementById("itemCount");
+        if (badge) badge.innerText = visibleCount + " {{ _('itens') }}";
+    }
+</script>
+{% endblock %}

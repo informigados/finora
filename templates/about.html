@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="about-hero card card-premium p-4 p-md-5 mb-4">
+    <h1 class="h2 mb-2">{{ _('Sobre o Finora') }}</h1>
+    <p class="text-muted mb-4">{{ _('Organize receitas, despesas, metas e orçamentos em um fluxo simples, rápido e seguro.') }}</p>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="about-feature">
+                <h3>{{ _('Privacidade') }}</h3>
+                <p>{{ _('Seus dados permanecem sob seu controle, com rotinas de backup e operação estável.') }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="about-feature">
+                <h3>{{ _('Produtividade') }}</h3>
+                <p>{{ _('Gestão de lançamentos, metas e orçamentos em uma interface simples e objetiva.') }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="about-feature">
+                <h3>{{ _('Escalabilidade') }}</h3>
+                <p>{{ _('Arquitetura organizada para evoluir com novas integrações e automações.') }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4 mb-3">{{ _('Autores') }}</h2>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <article class="author-card">
+                <img src="{{ url_for('static', filename='images/authors/informigados.webp') }}" alt="INformigados" class="author-avatar">
+                <div>
+                    <h3 class="h5 mb-1">INformigados</h3>
+                    <a class="author-link" href="https://github.com/informigados/" target="_blank" rel="noopener noreferrer">github.com/informigados</a>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-6">
+            <article class="author-card">
+                <img src="{{ url_for('static', filename='images/authors/alex-brito-dev.webp') }}" alt="Alex Brito" class="author-avatar">
+                <div>
+                    <h3 class="h5 mb-1">Alex Brito</h3>
+                    <a class="author-link" href="https://github.com/AlexBritoDEV" target="_blank" rel="noopener noreferrer">github.com/AlexBritoDEV</a>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="card card-premium p-4 p-md-5 text-center">
+    <h2 class="h4 mb-3">{{ _('Espaço para colaboradores') }}</h2>
+    <p class="text-muted mb-4">{{ _('Contribuições futuras poderão ser destacadas aqui com créditos e histórico de participação.') }}</p>
+    <a class="btn btn-outline-primary about-repo-btn" href="https://github.com/informigados/finora/" target="_blank" rel="noopener noreferrer">{{ _('Ver repositório') }}</a>
+</section>
+{% endblock %}

@@ -1,0 +1,53 @@
+.toast-container {
+    z-index: 1055;
+}
+
+.toast {
+    background-color: white;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.toast-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 0.75rem 1rem;
+}
+
+.toast-body {
+    padding: 1rem;
+    font-size: 0.95rem;
+    color: #495057;
+}
+
+.toast.border-success { border-left: 5px solid #198754 !important; }
+.toast.border-danger { border-left: 5px solid #dc3545 !important; }
+.toast.border-info { border-left: 5px solid #0dcaf0 !important; }
+.toast.border-warning { border-left: 5px solid #ffc107 !important; }
+
+.toast-icon {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.text-success .toast-icon { color: #198754; }
+.text-danger .toast-icon { color: #dc3545; }
+.text-info .toast-icon { color: #0dcaf0; }
+.text-warning .toast-icon { color: #ffc107; }
+
+[data-theme="dark"] .toast {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+[data-theme="dark"] .toast-header {
+    border-bottom-color: rgba(148,163,184,0.2);
+}
+
+[data-theme="dark"] .toast-body {
+    color: #cbd5e1;
+}

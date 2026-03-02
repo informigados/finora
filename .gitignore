@@ -1,0 +1,59 @@
+# Python / Flask
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+.python-version
+.venv/
+venv/
+env/
+ENV/
+instance/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+*.spec.bak
+
+# Environment Variables / Local config
+.env
+.env.*
+!.env.example
+
+# Database / Runtime data
+*.db
+*.sqlite3
+*.db-journal
+database/finora.db
+database/*.db-journal
+
+# Local uploads (keep only default avatar)
+static/profile_pics/*
+!static/profile_pics/default_profile.svg
+!static/profile_pics/default_profile.png
+
+# Generated exports and artifacts
+exports/
+*.log
+*.tmp
+
+# IDEs / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Misc internal notes
+*.bak
+TODO.md
+notes.txt

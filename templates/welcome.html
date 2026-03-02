@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="welcome-hero card card-premium p-4 p-md-5 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            <span class="badge rounded-pill text-bg-light border mb-3">{{ _('Finora') }}</span>
+            <h1 class="display-5 fw-bold mb-3">{{ _('Bem-vindo ao seu centro financeiro pessoal') }}</h1>
+            <p class="lead text-muted mb-4">
+                {{ _('Organize receitas, despesas, metas e orçamentos em um fluxo simples, rápido e seguro.') }}
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">{{ _('Entrar') }}</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary btn-lg">{{ _('Criar conta') }}</a>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="welcome-stats">
+                <div class="welcome-stat-item">
+                    <h3>{{ _('Controle') }}</h3>
+                    <p>{{ _('Acompanhe cada lançamento com status e vencimento.') }}</p>
+                </div>
+                <div class="welcome-stat-item">
+                    <h3>{{ _('Planejamento') }}</h3>
+                    <p>{{ _('Defina metas e limites para manter sua saúde financeira.') }}</p>
+                </div>
+                <div class="welcome-stat-item">
+                    <h3>{{ _('Confiabilidade') }}</h3>
+                    <p>{{ _('Importe e exporte dados com consistência e previsibilidade.') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

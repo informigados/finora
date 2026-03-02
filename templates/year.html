@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="mb-0 d-flex align-items-center"><i data-lucide="calendar" class="me-2 icon-md"></i>{{ _('Resumo anual') }}: {{ year }}</h2>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <a href="{{ url_for('dashboard.view_month', year=year, month=today.month) }}" class="btn btn-outline-primary">
+            <i data-lucide="calendar-days" class="me-2 icon-sm"></i>{{ _('Voltar para o mês atual') }}
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card card-premium h-100 border-start border-4 border-success">
+            <div class="card-body card-body-premium text-center">
+                <h6 class="text-muted text-uppercase small">{{ _('Total de receitas') }}</h6>
+                <h3 class="fw-bold text-success">R$ {{ "%.2f"|format(total_receita) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-premium h-100 border-start border-4 border-danger">
+            <div class="card-body card-body-premium text-center">
+                <h6 class="text-muted text-uppercase small">{{ _('Total de despesas') }}</h6>
+                <h3 class="fw-bold text-danger">R$ {{ "%.2f"|format(total_despesa) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-premium h-100 border-start border-4 border-primary">
+            <div class="card-body card-body-premium text-center">
+                <h6 class="text-muted text-uppercase small">{{ _('Saldo anual') }}</h6>
+                <h3 class="fw-bold {% if (total_receita - total_despesa) >= 0 %}text-primary{% else %}text-danger{% endif %}">
+                    R$ {{ "%.2f"|format(total_receita - total_despesa) }}
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-premium mb-4">
+    <div class="card-header card-header-premium">
+        <i data-lucide="bar-chart-2" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Evolução financeira') }}
+    </div>
+    <div class="card-body card-body-premium">
+        <canvas id="yearChart" 
+                class="chart-year"
+                data-labels='{{ monthly_data|map(attribute="name")|list|tojson|safe }}'
+                data-receitas='{{ monthly_data|map(attribute="receita")|list|tojson|safe }}'
+                data-despesas='{{ monthly_data|map(attribute="despesa")|list|tojson|safe }}'></canvas>
+    </div>
+</div>
+
+<div class="card card-premium">
+    <div class="card-header card-header-premium">
+        <i data-lucide="table" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Detalhamento mensal') }}
+    </div>
+    <div class="table-responsive">
+        <table class="table table-premium align-middle mb-0 text-center">
+            <thead class="bg-light">
+                <tr>
+                    <th>{{ _('Mês') }}</th>
+                    <th>{{ _('Receitas') }}</th>
+                    <th>{{ _('Despesas') }}</th>
+                    <th>{{ _('Saldo') }}</th>
+                    <th>{{ _('Ação') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in monthly_data %}
+                <tr>
+                    <td class="fw-bold">{{ m.name }}</td>
+                    <td class="text-success">R$ {{ "%.2f"|format(m.receita) }}</td>
+                    <td class="text-danger">R$ {{ "%.2f"|format(m.despesa) }}</td>
+                    <td class="fw-bold {% if m.saldo >= 0 %}text-primary{% else %}text-danger{% endif %}">
+                        R$ {{ "%.2f"|format(m.saldo) }}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('dashboard.view_month', year=year, month=m.month) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                            {{ _('Ver') }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const canvas = document.getElementById('yearChart');
+    const ctx = canvas.getContext('2d');
+    
+    const labels = JSON.parse(canvas.dataset.labels || '[]');
+    const receitas = JSON.parse(canvas.dataset.receitas || '[]');
+    const despesas = JSON.parse(canvas.dataset.despesas || '[]');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "{{ _('Receitas') }}",
+                    data: receitas,
+                    backgroundColor: '#10B981',
+                    borderColor: '#059669',
+                    borderWidth: 1,
+                    borderRadius: 4
+                },
+                {
+                    label: "{{ _('Despesas') }}",
+                    data: despesas,
+                    backgroundColor: '#EF4444',
+                    borderColor: '#DC2626',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+{% endblock %}

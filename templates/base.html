@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FINORA - Organizador Financeiro</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}?v=20260302e" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.svg') }}?v=20260302e" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    </script>
+    <link href="{{ url_for('static', filename='css/toasts.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+    {% block styles %}{% endblock %}
+  </head>
+  <body
+    data-session-timeout-minutes="{{ session_timeout_minutes or 0 }}"
+    data-session-expires-at="{{ session_expires_at or 0 }}"
+  >
+    <nav class="navbar navbar-dark navbar-premium">
+      <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('dashboard.index') if current_user.is_authenticated else url_for('public.welcome') }}">
+          <svg class="brand-mark me-2" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21.21 15.89A10 10 0 1 1 8.11 2.79"></path>
+            <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+          </svg>FINORA
+        </a>
+        <div class="d-flex gap-3 align-items-center">
+          {% if current_user.is_authenticated %}
+          <a href="{{ url_for('dashboard.index') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('dashboard') else '' }}">{{ _('Painel') }}</a>
+          <a href="{{ url_for('goals.index') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('goals') else '' }}">{{ _('Metas') }}</a>
+          <a href="{{ url_for('budgets.index') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('budgets') else '' }}">{{ _('Orçamentos') }}</a>
+          <a href="{{ url_for('public.about') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}">{{ _('Sobre') }}</a>
+          <span class="text-white-50">|</span>
+          <div class="dropdown">
+            <button class="btn btn-link text-white text-decoration-none dropdown-toggle p-0 border-0 d-flex align-items-center gap-2 navbar-user-trigger" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              {% if current_user.profile_image and current_user.profile_image != 'default_profile.svg' and current_user.profile_image != 'default_profile.png' %}
+              <img
+                src="{{ url_for('static', filename='profile_pics/' + current_user.profile_image) }}"
+                alt="{{ _('Foto de perfil') }}"
+                class="navbar-user-avatar"
+                onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');"
+              />
+              <span class="navbar-user-fallback d-none" aria-hidden="true">
+                <i data-lucide="user" class="icon-xs"></i>
+              </span>
+              {% else %}
+              <span class="navbar-user-fallback" aria-hidden="true">
+                <i data-lucide="user" class="icon-xs"></i>
+              </span>
+              {% endif %}
+              <span>{{ current_user.username }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item d-flex align-items-center" href="{{ url_for('auth.profile') }}"><i data-lucide="user" class="me-2 text-muted icon-xs"></i>{{ _('Meu Perfil') }}</a></li>
+              <li><a class="dropdown-item text-success d-flex align-items-center" href="{{ url_for('backup.download_backup') }}"><i data-lucide="database" class="me-2 icon-xs"></i>{{ _('Gerar Backup') }}</a></li>
+              <li><hr class="dropdown-divider" /></li>
+              <li><a class="dropdown-item text-danger d-flex align-items-center" href="{{ url_for('auth.logout') }}"><i data-lucide="log-out" class="me-2 icon-xs"></i>{{ _('Sair') }}</a></li>
+            </ul>
+          </div>
+          {% else %}
+          <a href="{{ url_for('public.welcome') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.welcome' else '' }}">{{ _('Início') }}</a>
+          <a href="{{ url_for('auth.login') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.login' else '' }}">{{ _('Entrar') }}</a>
+          <a href="{{ url_for('auth.register') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.register' else '' }}">{{ _('Cadastrar') }}</a>
+          <a href="{{ url_for('public.about') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}">{{ _('Sobre') }}</a>
+          {% endif %}
+
+          <div class="dropdown ms-2">
+            <button class="btn btn-sm btn-outline-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown" aria-label="{{ _('Alterar idioma') }}">
+              <i data-lucide="globe" class="icon-sm"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='pt') }}">🇧🇷 Português</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='en') }}">🇺🇸 English</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='es') }}">🇪🇸 Español</a></li>
+            </ul>
+          </div>
+
+          <button id="themeToggle" class="btn btn-link text-white p-0 border-0 ms-2 theme-toggle" aria-label="{{ _('Alternar tema') }}">
+            <svg id="themeMoon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3a7.5 7.5 0 0 0 0 15 7.5 7.5 0 0 0 5.77-2.7A8.5 8.5 0 1 1 12 3Z"></path>
+            </svg>
+            <svg id="themeSun" viewBox="0 0 24 24" class="d-none" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="m4.93 4.93 1.41 1.41"></path>
+              <path d="m17.66 17.66 1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="m6.34 17.66-1.41 1.41"></path>
+              <path d="m19.07 4.93-1.41 1.41"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      {% set toast_class = 'danger' if category == 'error' else 'success' if category == 'success' else 'warning' if category == 'warning' else 'info' %}
+      {% set icon_class = 'alert-circle' if category == 'error' else 'check-circle' if category == 'success' else 'alert-triangle' if category == 'warning' else 'info' %}
+      <div class="toast border-{{ toast_class }}" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header text-{{ toast_class }}">
+          <i data-lucide="{{ icon_class }}" class="toast-icon me-2 icon-sm"></i>
+          <strong class="me-auto">{{ _('Notificação') }}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="{{ _('Fechar') }}"></button>
+        </div>
+        <div class="toast-body">{{ message }}</div>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+    </div>
+
+    {% if current_user.is_authenticated and session_timeout_minutes and session_timeout_minutes > 0 %}
+    <div id="sessionWarning" class="session-warning d-none" role="status" aria-live="polite">
+      <div class="session-warning-title">{{ _('Sua sessão está prestes a expirar.') }}</div>
+      <div class="session-warning-time">{{ _('Tempo restante:') }} <strong id="sessionRemaining">00:00</strong></div>
+      <button type="button" id="renewSessionBtn" class="btn btn-sm btn-primary mt-2">{{ _('Renovar sessão') }}</button>
+    </div>
+    {% endif %}
+
+    <main class="container container-app py-4 {{ 'main-home' if request.endpoint == 'public.welcome' else '' }}">{% block content %}{% endblock %}</main>
+
+    <footer class="app-footer border-top">
+      <div class="container text-center py-4">
+        <p class="mb-1">{{ current_year }} &copy; Finora - {{ _('Simples, Poderoso, Local.') }}</p>
+        <p class="mb-1">{{ _('Todos os Direitos Reservados.') }}</p>
+        <p class="mb-0">{{ _('Projetado por') }} <a href="https://informigados.com.br/" target="_blank" rel="noopener noreferrer">INformigados</a>.</p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/toasts.js') }}"></script>
+    <script>
+      lucide.createIcons();
+
+      const root = document.documentElement;
+      const themeToggle = document.getElementById("themeToggle");
+      const themeMoon = document.getElementById("themeMoon");
+      const themeSun = document.getElementById("themeSun");
+
+      function updateThemeIcons(theme) {
+        if (!themeMoon || !themeSun) return;
+        if (theme === "dark") {
+          themeMoon.classList.add("d-none");
+          themeSun.classList.remove("d-none");
+        } else {
+          themeMoon.classList.remove("d-none");
+          themeSun.classList.add("d-none");
+        }
+      }
+
+      updateThemeIcons(root.getAttribute("data-theme") || "light");
+
+      if (themeToggle) {
+        themeToggle.addEventListener("click", () => {
+          const current = root.getAttribute("data-theme") || "light";
+          const next = current === "dark" ? "light" : "dark";
+          root.setAttribute("data-theme", next);
+          localStorage.setItem("theme", next);
+          updateThemeIcons(next);
+        });
+      }
+    </script>
+
+    {% if current_user.is_authenticated and session_timeout_minutes and session_timeout_minutes > 0 %}
+    <script>
+      (function () {
+        const body = document.body;
+        const timeoutMinutes = Number(body.dataset.sessionTimeoutMinutes || 0);
+        let expiresAt = Number(body.dataset.sessionExpiresAt || 0);
+        if (!timeoutMinutes || !expiresAt) return;
+
+        const warningEl = document.getElementById("sessionWarning");
+        const remainingEl = document.getElementById("sessionRemaining");
+        const renewButton = document.getElementById("renewSessionBtn");
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+
+        const totalSeconds = timeoutMinutes * 60;
+        const warningThreshold = Math.min(60, Math.max(10, Math.floor(totalSeconds * 0.25)));
+        let warningVisible = false;
+
+        function formatSeconds(seconds) {
+          const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
+          const secs = (seconds % 60).toString().padStart(2, "0");
+          return `${mins}:${secs}`;
+        }
+
+        function showWarning() {
+          if (!warningEl || warningVisible) return;
+          warningEl.classList.remove("d-none");
+          warningVisible = true;
+        }
+
+        function hideWarning() {
+          if (!warningEl || !warningVisible) return;
+          warningEl.classList.add("d-none");
+          warningVisible = false;
+        }
+
+        async function renewSession() {
+          try {
+            const response = await fetch("{{ url_for('auth.refresh_session') }}", {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": csrfToken || "",
+                "Content-Type": "application/json",
+              },
+              body: "{}",
+            });
+            if (!response.ok) {
+              if (response.status === 401) {
+                window.location.href = "{{ url_for('auth.login') }}";
+              }
+              return;
+            }
+
+            const payload = await response.json();
+            if (payload && payload.expires_at) {
+              expiresAt = Number(payload.expires_at);
+              hideWarning();
+            }
+          } catch (error) {
+            console.error("Erro ao renovar sessão", error);
+          }
+        }
+
+        if (renewButton) {
+          renewButton.addEventListener("click", renewSession);
+        }
+
+        setInterval(() => {
+          const now = Math.floor(Date.now() / 1000);
+          const remaining = expiresAt - now;
+
+          if (remainingEl) {
+            remainingEl.textContent = formatSeconds(Math.max(remaining, 0));
+          }
+
+          if (remaining <= 0) {
+            window.location.reload();
+            return;
+          }
+
+          if (remaining <= warningThreshold) {
+            showWarning();
+          } else {
+            hideWarning();
+          }
+        }, 1000);
+      })();
+    </script>
+    {% endif %}
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>
