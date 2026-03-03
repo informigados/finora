@@ -29,7 +29,27 @@ Example:
 
 Before generating a release, update this file to the target version.
 
-## 3. PyInstaller Build (Executable)
+## 3. One-Command Release (Recommended)
+
+Use the release script:
+
+```powershell
+.\release.bat
+```
+
+This command will:
+
+1. Read the target version from `VERSION`
+2. Ensure virtual environment and dependencies
+3. Run test suite (`pytest`)
+4. Generate executable and installer (`create_installer.py`)
+
+Expected output:
+
+- `dist\Finora\Finora.exe`
+- `dist_setup\Finora_Setup_v<version>.exe`
+
+## 4. PyInstaller Build (Executable Only)
 
 Use the official script (clean + deterministic build from `Finora.spec`):
 
@@ -46,7 +66,7 @@ Notes:
 - The executable icon is set from `static\favicon.ico`.
 - The script compiles translations and removes old `build/`, `dist/`, and `dist_setup/` folders first.
 
-## 4. Full Installer Build (Executable + Setup)
+## 5. Full Installer Build (Executable + Setup)
 
 Use the release orchestrator:
 
@@ -67,7 +87,7 @@ Expected output:
 - `dist\Finora\Finora.exe`
 - `dist_setup\Finora_Setup_v<version>.exe`
 
-## 5. Direct Inno Setup Compilation (Optional)
+## 6. Direct Inno Setup Compilation (Optional)
 
 If you already generated `dist\Finora`, you can compile manually:
 
@@ -75,7 +95,7 @@ If you already generated `dist\Finora`, you can compile manually:
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.0.0 finora_installer.iss
 ```
 
-## 6. Database Migration Requirement
+## 7. Database Migration Requirement
 
 Always migrate schema before publishing a release:
 
@@ -85,7 +105,7 @@ flask db upgrade
 
 This is critical for fields such as `user.session_timeout_minutes`.
 
-## 7. Release Checklist
+## 8. Release Checklist
 
 1. `python -m pytest tests -q` passes
 2. `flask db upgrade` executed successfully
@@ -94,7 +114,7 @@ This is critical for fields such as `user.session_timeout_minutes`.
 5. `python create_installer.py` generated both EXE and Setup
 6. Smoke test login, dashboard, import/export, backup, and profile update
 
-## 8. Recommended GitHub Release Contents
+## 9. Recommended GitHub Release Contents
 
 - Source code (tagged)
 - `Finora_Setup_v<version>.exe`
