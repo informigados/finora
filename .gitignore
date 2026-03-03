@@ -44,6 +44,7 @@ static/profile_pics/*
 
 # Generated exports and artifacts
 exports/
+dist_setup/
 *.log
 *.tmp
 
