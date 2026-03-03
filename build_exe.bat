@@ -34,31 +34,50 @@ pip install -q pyinstaller pyinstaller-hooks-contrib Pillow
 
 REM 4. Compila Traducoes
 echo [INFO] Compilando arquivos de traducao...
-pybabel compile -d translations >nul 2>&1
+pybabel compile -d translations
+if %errorlevel% neq 0 (
+    echo [ERRO] Falha ao compilar traducoes.
+    pause
+    exit /b
+)
 
 REM 5. Limpa builds anteriores
 echo [INFO] Limpando versoes antigas...
 if exist "build" rmdir /s /q "build"
 if exist "dist" rmdir /s /q "dist"
-if exist "Finora.spec" del /q "Finora.spec"
+if exist "dist_setup" rmdir /s /q "dist_setup"
 
-REM 6. Executa PyInstaller
+REM 6. Verifica arquivos obrigatorios de build
+if not exist "Finora.spec" (
+    echo [ERRO] Arquivo Finora.spec nao encontrado.
+    echo Verifique se o arquivo de configuracao do PyInstaller existe na raiz do projeto.
+    pause
+    exit /b
+)
+
+if not exist "static\favicon.ico" (
+    echo [ERRO] Icone static\favicon.ico nao encontrado.
+    pause
+    exit /b
+)
+
+REM 7. Executa PyInstaller com build limpo (deterministico)
 echo [INFO] Iniciando PyInstaller...
 echo Isso pode demorar alguns minutos. Aguarde...
 echo.
 
-pyinstaller --noconfirm --onedir --windowed --name "Finora" ^
-    --add-data "templates;templates" ^
-    --add-data "static;static" ^
-    --add-data "translations;translations" ^
-    --hidden-import "babel.numbers" ^
-    --hidden-import "waitress" ^
-    --hidden-import "PIL" ^
-    app.py
+pyinstaller --noconfirm --clean "Finora.spec"
 
 if %errorlevel% neq 0 (
     echo.
     echo [ERRO] Falha durante a compilacao.
+    pause
+    exit /b
+)
+
+if not exist "dist\Finora\Finora.exe" (
+    echo.
+    echo [ERRO] Build concluido sem gerar dist\Finora\Finora.exe
     pause
     exit /b
 )
