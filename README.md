@@ -4,6 +4,7 @@
 ![Flask](https://img.shields.io/badge/flask-3.x-black)
 ![Database](https://img.shields.io/badge/database-sqlite%20%7C%20mysql-0f766e)
 ![License](https://img.shields.io/badge/license-MIT-green)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/informigados/finora)
 
 Finora is a local-first personal finance application built with Flask.  
 It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, backups, profile management, and multilingual UI.
