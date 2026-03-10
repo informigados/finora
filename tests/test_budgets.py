@@ -9,11 +9,11 @@ def test_add_budget(client, app):
         from models.user import User
         from database.db import db
         user = User(username='buduser', email='bud@example.com', name='Bud User')
-        user.set_password('pass')
+        user.set_password('Pass1234')
         db.session.add(user)
         db.session.commit()
         
-    client.post('/login', data={'identifier': 'buduser', 'password': 'pass'}, follow_redirects=True)
+    client.post('/login', data={'identifier': 'buduser', 'password': 'Pass1234'}, follow_redirects=True)
     
     response = client.post('/budgets/add', data={
         'category': 'Lazer',

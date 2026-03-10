@@ -24,7 +24,7 @@
     data-session-timeout-minutes="{{ session_timeout_minutes or 0 }}"
     data-session-expires-at="{{ session_expires_at or 0 }}"
   >
-    <nav class="navbar navbar-dark navbar-premium">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-premium">
       <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('dashboard.index') if current_user.is_authenticated else url_for('public.welcome') }}">
           <svg class="brand-mark me-2" viewBox="0 0 24 24" aria-hidden="true">
@@ -32,73 +32,84 @@
             <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
           </svg>FINORA
         </a>
-        <div class="d-flex gap-3 align-items-center">
-          {% if current_user.is_authenticated %}
-          <a href="{{ url_for('dashboard.index') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('dashboard') else '' }}">{{ _('Painel') }}</a>
-          <a href="{{ url_for('goals.index') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('goals') else '' }}">{{ _('Metas') }}</a>
-          <a href="{{ url_for('budgets.index') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('budgets') else '' }}">{{ _('Orçamentos') }}</a>
-          <a href="{{ url_for('public.about') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}">{{ _('Sobre') }}</a>
-          <span class="text-white-50">|</span>
-          <div class="dropdown">
-            <button class="btn btn-link text-white text-decoration-none dropdown-toggle p-0 border-0 d-flex align-items-center gap-2 navbar-user-trigger" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              {% if current_user.profile_image and current_user.profile_image != 'default_profile.svg' and current_user.profile_image != 'default_profile.png' %}
-              <img
-                src="{{ url_for('static', filename='profile_pics/' + current_user.profile_image) }}"
-                alt="{{ _('Foto de perfil') }}"
-                class="navbar-user-avatar"
-                onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');"
-              />
-              <span class="navbar-user-fallback d-none" aria-hidden="true">
-                <i data-lucide="user" class="icon-xs"></i>
-              </span>
-              {% else %}
-              <span class="navbar-user-fallback" aria-hidden="true">
-                <i data-lucide="user" class="icon-xs"></i>
-              </span>
-              {% endif %}
-              <span>{{ current_user.username }}</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item d-flex align-items-center" href="{{ url_for('auth.profile') }}"><i data-lucide="user" class="me-2 text-muted icon-xs"></i>{{ _('Meu Perfil') }}</a></li>
-              <li><a class="dropdown-item text-success d-flex align-items-center" href="{{ url_for('backup.download_backup') }}"><i data-lucide="database" class="me-2 icon-xs"></i>{{ _('Gerar Backup') }}</a></li>
-              <li><hr class="dropdown-divider" /></li>
-              <li><a class="dropdown-item text-danger d-flex align-items-center" href="{{ url_for('auth.logout') }}"><i data-lucide="log-out" class="me-2 icon-xs"></i>{{ _('Sair') }}</a></li>
-            </ul>
-          </div>
-          {% else %}
-          <a href="{{ url_for('public.welcome') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.welcome' else '' }}">{{ _('Início') }}</a>
-          <a href="{{ url_for('auth.login') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.login' else '' }}">{{ _('Entrar') }}</a>
-          <a href="{{ url_for('auth.register') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.register' else '' }}">{{ _('Cadastrar') }}</a>
-          <a href="{{ url_for('public.about') }}" class="nav-main-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}">{{ _('Sobre') }}</a>
-          {% endif %}
 
-          <div class="dropdown ms-2">
-            <button class="btn btn-sm btn-outline-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown" aria-label="{{ _('Alterar idioma') }}">
-              <i data-lucide="globe" class="icon-sm"></i>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow">
-              <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='pt') }}">🇧🇷 Português</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='en') }}">🇺🇸 English</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='es') }}">🇪🇸 Español</a></li>
-            </ul>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="{{ _('Alternar navegação') }}">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <div class="navbar-nav me-auto gap-lg-2 pt-3 pt-lg-0">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('dashboard') else '' }}">{{ _('Painel') }}</a>
+            <a href="{{ url_for('goals.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('goals') else '' }}">{{ _('Metas') }}</a>
+            <a href="{{ url_for('budgets.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('budgets') else '' }}">{{ _('Orçamentos') }}</a>
+            <a href="{{ url_for('public.about') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}">{{ _('Sobre') }}</a>
+            {% else %}
+            <a href="{{ url_for('public.welcome') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.welcome' else '' }}">{{ _('Início') }}</a>
+            <a href="{{ url_for('auth.login') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.login' else '' }}">{{ _('Entrar') }}</a>
+            <a href="{{ url_for('auth.register') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.register' else '' }}">{{ _('Cadastrar') }}</a>
+            <a href="{{ url_for('public.about') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}">{{ _('Sobre') }}</a>
+            {% endif %}
           </div>
 
-          <button id="themeToggle" class="btn btn-link text-white p-0 border-0 ms-2 theme-toggle" aria-label="{{ _('Alternar tema') }}">
-            <svg id="themeMoon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 3a7.5 7.5 0 0 0 0 15 7.5 7.5 0 0 0 5.77-2.7A8.5 8.5 0 1 1 12 3Z"></path>
-            </svg>
-            <svg id="themeSun" viewBox="0 0 24 24" class="d-none" aria-hidden="true">
-              <circle cx="12" cy="12" r="4"></circle>
-              <path d="M12 2v2"></path>
-              <path d="M12 20v2"></path>
-              <path d="m4.93 4.93 1.41 1.41"></path>
-              <path d="m17.66 17.66 1.41 1.41"></path>
-              <path d="M2 12h2"></path>
-              <path d="M20 12h2"></path>
-              <path d="m6.34 17.66-1.41 1.41"></path>
-              <path d="m19.07 4.93-1.41 1.41"></path>
-            </svg>
-          </button>
+          <div class="d-flex flex-column flex-lg-row gap-2 gap-lg-3 align-items-lg-center pb-3 pb-lg-0">
+            {% if current_user.is_authenticated %}
+            <div class="dropdown">
+              <button class="btn btn-link text-white text-decoration-none dropdown-toggle p-0 border-0 d-flex align-items-center gap-2 navbar-user-trigger" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if current_user.profile_image and current_user.profile_image != 'default_profile.svg' and current_user.profile_image != 'default_profile.png' %}
+                <img
+                  src="{{ url_for('static', filename='profile_pics/' + current_user.profile_image) }}"
+                  alt="{{ _('Foto de perfil') }}"
+                  class="navbar-user-avatar"
+                  onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');"
+                />
+                <span class="navbar-user-fallback d-none" aria-hidden="true">
+                  <i data-lucide="user" class="icon-xs"></i>
+                </span>
+                {% else %}
+                <span class="navbar-user-fallback" aria-hidden="true">
+                  <i data-lucide="user" class="icon-xs"></i>
+                </span>
+                {% endif %}
+                <span>{{ current_user.username }}</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item d-flex align-items-center" href="{{ url_for('auth.profile') }}"><i data-lucide="user" class="me-2 text-muted icon-xs"></i>{{ _('Meu Perfil') }}</a></li>
+                <li><a class="dropdown-item text-success d-flex align-items-center" href="{{ url_for('backup.download_backup') }}"><i data-lucide="database" class="me-2 icon-xs"></i>{{ _('Gerar Backup') }}</a></li>
+                <li><hr class="dropdown-divider" /></li>
+                <li><a class="dropdown-item text-danger d-flex align-items-center" href="{{ url_for('auth.logout') }}"><i data-lucide="log-out" class="me-2 icon-xs"></i>{{ _('Sair') }}</a></li>
+              </ul>
+            </div>
+            {% endif %}
+
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown" aria-label="{{ _('Alterar idioma') }}">
+                <i data-lucide="globe" class="icon-sm"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='pt') }}">🇧🇷 Português</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='en') }}">🇺🇸 English</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='es') }}">🇪🇸 Español</a></li>
+              </ul>
+            </div>
+
+            <button id="themeToggle" class="btn btn-link text-white p-0 border-0 theme-toggle text-start text-lg-center" aria-label="{{ _('Alternar tema') }}">
+              <svg id="themeMoon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3a7.5 7.5 0 0 0 0 15 7.5 7.5 0 0 0 5.77-2.7A8.5 8.5 0 1 1 12 3Z"></path>
+              </svg>
+              <svg id="themeSun" viewBox="0 0 24 24" class="d-none" aria-hidden="true">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2"></path>
+                <path d="M12 20v2"></path>
+                <path d="m4.93 4.93 1.41 1.41"></path>
+                <path d="m17.66 17.66 1.41 1.41"></path>
+                <path d="M2 12h2"></path>
+                <path d="M20 12h2"></path>
+                <path d="m6.34 17.66-1.41 1.41"></path>
+                <path d="m19.07 4.93-1.41 1.41"></path>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </nav>

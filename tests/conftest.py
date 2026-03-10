@@ -26,14 +26,14 @@ def auth_client(client, app):
     # Create a user
     with app.app_context():
         user = User(username='testuser', email='test@example.com', name='Test User')
-        user.set_password('password123')
+        user.set_password('Password123')
         db.session.add(user)
         db.session.commit()
 
     # Login
     client.post('/login', data={
         'identifier': 'testuser',
-        'password': 'password123'
+        'password': 'Password123'
     }, follow_redirects=True)
     
     return client

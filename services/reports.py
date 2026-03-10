@@ -1,5 +1,4 @@
 from fpdf import FPDF
-import os
 
 class PDFReport(FPDF):
     def header(self):
@@ -12,7 +11,7 @@ class PDFReport(FPDF):
         self.set_font('Arial', 'I', 8)
         self.cell(0, 10, f'Página {self.page_no()}', 0, 0, 'C')
 
-def generate_pdf_report(month, year, finances, stats, output_path):
+def generate_pdf_report(month, year, finances, stats, output_path=None):
     pdf = PDFReport()
     pdf.add_page()
     pdf.set_font('Arial', '', 12)
@@ -78,5 +77,11 @@ def generate_pdf_report(month, year, finances, stats, output_path):
         
         pdf.ln()
         
-    pdf.output(output_path)
-    return output_path
+    if output_path:
+        pdf.output(output_path)
+        return output_path
+
+    pdf_bytes = pdf.output(dest='S')
+    if isinstance(pdf_bytes, str):
+        return pdf_bytes.encode('latin-1')
+    return bytes(pdf_bytes)

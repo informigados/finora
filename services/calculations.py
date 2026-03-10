@@ -54,13 +54,37 @@ def get_monthly_stats(month: int, year: int, user_id: Optional[int] = None) -> D
     }
 
 def get_yearly_stats(year: int) -> Dict[str, Any]:
-    base_query = db.session.query(Finance).filter(
+    monthly_rows = db.session.query(
+        extract('month', Finance.due_date).label('month'),
+        func.sum(case((Finance.type == 'Receita', Finance.value), else_=0)).label('receitas'),
+        func.sum(case((Finance.type == 'Despesa', Finance.value), else_=0)).label('despesas'),
+    ).filter(
         extract('year', Finance.due_date) == year
-    )
-    
-    result = base_query.with_entities(
-        func.sum(Finance.value)
-    ).scalar() or 0.0
-    
-    # We can expand this later
-    return {}
+    ).group_by(
+        extract('month', Finance.due_date)
+    ).order_by(
+        extract('month', Finance.due_date)
+    ).all()
+
+    by_month = {}
+    total_receitas = 0.0
+    total_despesas = 0.0
+    for row in monthly_rows:
+        month = int(row.month)
+        receitas = float(row.receitas or 0.0)
+        despesas = float(row.despesas or 0.0)
+        by_month[month] = {
+            'receitas': receitas,
+            'despesas': despesas,
+            'saldo': receitas - despesas,
+        }
+        total_receitas += receitas
+        total_despesas += despesas
+
+    return {
+        'year': year,
+        'total_receitas': total_receitas,
+        'total_despesas': total_despesas,
+        'saldo': total_receitas - total_despesas,
+        'by_month': by_month,
+    }

@@ -1,4 +1,4 @@
-from flask import Blueprint, send_file, current_app
+from flask import Blueprint, send_file
 from flask_login import login_required, current_user
 from flask_babel import gettext as _
 from services.reports import generate_pdf_report
@@ -8,7 +8,6 @@ from sqlalchemy import extract
 from database.db import db
 import csv
 import io
-import os
 
 export_bp = Blueprint('export', __name__)
 
@@ -66,19 +65,12 @@ def export_data(type, year, month):
         
     elif type == 'pdf':
         stats = get_monthly_stats(month, year, user_id=current_user.id)
-        
-        # Path scoped to app root for predictable behavior in different runtimes.
-        export_dir = os.path.join(current_app.root_path, 'exports')
-        if not os.path.exists(export_dir):
-            os.makedirs(export_dir)
-             
+
         filename = f'finora_report_{year}_{month}.pdf'
-        filepath = os.path.join(export_dir, filename)
-        
-        generate_pdf_report(month, year, entries, stats, filepath)
-        
+        pdf_bytes = generate_pdf_report(month, year, entries, stats)
+
         return send_file(
-            filepath,
+            io.BytesIO(pdf_bytes),
             mimetype='application/pdf',
             as_attachment=True,
             download_name=filename

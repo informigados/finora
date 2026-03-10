@@ -7,6 +7,7 @@ from PIL import Image
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for
 from flask_babel import gettext as _
 from flask_login import current_user, login_required, login_user, logout_user
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
@@ -20,6 +21,7 @@ DELETE_CONFIRMATION_TOKEN = 'EXCLUIR'
 DEFAULT_PROFILE_IMAGE = 'default_profile.svg'
 ALLOWED_IMAGE_FORMATS = {'png', 'jpeg', 'jpg', 'gif'}
 VALID_SESSION_TIMEOUT_OPTIONS = {0, 1, 2, 3, 4, 5, 10, 15, 30, 60}
+RESET_PASSWORD_TOKEN_MAX_AGE_SECONDS = 3600
 
 
 def is_valid_email(email):
@@ -73,6 +75,40 @@ def _parse_session_timeout_minutes(raw_value):
     if value not in VALID_SESSION_TIMEOUT_OPTIONS:
         raise ValueError('session_timeout')
     return value
+
+
+def _build_reset_password_serializer():
+    return URLSafeTimedSerializer(
+        current_app.config['SECRET_KEY'],
+        salt='finora-reset-password',
+    )
+
+
+def _generate_reset_password_token(user):
+    serializer = _build_reset_password_serializer()
+    payload = {'user_id': user.id, 'email': user.email}
+    return serializer.dumps(payload)
+
+
+def _resolve_user_from_reset_token(token):
+    serializer = _build_reset_password_serializer()
+    try:
+        data = serializer.loads(token, max_age=RESET_PASSWORD_TOKEN_MAX_AGE_SECONDS)
+    except SignatureExpired:
+        return None, 'expired'
+    except BadSignature:
+        return None, 'invalid'
+
+    user_id = data.get('user_id')
+    email = (data.get('email') or '').strip().lower()
+    if not user_id or not email:
+        return None, 'invalid'
+
+    user = db.session.get(User, int(user_id))
+    if not user or (user.email or '').strip().lower() != email:
+        return None, 'invalid'
+
+    return user, None
 
 
 @auth_bp.route('/check_username', methods=['POST'])
@@ -211,18 +247,18 @@ def forgot_password():
             return redirect(url_for('auth.forgot_password'))
 
         if method == 'email':
+            token = _generate_reset_password_token(user)
+            reset_url = url_for('auth.reset_password_token', token=token, _external=True)
+
+            # Local/development fallback: keep flow usable even without SMTP integration.
+            current_app.logger.info("Link de recuperação para %s: %s", user.email, reset_url)
             flash(
                 _(
-                    'Um link de recuperação foi enviado para seu e-mail (Simulação: verifique o console).'
+                    'Envio por e-mail não está configurado neste ambiente. Para desenvolvimento, o link foi gerado e pode ser usado agora.'
                 ),
-                'info',
+                'warning',
             )
-            current_app.logger.info(
-                "Link de recuperação para %s: %s",
-                user.email,
-                url_for('auth.reset_password_token', token='dummy_token', _external=True),
-            )
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.reset_password_token', token=token))
 
         return redirect(url_for('auth.reset_password_offline', user_id=user.id))
 
@@ -264,8 +300,37 @@ def reset_password_offline(user_id):
 
 @auth_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password_token(token):
-    flash(_('Funcionalidade de token ainda não implementada (use a chave de recuperação).'), 'warning')
-    return redirect(url_for('auth.login'))
+    user, token_error = _resolve_user_from_reset_token(token)
+    if token_error == 'expired':
+        flash(_('Este link de recuperação expirou. Solicite um novo link.'), 'error')
+        return redirect(url_for('auth.forgot_password'))
+    if token_error == 'invalid' or not user:
+        flash(_('Link de recuperação inválido.'), 'error')
+        return redirect(url_for('auth.forgot_password'))
+
+    if request.method == 'POST':
+        new_password = request.form.get('new_password') or ''
+
+        if not is_strong_password(new_password):
+            flash(
+                _(
+                    'A nova senha deve ter ao menos %(length)d caracteres, incluindo letras maiúsculas, minúsculas e números.',
+                    length=MIN_PASSWORD_LENGTH,
+                ),
+                'error',
+            )
+            return redirect(url_for('auth.reset_password_token', token=token))
+
+        user.set_password(new_password)
+        try:
+            db.session.commit()
+            flash(_('Sua senha foi atualizada com sucesso!'), 'success')
+            return redirect(url_for('auth.login'))
+        except Exception:
+            db.session.rollback()
+            flash(_('Não foi possível atualizar a senha. Tente novamente.'), 'error')
+
+    return render_template('auth/reset_password_token.html', token=token, user=user)
 
 
 @auth_bp.route('/profile', methods=['GET', 'POST'])

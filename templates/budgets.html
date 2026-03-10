@@ -45,8 +45,14 @@
                 </div>
                 
                 <div class="progress mb-3 progress-sm">
-                    <div class="progress-bar {% if item.over_budget %}bg-danger{% elif item.percentage > 80 %}bg-warning{% else %}bg-success{% endif %}" 
-                         data-width="{{ item.percentage }}%" title="{{ _('Progresso do orçamento') }}"></div>
+                    <div class="progress-bar {% if item.over_budget %}bg-danger{% elif item.percentage > 80 %}bg-warning{% else %}bg-success{% endif %}"
+                         style="width: {{ [item.percentage, 100]|min }}%;"
+                         role="progressbar"
+                         aria-label="{{ _('Progresso do orçamento') }}"
+                         aria-valuemin="0"
+                         aria-valuemax="100"
+                         aria-valuenow="{{ item.percentage|round(2) }}"
+                         title="{{ _('Progresso do orçamento') }}"></div>
                 </div>
                 
                 <small class="text-muted">

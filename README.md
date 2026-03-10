@@ -1,16 +1,22 @@
-# Finora
+# 💼 Finora
 
-Finora is a local-first personal finance application built with Flask.
+![Python](https://img.shields.io/badge/python-3.12%2B-blue)
+![Flask](https://img.shields.io/badge/flask-3.x-black)
+![Database](https://img.shields.io/badge/database-sqlite%20%7C%20mysql-0f766e)
+![License](https://img.shields.io/badge/license-MIT-green)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/informigados/finora)
+
+Finora is a local-first personal finance application built with Flask.  
 It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, backups, profile management, and multilingual UI.
 
-## Tech Stack
+## 🧱 Tech Stack
 
 - Python 3.12+ (tested with Python 3.14)
 - Flask, Flask-Login, Flask-Babel, Flask-SQLAlchemy, Flask-Migrate
 - SQLite (default), MySQL support via SQLAlchemy URL
 - Jinja2 templates + Bootstrap + custom CSS/JS
 
-## Core Features
+## 🚀 Core Features
 
 - Welcome landing page before authentication
 - Secure authentication flow (register/login/recovery/profile)
@@ -24,7 +30,7 @@ It provides expense/income tracking, recurring entries, budgets, goals, imports/
 - Local backup download
 - Internationalization: Portuguese (default), English, Spanish
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 app.py
@@ -40,7 +46,7 @@ migrations/
 tests/
 ```
 
-## Local Setup
+## ⚙️ Local Setup
 
 1. Create virtual environment and install dependencies:
 
@@ -77,7 +83,29 @@ Or use the helper script:
 .\run_app.bat
 ```
 
-## Database Notes
+## 👤 Optional Default Test User
+
+Finora supports an optional default user seed for local development.
+
+- Disabled by default (`ENABLE_DEFAULT_USER_SEED=False`)
+- Only runs in development mode when `ENABLE_DEFAULT_USER_SEED=1`
+- Requires `DEFAULT_USER_PASSWORD` to be set (otherwise seed is skipped)
+
+Default values used by the seed:
+
+- `DEFAULT_USER_USERNAME=example`
+- `DEFAULT_USER_EMAIL=user@example.com.br`
+
+Example `.env` setup:
+
+```ini
+ENABLE_DEFAULT_USER_SEED=1
+DEFAULT_USER_USERNAME=example
+DEFAULT_USER_EMAIL=user@example.com.br
+DEFAULT_USER_PASSWORD=change_this_password
+```
+
+## 🗄️ Database Notes
 
 - Default database: `database/finora.db`
 - Production recommendation: managed MySQL or PostgreSQL
@@ -89,7 +117,7 @@ Example MySQL URL:
 DATABASE_URL=mysql+pymysql://user:password@host:3306/finora
 ```
 
-## Internationalization Workflow
+## 🌍 Internationalization Workflow
 
 Update translation catalog:
 
@@ -104,7 +132,7 @@ Compile translations:
 pybabel compile -d translations
 ```
 
-## Testing
+## 🧪 Testing
 
 Run full test suite:
 
@@ -118,18 +146,36 @@ Or:
 .\run_tests.bat
 ```
 
-## Security and Reliability Notes
+## 🔐 Security and Reliability Notes
 
 - CSRF protection enabled for form and JSON flows
 - Runtime compatibility patch included for legacy SQLite schema fields
 - Import limits configured (`MAX_CONTENT_LENGTH`, row limit)
 - Cookie hardening and secure production settings in `config.py`
 
-## Authors
+## 📝 Changelog
+
+### 2026-03-02 (1.0.0)
+
+- Initial release.
+
+### 2026-03-10 (1.1.0)
+
+- Added robust password reset token flow (1-hour expiry) with dedicated UI and clear local-mode messaging.
+- Fixed goals and budgets progress bars rendering and improved accessibility (`role="progressbar"` + ARIA values).
+- Implemented responsive mobile navbar with collapse/toggler for small screens.
+- Added dashboard entries pagination, improved search empty-state feedback, and smarter default entry date behavior.
+- Preserved month/year/page context after editing or deleting entries in the dashboard.
+- Improved recurring processing to backfill all missed occurrences instead of only one per visit.
+- Hardened server-side validation (including empty goal name protection and reused finance validators).
+- Improved visual consistency (card hover behavior, value color class mapping, negative balance highlight).
+- Improved operational robustness: PDF export fully in-memory and explicit backup messaging for non-SQLite databases.
+
+## 👥 Authors
 
 - INformigados: https://github.com/informigados/
 - Alex Brito: https://github.com/AlexBritoDEV
 
-## License
+## 📜 License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

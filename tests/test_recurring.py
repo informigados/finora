@@ -8,11 +8,11 @@ def test_add_recurring_entry(client, app):
         from models.user import User
         from database.db import db
         user = User(username='recuser', email='rec@example.com', name='Rec User')
-        user.set_password('pass')
+        user.set_password('Pass1234')
         db.session.add(user)
         db.session.commit()
     
-    client.post('/login', data={'identifier': 'recuser', 'password': 'pass'}, follow_redirects=True)
+    client.post('/login', data={'identifier': 'recuser', 'password': 'Pass1234'}, follow_redirects=True)
     
     today = datetime.now().strftime('%Y-%m-%d')
     response = client.post('/entries/add', data={
@@ -71,3 +71,36 @@ def test_process_recurring(app):
         # Check if next_run_date updated
         db.session.refresh(rec)
         assert rec.next_run_date == today + timedelta(days=1)
+
+
+def test_process_recurring_backfill_multiple_occurrences(app):
+    with app.app_context():
+        from models.user import User
+        from database.db import db
+        user = User(username='backfilluser', email='backfill@example.com', name='Backfill User')
+        db.session.add(user)
+        db.session.commit()
+
+        today = datetime.now().date()
+        rec = RecurringEntry(
+            description='Backfill Entry',
+            value=25.0,
+            category='Saúde',
+            type='Despesa',
+            frequency='Diário',
+            start_date=today - timedelta(days=5),
+            next_run_date=today - timedelta(days=4),
+            user_id=user.id
+        )
+        db.session.add(rec)
+        db.session.commit()
+
+        count = process_recurring_entries(user.id)
+        assert count == 5
+
+        generated = Finance.query.filter_by(description='Backfill Entry').all()
+        assert len(generated) == 5
+
+        db.session.refresh(rec)
+        assert rec.next_run_date == today + timedelta(days=1)
+        assert rec.last_run_date == today

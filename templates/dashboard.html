@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% set default_due_date = today.strftime('%Y-%m-%d') if today.year == year and today.month == month else "%04d-%02d-01"|format(year, month) %}
+{% set current_page = entries_pagination.page if entries_pagination else 1 %}
 <!-- Top Controls -->
 <div class="row mb-4 align-items-center">
     <div class="col-md-6">
@@ -40,7 +42,7 @@
                 <h6 class="text-uppercase small mb-0 opacity-75">{{ _('Saldo Geral') }}</h6>
                 <i data-lucide="wallet" class="opacity-75 icon-md"></i>
             </div>
-            <h2 class="fw-bold mb-1 balance-amount">R$ {{ "%.2f"|format(stats.total_geral) }}</h2>
+            <h2 class="fw-bold mb-1 balance-amount {% if stats.total_geral < 0 %}balance-amount-negative{% endif %}">R$ {{ "%.2f"|format(stats.total_geral) }}</h2>
             <small class="opacity-75">{{ _('* (Receitas - Despesas)') }}</small>
         </div>
     </div>
@@ -108,7 +110,7 @@
                         </thead>
                         <tbody>
                             {% for entry in entries %}
-                            <tr>
+                            <tr data-entry-row="true">
                                 <td class="ps-3 fw-bold text-muted">{{ entry.due_date.strftime('%d') }}</td>
                                 <td>
                                     <div class="fw-bold">{{ entry.description }}</div>
@@ -136,6 +138,9 @@
                                     </button>
                                     <form action="{{ url_for('entries.delete_entry', id=entry.id) }}" method="POST" class="d-inline" data-confirm-msg="{{ _('Tem certeza?') }}" onsubmit="return confirm(this.dataset.confirmMsg);">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <input type="hidden" name="redirect_year" value="{{ year }}"/>
+                                        <input type="hidden" name="redirect_month" value="{{ month }}"/>
+                                        <input type="hidden" name="redirect_page" value="{{ current_page }}"/>
                                         <button type="submit" class="btn btn-sm btn-outline-danger border-0" aria-label="{{ _('Excluir') }}">
                                             <i data-lucide="trash-2" class="icon-sm"></i>
                                         </button>
@@ -143,16 +148,46 @@
                                 </td>
                             </tr>
                             {% else %}
-                            <tr>
+                            <tr id="noEntriesRow">
                                 <td colspan="6" class="text-center py-4 text-muted">
                                     {{ _('Nenhum lançamento neste mês.') }}
                                 </td>
                             </tr>
                             {% endfor %}
+                            {% if entries %}
+                            <tr id="noResultsRow" class="d-none">
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    {{ _('Nenhum resultado encontrado para a busca.') }}
+                                </td>
+                            </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
             </div>
+            {% if entries_pagination.pages > 1 %}
+            <div class="card-footer bg-transparent border-top">
+                <nav aria-label="{{ _('Paginação dos lançamentos') }}">
+                    <ul class="pagination pagination-sm mb-0 justify-content-center">
+                        <li class="page-item {% if not entries_pagination.has_prev %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('dashboard.view_month', year=year, month=month, page=entries_pagination.prev_num) if entries_pagination.has_prev else '#' }}">{{ _('Anterior') }}</a>
+                        </li>
+                        {% for p in entries_pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if p %}
+                            <li class="page-item {% if p == entries_pagination.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('dashboard.view_month', year=year, month=month, page=p) }}">{{ p }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                            {% endif %}
+                        {% endfor %}
+                        <li class="page-item {% if not entries_pagination.has_next %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('dashboard.view_month', year=year, month=month, page=entries_pagination.next_num) if entries_pagination.has_next else '#' }}">{{ _('Próxima') }}</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -199,6 +234,9 @@
         <div class="modal-content modal-content-premium">
             <form action="{{ url_for('entries.add_entry') }}" method="POST" id="entryForm">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="redirect_year" value="{{ year }}"/>
+                <input type="hidden" name="redirect_month" value="{{ month }}"/>
+                <input type="hidden" name="redirect_page" value="{{ current_page }}"/>
                 <div class="modal-header modal-header-premium">
                     <h5 class="modal-title" id="modalTitle">{{ _('Novo Lançamento') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar') }}" title="{{ _('Fechar modal') }}"></button>
@@ -248,7 +286,7 @@
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label for="dueInput" class="form-label">{{ _('Vencimento') }}</label>
-                            <input type="date" id="dueInput" name="due_date" class="form-control" required value="{{ year }}-{{ '%02d'|format(month) }}-01">
+                            <input type="date" id="dueInput" name="due_date" class="form-control" required value="{{ default_due_date }}">
                         </div>
                         <div class="col-6">
                             <label for="payInput" class="form-label">{{ _('Pagamento') }}</label>
@@ -361,9 +399,18 @@
         // Reset recurring toggle state
         toggleRecurring();
 
-        // Set default date to current month view
+        // Set default date based on viewed period
         const dateInputs = entryForm.querySelectorAll('input[type="date"]');
-        if(dateInputs[0]) dateInputs[0].value = "{{ year }}-{{ '%02d'|format(month) }}-01";
+        const today = new Date();
+        const viewedYear = Number("{{ year }}");
+        const viewedMonth = Number("{{ month }}");
+        const isCurrentView = viewedYear === today.getFullYear() && viewedMonth === (today.getMonth() + 1);
+        const localToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+        const defaultDate = isCurrentView
+            ? localToday
+            : "{{ "%04d-%02d-01"|format(year, month) }}";
+
+        if(dateInputs[0]) dateInputs[0].value = defaultDate;
     }
 
     function prepareEdit(entryData) {
@@ -405,15 +452,21 @@
 
     function filterTable() {
         const input = document.getElementById("searchInput");
+        if (!input) return;
+
         const filter = input.value.toLowerCase();
         const tbody = document.querySelector(".table-premium tbody");
+        if (!tbody) return;
+
         const rows = tbody.getElementsByTagName("tr");
+        const noResultsRow = document.getElementById("noResultsRow");
         let visibleCount = 0;
+        let totalDataRows = 0;
 
         for (let i = 0; i < rows.length; i++) {
-            // Skip the "No entries" message row which has a colspan
-            if (rows[i].cells.length === 1) continue; 
-            
+            if (rows[i].dataset.entryRow !== "true") continue;
+
+            totalDataRows++;
             const textContent = rows[i].textContent.toLowerCase();
             if (textContent.indexOf(filter) > -1) {
                 rows[i].style.display = "";
@@ -425,6 +478,14 @@
         
         const badge = document.getElementById("itemCount");
         if (badge) badge.innerText = visibleCount + " {{ _('itens') }}";
+
+        if (noResultsRow) {
+            if (totalDataRows > 0 && visibleCount === 0) {
+                noResultsRow.classList.remove("d-none");
+            } else {
+                noResultsRow.classList.add("d-none");
+            }
+        }
     }
 </script>
 {% endblock %}

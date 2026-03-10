@@ -8,14 +8,14 @@ def test_profile_update_email_success(client, app):
     # Setup user
     with app.app_context():
         user = User(username='emailtest', email='old@example.com', name='Email Test')
-        user.set_password('password123')
+        user.set_password('Password123')
         db.session.add(user)
         db.session.commit()
 
     # Login
     client.post('/login', data={
         'identifier': 'emailtest',
-        'password': 'password123'
+        'password': 'Password123'
     }, follow_redirects=True)
 
     # Update Email
@@ -37,11 +37,11 @@ def test_profile_update_email_invalid(client, app):
     """Test updating with invalid email format"""
     with app.app_context():
         user = User(username='invalidemail', email='valid@example.com', name='Test')
-        user.set_password('password123')
+        user.set_password('Password123')
         db.session.add(user)
         db.session.commit()
 
-    client.post('/login', data={'identifier': 'invalidemail', 'password': 'password123'}, follow_redirects=True)
+    client.post('/login', data={'identifier': 'invalidemail', 'password': 'Password123'}, follow_redirects=True)
 
     response = client.post('/profile', data={
         'action': 'update_info',
@@ -56,13 +56,13 @@ def test_profile_update_email_duplicate(client, app):
     """Test updating to an email already in use"""
     with app.app_context():
         user1 = User(username='userA', email='usera@example.com', name='User A')
-        user1.set_password('pass')
+        user1.set_password('Pass1234')
         user2 = User(username='userB', email='userb@example.com', name='User B')
-        user2.set_password('pass')
+        user2.set_password('Pass1234')
         db.session.add_all([user1, user2])
         db.session.commit()
 
-    client.post('/login', data={'identifier': 'userA', 'password': 'pass'}, follow_redirects=True)
+    client.post('/login', data={'identifier': 'userA', 'password': 'Pass1234'}, follow_redirects=True)
 
     response = client.post('/profile', data={
         'action': 'update_info',
@@ -77,12 +77,12 @@ def test_profile_delete_photo(client, app):
     """Test deleting profile photo (resetting to default)"""
     with app.app_context():
         user = User(username='phototest', email='photo@example.com', name='Photo Test')
-        user.set_password('password123')
+        user.set_password('Password123')
         user.profile_image = 'custom_pic.jpg'
         db.session.add(user)
         db.session.commit()
 
-    client.post('/login', data={'identifier': 'phototest', 'password': 'password123'}, follow_redirects=True)
+    client.post('/login', data={'identifier': 'phototest', 'password': 'Password123'}, follow_redirects=True)
 
     # Verify initial state
     with app.app_context():
@@ -109,11 +109,11 @@ def test_profile_delete_photo(client, app):
 def test_profile_update_session_timeout(client, app):
     with app.app_context():
         user = User(username='sessiontest', email='session@example.com', name='Session Test')
-        user.set_password('password123')
+        user.set_password('Password123')
         db.session.add(user)
         db.session.commit()
 
-    client.post('/login', data={'identifier': 'sessiontest', 'password': 'password123'}, follow_redirects=True)
+    client.post('/login', data={'identifier': 'sessiontest', 'password': 'Password123'}, follow_redirects=True)
 
     response = client.post('/profile', data={
         'action': 'update_info',
@@ -133,12 +133,12 @@ def test_profile_update_session_timeout(client, app):
 def test_refresh_session_endpoint(client, app):
     with app.app_context():
         user = User(username='refreshsession', email='refresh@example.com', name='Refresh Session')
-        user.set_password('password123')
+        user.set_password('Password123')
         user.session_timeout_minutes = 1
         db.session.add(user)
         db.session.commit()
 
-    client.post('/login', data={'identifier': 'refreshsession', 'password': 'password123'}, follow_redirects=True)
+    client.post('/login', data={'identifier': 'refreshsession', 'password': 'Password123'}, follow_redirects=True)
     response = client.post('/session/refresh')
 
     assert response.status_code == 200

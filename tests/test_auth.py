@@ -13,7 +13,7 @@ def test_register_invalid_email(client):
     response = client.post('/register', data={
         'username': 'invalidemailuser',
         'email': 'invalid-email',
-        'password': 'password123',
+        'password': 'Password123',
         'name': 'Invalid Email User'
     }, follow_redirects=True)
     assert response.status_code == 200
@@ -25,13 +25,13 @@ def test_login(client, app):
         from models.user import User
         from database.db import db
         user = User(username='loginuser', email='login@example.com', name='Login User')
-        user.set_password('password123')
+        user.set_password('Password123')
         db.session.add(user)
         db.session.commit()
 
     response = client.post('/login', data={
         'identifier': 'loginuser',
-        'password': 'password123'
+        'password': 'Password123'
     }, follow_redirects=True)
     assert response.status_code == 200
     assert b'Novo Lan' in response.data

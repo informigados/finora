@@ -123,7 +123,7 @@ h6 {
   overflow: hidden;
 }
 .card-premium:hover {
-  transform: scale(1.02);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
 }
 .card-header-premium {
@@ -178,11 +178,13 @@ h6 {
 }
 
 /* Value Formatting */
-.value-positive {
+.value-positive,
+.amount-positive {
   color: var(--success);
   font-weight: 700;
 }
-.value-negative {
+.value-negative,
+.amount-negative {
   color: var(--text-main);
   font-weight: 700;
 }
@@ -297,6 +299,10 @@ h6 {
 }
 .balance-amount {
   font-size: 2.5rem;
+}
+
+.balance-amount-negative {
+  color: #fecaca !important;
 }
 
 /* Avatar Utilities */

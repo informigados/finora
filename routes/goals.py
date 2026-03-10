@@ -17,6 +17,11 @@ def index():
 @login_required
 def add_goal():
     data = request.form
+    name = (data.get('name') or '').strip()
+    if not name:
+        flash(_('Nome da meta é obrigatório.'), 'error')
+        return redirect(url_for('goals.index'))
+
     try:
         target_amount = float(data['target_amount'])
         current_amount = float(data.get('current_amount', 0))
@@ -26,7 +31,7 @@ def add_goal():
             raise ValueError('current_amount')
 
         new_goal = Goal(
-            name=data['name'],
+            name=name,
             target_amount=target_amount,
             current_amount=current_amount,
             deadline=datetime.strptime(data['deadline'], '%Y-%m-%d').date() if data.get('deadline') else None,

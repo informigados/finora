@@ -4,6 +4,7 @@ from flask_babel import gettext as _
 from models.finance import Finance
 from models.recurring import RecurringEntry
 from database.db import db
+from services.validators import validate_finance_data
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -11,15 +12,36 @@ entries_bp = Blueprint('entries', __name__)
 VALID_ENTRY_TYPES = {'Receita', 'Despesa'}
 VALID_ENTRY_STATUS = {'Pago', 'Pendente', 'Atrasado'}
 
+
+def _redirect_dashboard_context(fallback_year=None, fallback_month=None):
+    year = request.form.get('redirect_year', type=int)
+    month = request.form.get('redirect_month', type=int)
+    page = request.form.get('redirect_page', type=int)
+
+    if not year or not month:
+        year = fallback_year
+        month = fallback_month
+
+    if year and month and 1 <= month <= 12:
+        route_args = {'year': year, 'month': month}
+        if page and page > 1:
+            route_args['page'] = page
+        return redirect(url_for('dashboard.view_month', **route_args))
+
+    return redirect(url_for('dashboard.index'))
+
+
 @entries_bp.route('/entries/add', methods=['POST'])
 @login_required
 def add_entry():
     data = request.form
     try:
+        validation_errors = validate_finance_data(data)
+        if validation_errors:
+            flash(_(validation_errors[0]), 'error')
+            return _redirect_dashboard_context()
+
         description = (data.get('description') or '').strip()
-        if not description:
-            flash(_('Descrição é obrigatória.'), 'error')
-            return redirect(url_for('dashboard.index'))
 
         # Validate critical numeric fields
         try:
@@ -28,16 +50,16 @@ def add_entry():
                 raise ValueError("Value cannot be negative.")
         except ValueError:
             flash(_('Valor inválido. Insira um número válido e positivo.'), 'error')
-            return redirect(url_for('dashboard.index'))
+            return _redirect_dashboard_context()
             
         entry_type = data.get('type')
         entry_status = data.get('status')
         if entry_type not in VALID_ENTRY_TYPES:
             flash(_('Tipo de lançamento inválido.'), 'error')
-            return redirect(url_for('dashboard.index'))
+            return _redirect_dashboard_context()
         if entry_status not in VALID_ENTRY_STATUS:
             flash(_('Status de lançamento inválido.'), 'error')
-            return redirect(url_for('dashboard.index'))
+            return _redirect_dashboard_context()
 
         due_d = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
         pay_d = datetime.strptime(data['payment_date'], '%Y-%m-%d').date() if data.get('payment_date') else None
@@ -77,7 +99,7 @@ def add_entry():
             if freq not in {'Diário', 'Semanal', 'Mensal', 'Anual'}:
                 flash(_('Frequência de recorrência inválida.'), 'error')
                 db.session.rollback()
-                return redirect(url_for('dashboard.index'))
+                return _redirect_dashboard_context()
 
             recurring = RecurringEntry(
                 description=new_entry.description,
@@ -100,12 +122,15 @@ def add_entry():
         db.session.rollback()
         flash(_('Erro ao adicionar lançamento. Verifique os dados e tente novamente.'), 'error')
         
-    return redirect(url_for('dashboard.index'))
+    return _redirect_dashboard_context()
 
 @entries_bp.route('/entries/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_entry(id):
     entry = db.session.get(Finance, id)
+    fallback_year = entry.due_date.year if entry else None
+    fallback_month = entry.due_date.month if entry else None
+
     if entry and entry.user_id == current_user.id:
         try:
             db.session.delete(entry)
@@ -114,33 +139,46 @@ def delete_entry(id):
         except Exception:
             db.session.rollback()
             flash(_('Erro ao excluir lançamento.'), 'error')
-    return redirect(url_for('dashboard.index'))
+    return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
 
 @entries_bp.route('/entries/edit/<int:id>', methods=['POST'])
 @login_required
 def edit_entry(id):
     entry = db.session.get(Finance, id)
+    fallback_year = entry.due_date.year if entry else None
+    fallback_month = entry.due_date.month if entry else None
+
     if entry and entry.user_id == current_user.id:
         data = request.form
         try:
+            validation_errors = validate_finance_data(data)
+            if validation_errors:
+                flash(_(validation_errors[0]), 'error')
+                return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
+
             try:
                 val = float(data['value'])
                 if val < 0:
                     raise ValueError("Value cannot be negative.")
             except ValueError:
                 flash(_('Valor inválido. Insira um número válido e positivo.'), 'error')
-                return redirect(url_for('dashboard.index'))
+                return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
 
             entry_type = data.get('type')
             entry_status = data.get('status')
             if entry_type not in VALID_ENTRY_TYPES:
                 flash(_('Tipo de lançamento inválido.'), 'error')
-                return redirect(url_for('dashboard.index'))
+                return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
             if entry_status not in VALID_ENTRY_STATUS:
                 flash(_('Status de lançamento inválido.'), 'error')
-                return redirect(url_for('dashboard.index'))
-                 
-            entry.description = data['description'].strip()
+                return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
+
+            description = (data.get('description') or '').strip()
+            if not description:
+                flash(_('Descrição é obrigatória.'), 'error')
+                return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
+
+            entry.description = description
             entry.value = val
             entry.category = data['category']
             entry.type = entry_type
@@ -154,4 +192,4 @@ def edit_entry(id):
             db.session.rollback()
             flash(_('Erro ao atualizar lançamento.'), 'error')
             
-    return redirect(url_for('dashboard.index'))
+    return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)

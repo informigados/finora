@@ -1,10 +1,10 @@
 # Finora Build and Distribution Guide
 
-This document describes how to package and distribute Finora for production use.
+This document describes the official release flow for Finora (Windows executable + Inno Setup installer).
 
-## 1. Build Prerequisites
+## 1. Prerequisites
 
-Install dependencies in a clean virtual environment:
+Create a clean environment and install dependencies:
 
 ```powershell
 python -m venv .venv
@@ -13,105 +13,110 @@ pip install -r requirements.txt
 pip install pyinstaller pyinstaller-hooks-contrib
 ```
 
-Compile translation binaries before packaging:
+Install Inno Setup 6:
 
-```powershell
-pybabel compile -d translations
+- https://jrsoftware.org/isinfo.php
+
+## 2. Release Version
+
+Release version is centralized in the `VERSION` file at project root.
+
+Example:
+
+```text
+1.1.0
 ```
 
-## 2. Database Migration Requirement
+Before generating a release, update this file to the target version.
 
-Always migrate database schema before publishing a release:
+## 3. One-Command Release (Recommended)
+
+Use the release script:
+
+```powershell
+.\release.bat
+```
+
+This command will:
+
+1. Read the target version from `VERSION`
+2. Ensure virtual environment and dependencies
+3. Run test suite (`pytest`)
+4. Generate executable and installer (`create_installer.py`)
+
+Expected output:
+
+- `dist\Finora\Finora.exe`
+- `dist_setup\Finora_Setup_v<version>.exe`
+
+## 4. PyInstaller Build (Executable Only)
+
+Use the official script (clean + deterministic build from `Finora.spec`):
+
+```powershell
+.\build_exe.bat
+```
+
+Output:
+
+- `dist\Finora\Finora.exe`
+
+Notes:
+
+- The executable icon is set from `static\favicon.ico`.
+- The script compiles translations and removes old `build/`, `dist/`, and `dist_setup/` folders first.
+
+## 5. Full Installer Build (Executable + Setup)
+
+Use the release orchestrator:
+
+```powershell
+python create_installer.py
+```
+
+This command will:
+
+1. Read version from `VERSION`
+2. Clean old build artifacts
+3. Compile translations
+4. Build executable via PyInstaller (`Finora.spec`)
+5. Compile `finora_installer.iss` with `MyAppVersion`
+
+Expected output:
+
+- `dist\Finora\Finora.exe`
+- `dist_setup\Finora_Setup_v<version>.exe`
+
+## 6. Direct Inno Setup Compilation (Optional)
+
+If you already generated `dist\Finora`, you can compile manually:
+
+```powershell
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.1.0 finora_installer.iss
+```
+
+## 7. Database Migration Requirement
+
+Always migrate schema before publishing a release:
 
 ```powershell
 flask db upgrade
 ```
 
-This is critical for new columns such as `user.session_timeout_minutes`.
+This is critical for fields such as `user.session_timeout_minutes`.
 
-## 3. PyInstaller Build
-
-PyInstaller builds native binaries for the current OS only.
-Run a build on each target operating system.
-
-### Windows
-
-```powershell
-pyinstaller --noconfirm --onedir --windowed --name "Finora" `
-  --add-data "templates;templates" `
-  --add-data "static;static" `
-  --add-data "translations;translations" `
-  --hidden-import "babel.numbers" `
-  --hidden-import "waitress" `
-  app.py
-```
-
-### Linux
-
-```bash
-pyinstaller --noconfirm --onedir --windowed --name "Finora" \
-  --add-data "templates:templates" \
-  --add-data "static:static" \
-  --add-data "translations:translations" \
-  --hidden-import "babel.numbers" \
-  --hidden-import "waitress" \
-  app.py
-```
-
-### macOS
-
-```bash
-pyinstaller --noconfirm --onedir --windowed --name "Finora" \
-  --add-data "templates:templates" \
-  --add-data "static:static" \
-  --add-data "translations:translations" \
-  --target-arch universal2 \
-  app.py
-```
-
-## 4. Installer and Signing
-
-### Windows Installer (Inno Setup)
-
-Use `finora_installer.iss` after generating `dist/Finora`.
-
-### Code Signing
-
-Sign release binaries to reduce SmartScreen/Gatekeeper warnings.
-
-#### Windows
-
-```powershell
-"C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe" sign /f "certificate.pfx" /p "password" /tr http://timestamp.digicert.com /td sha256 /fd sha256 "dist\Finora\Finora.exe"
-```
-
-#### macOS
-
-```bash
-codesign --deep --force --verbose --sign "Developer ID Application: Name (TEAMID)" dist/Finora.app
-```
-
-## 5. Container Build
-
-Build and run with Docker:
-
-```powershell
-docker compose build
-docker compose up -d
-```
-
-## 6. Release Checklist
+## 8. Release Checklist
 
 1. `python -m pytest tests -q` passes
 2. `flask db upgrade` executed successfully
-3. `pybabel compile -d translations` executed
-4. Binary starts and login works with existing database
-5. Import/export and backup smoke-tested
-6. Versioned artifacts prepared and signed (if applicable)
+3. `python -m babel.messages.frontend compile -d translations` executed
+4. `VERSION` updated to target release
+5. `python create_installer.py` generated both EXE and Setup
+6. Smoke test login, dashboard, import/export, backup, and profile update
 
-## 7. Recommended GitHub Release Contents
+## 9. Recommended GitHub Release Contents
 
 - Source code (tagged)
-- Platform binaries (`Windows/Linux/macOS`)
-- Changelog with migration notes
-- Upgrade instructions (especially database migrations)
+- `Finora_Setup_v<version>.exe`
+- Changelog
+- Upgrade notes (especially migration requirements)

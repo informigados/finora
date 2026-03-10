@@ -9,6 +9,7 @@ from sqlalchemy import extract
 from database.db import db
 
 dashboard_bp = Blueprint('dashboard', __name__)
+DASHBOARD_ENTRIES_PER_PAGE = 50
 
 @dashboard_bp.route('/dashboard')
 @login_required
@@ -29,18 +30,39 @@ def view_month(year, month):
     # Translate chart labels
     stats['chart_labels'] = [_(label) for label in stats['chart_labels']]
     
-    # Get entries for the month
-    entries = db.session.query(Finance).filter(
+    page = request.args.get('page', default=1, type=int) or 1
+    if page < 1:
+        page = 1
+
+    entries_query = db.session.query(Finance).filter(
         Finance.user_id == current_user.id,
         extract('year', Finance.due_date) == year,
         extract('month', Finance.due_date) == month
-    ).order_by(Finance.due_date).all()
+    ).order_by(Finance.due_date)
+
+    entries_pagination = entries_query.paginate(
+        page=page,
+        per_page=DASHBOARD_ENTRIES_PER_PAGE,
+        error_out=False,
+    )
+    if entries_pagination.pages > 0 and page > entries_pagination.pages:
+        return redirect(
+            url_for(
+                'dashboard.view_month',
+                year=year,
+                month=month,
+                page=entries_pagination.pages,
+            )
+        )
+
+    entries = entries_pagination.items
     
     return render_template('dashboard.html', 
                            year=year, 
                            month=month, 
                            stats=stats, 
                            entries=entries,
+                           entries_pagination=entries_pagination,
                            today=date.today())
 
 @dashboard_bp.route('/dashboard/<int:year>')

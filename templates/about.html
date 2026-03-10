@@ -32,7 +32,7 @@
     <div class="row g-3">
         <div class="col-md-6">
             <article class="author-card">
-                <img src="{{ url_for('static', filename='images/authors/informigados.webp') }}" alt="INformigados" class="author-avatar">
+                <img src="{{ url_for('static', filename='images/authors/informigados.webp') }}" alt="INformigados" class="author-avatar" onerror="this.onerror=null; this.src='{{ url_for('static', filename='profile_pics/default_profile.svg') }}';">
                 <div>
                     <h3 class="h5 mb-1">INformigados</h3>
                     <a class="author-link" href="https://github.com/informigados/" target="_blank" rel="noopener noreferrer">github.com/informigados</a>
@@ -41,7 +41,7 @@
         </div>
         <div class="col-md-6">
             <article class="author-card">
-                <img src="{{ url_for('static', filename='images/authors/alex-brito-dev.webp') }}" alt="Alex Brito" class="author-avatar">
+                <img src="{{ url_for('static', filename='images/authors/alex-brito-dev.webp') }}" alt="Alex Brito" class="author-avatar" onerror="this.onerror=null; this.src='{{ url_for('static', filename='profile_pics/default_profile.svg') }}';">
                 <div>
                     <h3 class="h5 mb-1">Alex Brito</h3>
                     <a class="author-link" href="https://github.com/AlexBritoDEV" target="_blank" rel="noopener noreferrer">github.com/AlexBritoDEV</a>
