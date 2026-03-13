@@ -173,8 +173,9 @@ def test_find_free_port_returns_available_port():
         occupied_port = temp_socket.getsockname()[1]
         free_port = find_free_port(occupied_port)
 
-    assert isinstance(free_port, int)
-    assert free_port >= occupied_port
+        assert isinstance(free_port, int)
+        assert free_port >= occupied_port
+        assert free_port != occupied_port
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as test_socket:
         test_socket.bind(('127.0.0.1', free_port))
@@ -313,7 +314,7 @@ def test_import_finances_rejects_file_above_row_limit():
 
 
 def test_import_finances_rejects_zero_value_entries():
-    # This file contains only an invalid row because imports require values > 0.
+    # This file contains only one invalid row because imports require values > 0.
     csv_content = (
         'descricao,valor,categoria,tipo,status,data\n'
         'Item inválido,0,Lazer,Despesa,Pago,2026-03-10\n'
