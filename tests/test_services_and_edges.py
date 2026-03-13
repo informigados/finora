@@ -265,6 +265,9 @@ def test_start_recurring_scheduler_starts_worker_when_enabled(monkeypatch):
             self.target()
 
     class FakeLogger:
+        def warning(self, *_args, **_kwargs):
+            raise AssertionError('scheduler should not emit warnings in this test')
+
         def exception(self, *_args, **_kwargs):
             raise AssertionError('scheduler should not log exceptions in this test')
 
@@ -276,8 +279,19 @@ def test_start_recurring_scheduler_starts_worker_when_enabled(monkeypatch):
         }
         logger = FakeLogger()
 
+        class _ContextManager:
+            def __enter__(self):
+                return None
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+        def app_context(self):
+            return self._ContextManager()
+
     monkeypatch.setattr(maintenance_service.threading, 'Event', FakeEvent)
     monkeypatch.setattr(maintenance_service.threading, 'Thread', FakeThread)
+    monkeypatch.setattr(maintenance_service, 'recurring_schema_is_ready', lambda: True)
     monkeypatch.setattr(
         maintenance_service,
         'run_recurring_maintenance',
