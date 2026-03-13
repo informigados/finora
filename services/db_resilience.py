@@ -26,3 +26,5 @@ def run_idempotent_db_operation(operation: Callable[[], T]) -> T:
             if not is_retryable or attempt >= max_retries:
                 raise
             time.sleep(backoff_seconds * (attempt + 1))
+
+    raise RuntimeError('Operacao idempotente encerrada sem retorno nem excecao final.')

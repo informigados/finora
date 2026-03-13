@@ -160,7 +160,7 @@ def _read_csv_rows(uploaded_file: FileStorage) -> list[tuple[int, dict[str, Any]
     try:
         delimiter = csv.Sniffer().sniff(sample, delimiters=",;|\t").delimiter
     except csv.Error:
-        pass
+        delimiter = ","
 
     stream = io.StringIO(text, newline=None)
     reader = csv.DictReader(stream, delimiter=delimiter)

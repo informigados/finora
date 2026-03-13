@@ -271,8 +271,9 @@ def seed_default_user(app):
                     username,
                 )
         except OperationalError:
-            # Tables likely don't exist yet (e.g. before first migration)
-            pass
+            app.logger.debug(
+                'Seed de usuário padrão ignorado: tabelas ainda indisponíveis.'
+            )
         except Exception as e:
             db.session.rollback()
             app.logger.exception("Erro ao criar usuário padrão: %s", e)
@@ -341,12 +342,12 @@ def create_app(config_name='default'):
         g.session_expires_at = None
 
         if not current_user.is_authenticated:
-            return
+            return None
 
         timeout_minutes = int(getattr(current_user, 'session_timeout_minutes', 0) or 0)
         if timeout_minutes <= 0:
             session.pop('last_activity_ts', None)
-            return
+            return None
 
         now_ts = int(time.time())
         last_activity_ts = int(session.get('last_activity_ts') or now_ts)
@@ -362,6 +363,7 @@ def create_app(config_name='default'):
         session.modified = True
         g.session_timeout_minutes = timeout_minutes
         g.session_expires_at = now_ts + timeout_seconds
+        return None
 
     @app.context_processor
     def inject_globals():
@@ -409,7 +411,9 @@ def create_app(config_name='default'):
             try:
                 request_id_context.reset(token)
             except RuntimeError:
-                pass
+                app.logger.debug(
+                    'Contexto de request_id ja havia sido encerrado durante o teardown.'
+                )
     
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(entries_bp)
@@ -420,14 +424,6 @@ def create_app(config_name='default'):
     app.register_blueprint(auth_bp)
     app.register_blueprint(backup_bp)
     app.register_blueprint(public_bp)
-    
-    # with app.app_context():
-    #     # Import models to ensure tables are created
-    #     from models.finance import Finance
-    #     from models.goal import Goal
-    #     from models.recurring import RecurringEntry
-    #     from models.budget import Budget
-    #     db.create_all()
 
     def _get_safe_local_redirect_target(target: str | None) -> str | None:
         if not target:

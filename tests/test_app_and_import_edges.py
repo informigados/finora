@@ -23,6 +23,8 @@ from models.user import User
 from services.import_service import ImportValidationError, import_finances_from_file
 from services.logging_utils import configure_application_logging, request_id_context
 
+PRIVACY_WARNING_TEXT = b'resposta gen'
+
 
 def test_set_language_uses_safe_referrer(client):
     response = client.get(
@@ -118,7 +120,10 @@ def test_configure_application_logging_keeps_sqlalchemy_quiet_by_default():
 
 
 def test_health_endpoint_reports_degraded_when_db_fails(client, monkeypatch):
-    monkeypatch.setattr(app_module.db.session, 'execute', lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError('db down')))
+    def raise_db_down(*_args, **_kwargs):
+        raise RuntimeError('db down')
+
+    monkeypatch.setattr(app_module.db.session, 'execute', raise_db_down)
     response = client.get('/health')
 
     assert response.status_code == 503
@@ -157,7 +162,7 @@ def test_forgot_password_page_does_not_render_privacy_warning(client):
     response = client.get('/forgot_password')
 
     assert response.status_code == 200
-    assert b'resposta gen' not in response.data
+    assert PRIVACY_WARNING_TEXT not in response.data
 
 
 def test_ensure_runtime_schema_compatibility_is_noop_under_testing(app):
@@ -269,6 +274,7 @@ def test_import_finances_rejects_file_above_row_limit():
 
 
 def test_import_finances_rejects_when_no_valid_entries_exist():
+    # This file contains only an invalid row because imports require values > 0.
     csv_content = (
         'descricao,valor,categoria,tipo,status,data\n'
         'Item inválido,0,Lazer,Despesa,Pago,2026-03-10\n'
