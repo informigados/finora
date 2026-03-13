@@ -341,6 +341,13 @@ def create_app(config_name='default'):
         g.session_timeout_minutes = 0
         g.session_expires_at = None
 
+        if (
+            request.method == 'GET'
+            and request.endpoint not in {None, 'set_language', 'health', 'favicon'}
+            and not (request.endpoint or '').startswith('static')
+        ):
+            session['language_redirect_target'] = request.full_path.rstrip('?')
+
         if not current_user.is_authenticated:
             return None
 
@@ -429,11 +436,8 @@ def create_app(config_name='default'):
         if not target:
             return None
 
-        host_url = urlparse(request.host_url)
         redirect_url = urlparse(target)
-        if redirect_url.scheme not in ('http', 'https', ''):
-            return None
-        if redirect_url.netloc and redirect_url.netloc != host_url.netloc:
+        if redirect_url.scheme or redirect_url.netloc:
             return None
         if not redirect_url.path.startswith('/'):
             return None
@@ -451,7 +455,9 @@ def create_app(config_name='default'):
             session['lang'] = lang_code
             flash(_('Idioma alterado com sucesso!'), 'success')
         fallback = url_for('public.welcome')
-        redirect_target = _get_safe_local_redirect_target(request.referrer)
+        redirect_target = _get_safe_local_redirect_target(
+            session.get('language_redirect_target')
+        )
         if redirect_target:
             return redirect(redirect_target)
         return redirect(fallback)
