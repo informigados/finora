@@ -176,12 +176,15 @@ def test_find_free_port_returns_available_port():
     assert isinstance(free_port, int)
     assert free_port >= occupied_port
 
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as test_socket:
+        test_socket.bind(('127.0.0.1', free_port))
+
 
 def test_open_browser_delegates_to_webbrowser(monkeypatch):
     opened = {}
     monkeypatch.setattr(
         'webbrowser.open',
-        lambda url, new=0, autoraise=True: opened.setdefault(
+        lambda url, new=0, autoraise=True: opened.__setitem__(
             'call',
             (url, new, autoraise),
         ),
