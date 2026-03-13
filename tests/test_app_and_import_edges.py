@@ -240,7 +240,10 @@ def test_import_finances_from_xlsx_supports_aliases():
     sheet.append(['Salário', 5000, 'Salário', 'Receita', 'Pago', '2026-03-10'])
 
     stream = io.BytesIO()
-    workbook.save(stream)
+    try:
+        workbook.save(stream)
+    finally:
+        workbook.close()
     stream.seek(0)
 
     uploaded = FileStorage(stream=stream, filename='finances.xlsx')
@@ -258,7 +261,10 @@ def test_import_finances_from_xlsx_supports_english_aliases():
     sheet.append(['Salary', 5000, 'Salário', 'Income', 'Paid', '2026-03-10'])
 
     stream = io.BytesIO()
-    workbook.save(stream)
+    try:
+        workbook.save(stream)
+    finally:
+        workbook.close()
     stream.seek(0)
 
     uploaded = FileStorage(stream=stream, filename='finances.xlsx')
