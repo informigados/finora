@@ -279,8 +279,22 @@ def test_import_finances_from_xlsx_supports_english_aliases():
     assert result.entries[0].status == 'Pago'
 
 
-def test_import_finances_rejects_unsupported_extension():
+def test_import_finances_rejects_txt_extension():
     uploaded = FileStorage(stream=io.BytesIO(b'test'), filename='finances.txt')
+
+    with pytest.raises(ImportValidationError):
+        import_finances_from_file(uploaded, user_id=1)
+
+
+def test_import_finances_rejects_pdf_extension():
+    uploaded = FileStorage(stream=io.BytesIO(b'test'), filename='finances.pdf')
+
+    with pytest.raises(ImportValidationError):
+        import_finances_from_file(uploaded, user_id=1)
+
+
+def test_import_finances_rejects_doc_extension():
+    uploaded = FileStorage(stream=io.BytesIO(b'test'), filename='finances.doc')
 
     with pytest.raises(ImportValidationError):
         import_finances_from_file(uploaded, user_id=1)
@@ -298,7 +312,7 @@ def test_import_finances_rejects_file_above_row_limit():
         import_finances_from_file(uploaded, user_id=1, max_rows=1)
 
 
-def test_import_finances_rejects_when_no_valid_entries_exist():
+def test_import_finances_rejects_zero_value_entries():
     # This file contains only an invalid row because imports require values > 0.
     csv_content = (
         'descricao,valor,categoria,tipo,status,data\n'
@@ -343,3 +357,25 @@ def test_import_finances_accepts_decimal_values():
 
     assert result.imported_rows == 1
     assert result.entries[0].value == 10.75
+
+
+def test_import_finances_from_xlsx_supports_mixed_language_aliases():
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.append(['Descrição', 'value', 'Categoria', 'type', 'Situação', 'Data'])
+    sheet.append(['Projeto', 800, 'Salário', 'Income', 'Paid', '2026-03-10'])
+
+    stream = io.BytesIO()
+    try:
+        workbook.save(stream)
+    finally:
+        workbook.close()
+    stream.seek(0)
+
+    uploaded = FileStorage(stream=stream, filename='finances.xlsx')
+    result = import_finances_from_file(uploaded, user_id=1)
+
+    assert result.imported_rows == 1
+    assert result.entries[0].description == 'Projeto'
+    assert result.entries[0].type == 'Receita'
+    assert result.entries[0].status == 'Pago'
