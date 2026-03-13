@@ -94,8 +94,9 @@ def import_finances_from_file(
     for row_number, raw_row in rows:
         total_rows += 1
         if total_rows > max_rows:
+            row_label = "linha permitida" if max_rows == 1 else "linhas permitidas"
             raise ImportValidationError(
-                f"O arquivo excede o limite de {max_rows} linhas permitidas para importação."
+                f"O arquivo excede o limite de {max_rows} {row_label} para importação."
             )
 
         try:

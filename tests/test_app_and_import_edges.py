@@ -285,7 +285,7 @@ def test_import_finances_rejects_file_above_row_limit():
     )
     uploaded = FileStorage(stream=io.BytesIO(csv_content.encode('utf-8')), filename='finances.csv')
 
-    with pytest.raises(ImportValidationError, match='limite de 1 linhas permitidas'):
+    with pytest.raises(ImportValidationError, match='limite de 1 linha permitida'):
         import_finances_from_file(uploaded, user_id=1, max_rows=1)
 
 
