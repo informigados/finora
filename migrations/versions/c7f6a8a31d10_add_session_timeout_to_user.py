@@ -17,6 +17,13 @@ depends_on = None
 
 
 def upgrade():
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_columns = {column['name'] for column in inspector.get_columns('user')}
+
+    if 'session_timeout_minutes' in existing_columns:
+        return
+
     with op.batch_alter_table('user', schema=None) as batch_op:
         batch_op.add_column(
             sa.Column('session_timeout_minutes', sa.Integer(), nullable=False, server_default='0')
@@ -24,5 +31,12 @@ def upgrade():
 
 
 def downgrade():
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_columns = {column['name'] for column in inspector.get_columns('user')}
+
+    if 'session_timeout_minutes' not in existing_columns:
+        return
+
     with op.batch_alter_table('user', schema=None) as batch_op:
         batch_op.drop_column('session_timeout_minutes')

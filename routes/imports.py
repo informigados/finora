@@ -1,5 +1,6 @@
 from flask import Blueprint, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
+from flask.typing import ResponseReturnValue
 from database.db import db
 from flask_babel import gettext as _
 
@@ -12,7 +13,7 @@ import_bp = Blueprint('import', __name__)
 
 @import_bp.route('/import', methods=['POST'])
 @login_required
-def import_file():
+def import_file() -> ResponseReturnValue:
     if 'file' not in request.files:
         flash(_('Nenhum arquivo foi enviado para importação.'), 'error')
         return redirect(url_for('dashboard.index'))
@@ -34,7 +35,7 @@ def import_file():
             flash(_('Nenhum lançamento válido foi encontrado no arquivo.'), 'warning')
             return redirect(url_for('dashboard.index'))
 
-        db.session.bulk_save_objects(result.entries)
+        db.session.add_all(result.entries)
         db.session.commit()
         flash(
             _('%(count)d lançamento(s) importado(s) com sucesso.', count=result.imported_rows),

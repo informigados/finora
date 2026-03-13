@@ -1,32 +1,20 @@
 {% extends "base.html" %}
 
-{% block styles %}
-<style>
-    .login-container { min-height: calc(100vh - 260px); }
-    .status-icon { display: none; }
-    .progress-wrapper { height: 5px; }
-    .progress-bar-initial { width: 0%; }
-    #registerForm .form-control.is-valid,
-    #registerForm .form-control.is-invalid {
-        background-image: none !important;
-        padding-right: 0.75rem !important;
-    }
-</style>
-{% endblock %}
+{% block title %}{{ _('Criar Conta') }} | Finora{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center align-items-center login-container">
+<div class="row justify-content-center align-items-center auth-shell">
     <div class="col-md-6 col-lg-5">
         <div class="card shadow-lg border-0">
             <div class="card-body p-5">
                 <h3 class="text-center mb-4">{{ _('Criar Conta') }}</h3>
-                <form action="{{ url_for('auth.register') }}" method="POST" id="registerForm">
+                <form action="{{ url_for('auth.register') }}" method="POST" id="registerForm" class="auth-form-clean-validation">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-3">
                         <label for="name" class="form-label">{{ _('Nome Completo') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i data-lucide="contact" class="icon-sm"></i></span>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                            <input type="text" class="form-control" id="name" name="name" required autocomplete="name">
                         </div>
                     </div>
                     
@@ -34,8 +22,8 @@
                         <label for="username" class="form-label">{{ _('Nome de Usuário') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i data-lucide="user" class="icon-sm"></i></span>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                            <span class="input-group-text status-icon" id="username-status"></span>
+                            <input type="text" class="form-control" id="username" name="username" required autocomplete="username">
+                            <span class="input-group-text auth-status-icon" id="username-status"></span>
                         </div>
                         <div class="form-text" id="username-help"></div>
                     </div>
@@ -44,8 +32,8 @@
                         <label for="email" class="form-label">{{ _('E-mail') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i data-lucide="mail" class="icon-sm"></i></span>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                            <span class="input-group-text status-icon" id="email-status"></span>
+                            <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
+                            <span class="input-group-text auth-status-icon" id="email-status"></span>
                         </div>
                         <div class="form-text" id="email-help"></div>
                     </div>
@@ -54,10 +42,10 @@
                         <label for="password" class="form-label">{{ _('Senha') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i data-lucide="lock" class="icon-sm"></i></span>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control" id="password" name="password" required autocomplete="new-password">
                         </div>
-                        <div class="progress mt-2 progress-wrapper">
-                            <div class="progress-bar progress-bar-initial" role="progressbar" id="password-strength-bar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="{{ _('Força da senha') }}" title="{{ _('Força da senha') }}"></div>
+                        <div class="progress mt-2 auth-progress-wrapper">
+                            <div class="progress-bar auth-progress-bar-initial" role="progressbar" id="password-strength-bar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="{{ _('Força da senha') }}" title="{{ _('Força da senha') }}"></div>
                         </div>
                         <div class="form-text" id="password-strength-text">{{ _('Recomendamos uma senha forte.') }}</div>
                     </div>

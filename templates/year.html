@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %}{{ _('Resumo Anual') }} {{ year }} | Finora{% endblock %}
+
 {% block content %}
 <div class="row mb-4 align-items-center">
     <div class="col-md-6">
@@ -46,8 +48,15 @@
         <i data-lucide="bar-chart-2" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Evolução financeira') }}
     </div>
     <div class="card-body card-body-premium">
+        <div id="yearChartEmpty" class="empty-state-premium d-none">
+            <i data-lucide="bar-chart-2" class="icon-lg text-muted mb-3"></i>
+            <h4>{{ _('Ainda não há movimentações suficientes neste ano.') }}</h4>
+            <p>{{ _('Assim que houver receitas ou despesas, a evolução anual aparecerá aqui.') }}</p>
+        </div>
         <canvas id="yearChart" 
                 class="chart-year"
+                role="img"
+                aria-label="{{ _('Gráfico de evolução financeira anual') }}"
                 data-labels='{{ monthly_data|map(attribute="name")|list|tojson|safe }}'
                 data-receitas='{{ monthly_data|map(attribute="receita")|list|tojson|safe }}'
                 data-despesas='{{ monthly_data|map(attribute="despesa")|list|tojson|safe }}'></canvas>
@@ -99,40 +108,46 @@
     const labels = JSON.parse(canvas.dataset.labels || '[]');
     const receitas = JSON.parse(canvas.dataset.receitas || '[]');
     const despesas = JSON.parse(canvas.dataset.despesas || '[]');
+    const hasAnyData = [...receitas, ...despesas].some((value) => Number(value) > 0);
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: "{{ _('Receitas') }}",
-                    data: receitas,
-                    backgroundColor: '#10B981',
-                    borderColor: '#059669',
-                    borderWidth: 1,
-                    borderRadius: 4
-                },
-                {
-                    label: "{{ _('Despesas') }}",
-                    data: despesas,
-                    backgroundColor: '#EF4444',
-                    borderColor: '#DC2626',
-                    borderWidth: 1,
-                    borderRadius: 4
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top' }
+    if (!hasAnyData) {
+        canvas.classList.add('d-none');
+        document.getElementById('yearChartEmpty')?.classList.remove('d-none');
+    } else {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "{{ _('Receitas') }}",
+                        data: receitas,
+                        backgroundColor: '#10B981',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: "{{ _('Despesas') }}",
+                        data: despesas,
+                        backgroundColor: '#EF4444',
+                        borderColor: '#DC2626',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                ]
             },
-            scales: {
-                y: { beginAtZero: true }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
             }
-        }
-    });
+        });
+    }
 </script>
 {% endblock %}

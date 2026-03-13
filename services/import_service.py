@@ -13,6 +13,7 @@ from openpyxl import load_workbook
 from werkzeug.datastructures import FileStorage
 
 from models.finance import Finance
+from services.catalogs import normalize_finance_category
 
 MAX_IMPORT_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_IMPORT_ROWS = 20000
@@ -207,7 +208,9 @@ def _build_entry_from_row(raw_row: dict[str, Any], user_id: int) -> Finance:
     canonical = _to_canonical_fields(raw_row)
 
     description = str(canonical.get("description") or "Lançamento importado").strip()
-    category = str(canonical.get("category") or "Geral").strip()
+    category = normalize_finance_category(canonical.get("category"))
+    if not category:
+        raise ImportValidationError("Categoria inválida. Use uma categoria permitida.")
 
     amount = _parse_money(canonical.get("value"))
     if amount <= 0:

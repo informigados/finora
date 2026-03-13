@@ -61,6 +61,13 @@ def test_welcome_page_before_login(client):
 
 
 def test_about_page_available(client):
-    response = client.get('/sobre', follow_redirects=True)
+    response = client.get('/about', follow_redirects=True)
     assert response.status_code == 200
     assert b'Sobre o Finora' in response.data
+
+
+def test_about_legacy_redirects(client):
+    response = client.get('/sobre', follow_redirects=False)
+
+    assert response.status_code == 301
+    assert response.headers['Location'].endswith('/about')

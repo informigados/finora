@@ -24,7 +24,7 @@ Release version is centralized in the `VERSION` file at project root.
 Example:
 
 ```text
-1.1.0
+1.2.0
 ```
 
 Before generating a release, update this file to the target version.
@@ -92,7 +92,7 @@ Expected output:
 If you already generated `dist\Finora`, you can compile manually:
 
 ```powershell
-"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.1.0 finora_installer.iss
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.2.0 finora_installer.iss
 ```
 
 ## 7. Database Migration Requirement
@@ -104,17 +104,35 @@ flask db upgrade
 ```
 
 This is critical for fields such as `user.session_timeout_minutes`.
+The migration chain is also expected to bootstrap a fresh local SQLite database from zero without manual table creation or stamping.
 
 ## 8. Release Checklist
 
-1. `python -m pytest tests -q` passes
-2. `flask db upgrade` executed successfully
-3. `python -m babel.messages.frontend compile -d translations` executed
-4. `VERSION` updated to target release
-5. `python create_installer.py` generated both EXE and Setup
-6. Smoke test login, dashboard, import/export, backup, and profile update
+1. `python -m pip install -r requirements-dev.txt`
+2. `ruff check .`
+3. `bandit -q -r app.py config.py database models routes services extensions.py`
+4. `pip-audit -r requirements.txt`
+5. `python -m pytest tests -q --cov=app --cov=config --cov=database --cov=extensions --cov=models --cov=routes --cov=services --cov-fail-under=90`
+6. `flask db upgrade` executed successfully
+7. If migrations changed, validate `flask db upgrade` on a fresh local database as well
+8. `python -m babel.messages.frontend compile -d translations` executed
+9. `VERSION` updated to target release
+10. `python create_installer.py` generated both EXE and Setup
+11. Smoke test login, dashboard, import/export, backup, and profile update
+12. Confirm production log output is being written to `logs/finora.log` (or the configured log path)
 
-## 9. Recommended GitHub Release Contents
+## 9. Rollback Checklist
+
+If a release must be rolled back, use this sequence:
+
+1. Disable external distribution of the faulty installer/release asset
+2. Restore the previous tagged installer/executable
+3. If the database schema was migrated forward, verify downgrade feasibility before changing binaries
+4. Restore the last known-good backup before any incompatible schema/data migration
+5. Validate login, dashboard, import/export, backup, and recurring maintenance after rollback
+6. Record incident date, version, migration state, and remediation notes
+
+## 10. Recommended GitHub Release Contents
 
 - Source code (tagged)
 - `Finora_Setup_v<version>.exe`

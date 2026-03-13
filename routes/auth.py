@@ -1,118 +1,51 @@
-import os
-import re
 import time
 import uuid
 
-from PIL import Image
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for
+from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
 from flask_login import current_user, login_required, login_user, logout_user
-from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from sqlalchemy.exc import IntegrityError
-from werkzeug.utils import secure_filename
 
 from database.db import db
+from extensions import limiter
 from models.user import User
+from services.auth_service import (
+    MIN_PASSWORD_LENGTH,
+    commit_auth_security_state,
+    find_user_by_identifier,
+    generate_reset_password_token,
+    is_strong_password,
+    is_valid_email,
+    resolve_user_from_reset_token,
+    utcnow_naive,
+)
+from services.profile_service import (
+    DELETE_CONFIRMATION_TOKEN,
+    VALID_SESSION_TIMEOUT_OPTIONS,
+    apply_profile_update,
+    change_user_password,
+    delete_user_account,
+)
 
 auth_bp = Blueprint('auth', __name__)
 
-MIN_PASSWORD_LENGTH = 8
-DELETE_CONFIRMATION_TOKEN = 'EXCLUIR'
-DEFAULT_PROFILE_IMAGE = 'default_profile.svg'
-ALLOWED_IMAGE_FORMATS = {'png', 'jpeg', 'jpg', 'gif'}
-VALID_SESSION_TIMEOUT_OPTIONS = {0, 1, 2, 3, 4, 5, 10, 15, 30, 60}
-RESET_PASSWORD_TOKEN_MAX_AGE_SECONDS = 3600
-
-
-def is_valid_email(email):
-    pattern = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
-    return re.match(pattern, email) is not None
-
-
-def is_strong_password(password):
-    if len(password or '') < MIN_PASSWORD_LENGTH:
-        return False
-    has_upper = any(char.isupper() for char in password)
-    has_lower = any(char.islower() for char in password)
-    has_digit = any(char.isdigit() for char in password)
-    return has_upper and has_lower and has_digit
-
-
-def is_valid_image(file_stream):
-    try:
-        current_pos = file_stream.tell()
-        img = Image.open(file_stream)
-        img.verify()
-        image_format = (img.format or '').lower()
-        file_stream.seek(current_pos)
-        return image_format in ALLOWED_IMAGE_FORMATS
-    except Exception:
-        return False
-
-
-def _uploaded_file_size(file_storage):
-    file_storage.stream.seek(0, os.SEEK_END)
-    size = file_storage.stream.tell()
-    file_storage.stream.seek(0)
-    return size
-
-
-def _remove_profile_image_if_custom(filename):
-    if not filename or filename == DEFAULT_PROFILE_IMAGE:
-        return
-
-    image_path = os.path.join(current_app.root_path, 'static', 'profile_pics', filename)
-    if os.path.exists(image_path):
-        os.remove(image_path)
-
-
-def _parse_session_timeout_minutes(raw_value):
-    try:
-        value = int(raw_value)
-    except (TypeError, ValueError):
-        raise ValueError('session_timeout')
-
-    if value not in VALID_SESSION_TIMEOUT_OPTIONS:
-        raise ValueError('session_timeout')
-    return value
-
-
-def _build_reset_password_serializer():
-    return URLSafeTimedSerializer(
-        current_app.config['SECRET_KEY'],
-        salt='finora-reset-password',
+def _generic_recovery_notice() -> str:
+    return _(
+        'Se existir uma conta correspondente, as instruções de recuperação foram processadas. '
+        'Use o método escolhido para concluir a redefinição de senha.'
     )
 
 
-def _generate_reset_password_token(user):
-    serializer = _build_reset_password_serializer()
-    payload = {'user_id': user.id, 'email': user.email}
-    return serializer.dumps(payload)
-
-
-def _resolve_user_from_reset_token(token):
-    serializer = _build_reset_password_serializer()
-    try:
-        data = serializer.loads(token, max_age=RESET_PASSWORD_TOKEN_MAX_AGE_SECONDS)
-    except SignatureExpired:
-        return None, 'expired'
-    except BadSignature:
-        return None, 'invalid'
-
-    user_id = data.get('user_id')
-    email = (data.get('email') or '').strip().lower()
-    if not user_id or not email:
-        return None, 'invalid'
-
-    user = db.session.get(User, int(user_id))
-    if not user or (user.email or '').strip().lower() != email:
-        return None, 'invalid'
-
-    return user, None
+def _lockout_notice() -> str:
+    return _(
+        'Muitas tentativas de acesso foram detectadas. Aguarde alguns minutos antes de tentar novamente.'
+    )
 
 
 @auth_bp.route('/check_username', methods=['POST'])
-def check_username():
+@limiter.limit(lambda: current_app.config.get('AUTH_RATE_LIMIT_LOOKUPS', '30 per minute'), methods=['POST'])
+def check_username() -> ResponseReturnValue:
     data = request.get_json(silent=True) or {}
     username = (data.get('username') or '').strip()
     if not username:
@@ -123,7 +56,8 @@ def check_username():
 
 
 @auth_bp.route('/check_email', methods=['POST'])
-def check_email():
+@limiter.limit(lambda: current_app.config.get('AUTH_RATE_LIMIT_LOOKUPS', '30 per minute'), methods=['POST'])
+def check_email() -> ResponseReturnValue:
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
     if not email or not is_valid_email(email):
@@ -134,7 +68,8 @@ def check_email():
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
-def login():
+@limiter.limit(lambda: current_app.config.get('AUTH_RATE_LIMIT_LOGIN', '10 per 5 minutes'), methods=['POST'])
+def login() -> ResponseReturnValue:
     if current_user.is_authenticated:
         return redirect(url_for('dashboard.index'))
 
@@ -142,18 +77,41 @@ def login():
         identifier = (request.form.get('identifier') or '').strip()
         password = request.form.get('password') or ''
         remember = bool(request.form.get('remember'))
+        now = utcnow_naive()
 
         if not identifier or not password:
             flash(_('Informe usuário/e-mail e senha para continuar.'), 'error')
             return redirect(url_for('auth.login'))
 
-        user = User.query.filter(
-            (User.email == identifier.lower()) | (User.username == identifier)
-        ).first()
+        user = find_user_by_identifier(identifier)
+
+        if user and user.locked_until and user.locked_until <= now:
+            user.reset_failed_logins()
+            commit_auth_security_state()
+
+        if user and user.is_locked_out(now):
+            flash(_lockout_notice(), 'error')
+            return redirect(url_for('auth.login'))
 
         if not user or not user.check_password(password):
+            if user:
+                user.register_failed_login(
+                    max_attempts=current_app.config.get('AUTH_MAX_FAILED_LOGINS', 5),
+                    lockout_minutes=current_app.config.get('AUTH_LOCKOUT_MINUTES', 15),
+                    now=now,
+                )
+                commit_auth_security_state()
+
+                if user.is_locked_out(now):
+                    flash(_lockout_notice(), 'error')
+                    return redirect(url_for('auth.login'))
+
             flash(_('Por favor verifique seus dados de login e tente novamente.'), 'error')
             return redirect(url_for('auth.login'))
+
+        if user.failed_login_attempts or user.locked_until:
+            user.reset_failed_logins()
+            commit_auth_security_state()
 
         login_user(user, remember=remember)
         session['last_activity_ts'] = int(time.time())
@@ -163,7 +121,8 @@ def login():
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
-def register():
+@limiter.limit(lambda: current_app.config.get('AUTH_RATE_LIMIT_REGISTER', '5 per hour'), methods=['POST'])
+def register() -> ResponseReturnValue:
     if current_user.is_authenticated:
         return redirect(url_for('dashboard.index'))
 
@@ -223,13 +182,14 @@ def register():
 
 @auth_bp.route('/logout')
 @login_required
-def logout():
+def logout() -> ResponseReturnValue:
     logout_user()
     return redirect(url_for('auth.login'))
 
 
 @auth_bp.route('/forgot_password', methods=['GET', 'POST'])
-def forgot_password():
+@limiter.limit(lambda: current_app.config.get('AUTH_RATE_LIMIT_FORGOT_PASSWORD', '10 per hour'), methods=['POST'])
+def forgot_password() -> ResponseReturnValue:
     if request.method == 'POST':
         identifier = (request.form.get('identifier') or '').strip()
         method = request.form.get('method')
@@ -238,40 +198,34 @@ def forgot_password():
             flash(_('Método de recuperação inválido.'), 'error')
             return redirect(url_for('auth.forgot_password'))
 
-        user = User.query.filter(
-            (User.email == identifier.lower()) | (User.username == identifier)
-        ).first()
-
-        if not user:
-            flash(_('Usuário não encontrado.'), 'error')
-            return redirect(url_for('auth.forgot_password'))
+        user = find_user_by_identifier(identifier)
 
         if method == 'email':
-            token = _generate_reset_password_token(user)
-            reset_url = url_for('auth.reset_password_token', token=token, _external=True)
+            if user:
+                token = generate_reset_password_token(user)
+                reset_url = url_for('auth.reset_password_token', token=token, _external=True)
 
-            # Local/development fallback: keep flow usable even without SMTP integration.
-            current_app.logger.info("Link de recuperação para %s: %s", user.email, reset_url)
-            flash(
-                _(
-                    'Envio por e-mail não está configurado neste ambiente. Para desenvolvimento, o link foi gerado e pode ser usado agora.'
-                ),
-                'warning',
-            )
-            return redirect(url_for('auth.reset_password_token', token=token))
+                # Local/development fallback: keep instructions available in logs only.
+                current_app.logger.info("Link de recuperação para %s: %s", user.email, reset_url)
 
-        return redirect(url_for('auth.reset_password_offline', user_id=user.id))
+            flash(_generic_recovery_notice(), 'info')
+            return redirect(url_for('auth.login'))
+
+        flash(_generic_recovery_notice(), 'info')
+        return redirect(url_for('auth.reset_password_offline', identifier=identifier))
 
     return render_template('auth/forgot_password.html')
 
 
-@auth_bp.route('/reset_password/offline/<int:user_id>', methods=['GET', 'POST'])
-def reset_password_offline(user_id):
-    user = User.query.get_or_404(user_id)
-
+@auth_bp.route('/reset_password/offline', methods=['GET', 'POST'])
+@limiter.limit(lambda: current_app.config.get('AUTH_RATE_LIMIT_FORGOT_PASSWORD', '10 per hour'), methods=['POST'])
+def reset_password_offline() -> ResponseReturnValue:
+    identifier = (request.values.get('identifier') or '').strip()
     if request.method == 'POST':
-        key = (request.form.get('recovery_key') or '').strip()
+        identifier = (request.form.get('identifier') or '').strip()
+        key = (request.form.get('recovery_key') or '').strip().upper()
         new_password = request.form.get('new_password') or ''
+        user = find_user_by_identifier(identifier)
 
         if not is_strong_password(new_password):
             flash(
@@ -281,10 +235,11 @@ def reset_password_offline(user_id):
                 ),
                 'error',
             )
-            return redirect(url_for('auth.reset_password_offline', user_id=user.id))
+            return redirect(url_for('auth.reset_password_offline', identifier=identifier))
 
-        if user.check_recovery_key(key):
+        if user and user.check_recovery_key(key):
             user.set_password(new_password)
+            user.reset_failed_logins()
             try:
                 db.session.commit()
                 flash(_('Sua senha foi atualizada com sucesso!'), 'success')
@@ -292,19 +247,20 @@ def reset_password_offline(user_id):
             except Exception:
                 db.session.rollback()
                 flash(_('Não foi possível atualizar a senha. Tente novamente.'), 'error')
+                return redirect(url_for('auth.reset_password_offline', identifier=identifier))
 
-        flash(_('Chave de recuperação inválida.'), 'error')
+        flash(_('Dados de recuperação inválidos. Verifique as informações e tente novamente.'), 'error')
 
-    return render_template('auth/reset_password_offline.html', user=user)
+    return render_template('auth/reset_password_offline.html', identifier=identifier)
 
 
 @auth_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password_token(token):
-    user, token_error = _resolve_user_from_reset_token(token)
-    if token_error == 'expired':
+def reset_password_token(token: str) -> ResponseReturnValue:
+    user, token_error = resolve_user_from_reset_token(token)
+    if token_error == 'expired':  # nosec B105
         flash(_('Este link de recuperação expirou. Solicite um novo link.'), 'error')
         return redirect(url_for('auth.forgot_password'))
-    if token_error == 'invalid' or not user:
+    if token_error == 'invalid' or not user:  # nosec B105
         flash(_('Link de recuperação inválido.'), 'error')
         return redirect(url_for('auth.forgot_password'))
 
@@ -335,82 +291,56 @@ def reset_password_token(token):
 
 @auth_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
-def profile():
+def profile() -> ResponseReturnValue:
     if request.method == 'POST':
-        action = request.form.get('action')
+        action = request.form.get('action') or ''
 
         if action == 'update_info':
-            current_user.name = (request.form.get('name') or '').strip() or None
-            new_email = (request.form.get('email') or '').strip().lower()
-            raw_timeout = request.form.get('session_timeout_minutes', '0')
+            error_code = apply_profile_update(
+                user=current_user,
+                form=request.form,
+                files=request.files,
+                root_path=current_app.root_path,
+                max_image_size=current_app.config.get('MAX_PROFILE_IMAGE_SIZE', 2 * 1024 * 1024),
+            )
 
-            try:
-                current_user.session_timeout_minutes = _parse_session_timeout_minutes(raw_timeout)
-            except ValueError:
+            if error_code == 'invalid_session_timeout':
                 flash(_('Tempo de sessão inválido.'), 'error')
                 return redirect(url_for('auth.profile'))
-
-            if new_email and new_email != current_user.email:
-                if not is_valid_email(new_email):
-                    flash(_('Por favor, insira um endereço de e-mail válido.'), 'error')
-                    return redirect(url_for('auth.profile'))
-
-                existing_user = User.query.filter(
-                    User.email == new_email, User.id != current_user.id
-                ).first()
-                if existing_user:
-                    flash(_('Este endereço de e-mail já está em uso.'), 'error')
-                    return redirect(url_for('auth.profile'))
-
-                current_user.email = new_email
-
-            if 'delete_image' in request.form:
-                old_image = current_user.profile_image
-                current_user.profile_image = DEFAULT_PROFILE_IMAGE
-                _remove_profile_image_if_custom(old_image)
-            elif 'profile_image' in request.files:
-                file = request.files['profile_image']
-                if file and file.filename:
-                    max_image_size = current_app.config.get('MAX_PROFILE_IMAGE_SIZE', 2 * 1024 * 1024)
-                    if _uploaded_file_size(file) > max_image_size:
-                        flash(_('A imagem excede o tamanho máximo permitido de 2 MB.'), 'error')
-                        return redirect(url_for('auth.profile'))
-
-                    if is_valid_image(file.stream):
-                        safe_original_name = secure_filename(file.filename)
-                        if not safe_original_name:
-                            flash(_('Nome de arquivo inválido para upload de imagem.'), 'error')
-                            return redirect(url_for('auth.profile'))
-                        filename = f"user_{current_user.id}_{uuid.uuid4().hex[:8]}_{safe_original_name}"
-                        filepath = os.path.join(current_app.root_path, 'static', 'profile_pics', filename)
-                        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-                        file.save(filepath)
-
-                        old_image = current_user.profile_image
-                        current_user.profile_image = filename
-                        _remove_profile_image_if_custom(old_image)
-                    else:
-                        flash(_('Arquivo de imagem inválido. Formatos permitidos: JPG, PNG e GIF.'), 'error')
-                        return redirect(url_for('auth.profile'))
-
-            try:
-                db.session.commit()
-                if current_user.session_timeout_minutes > 0:
-                    session['last_activity_ts'] = int(time.time())
-                else:
-                    session.pop('last_activity_ts', None)
-                flash(_('Perfil atualizado com sucesso!'), 'success')
-            except IntegrityError:
-                db.session.rollback()
+            if error_code == 'invalid_email':
+                flash(_('Por favor, insira um endereço de e-mail válido.'), 'error')
+                return redirect(url_for('auth.profile'))
+            if error_code == 'duplicate_email':
+                flash(_('Este endereço de e-mail já está em uso.'), 'error')
+                return redirect(url_for('auth.profile'))
+            if error_code == 'image_too_large':
+                flash(_('A imagem excede o tamanho máximo permitido de 2 MB.'), 'error')
+                return redirect(url_for('auth.profile'))
+            if error_code == 'invalid_image_name':
+                flash(_('Nome de arquivo inválido para upload de imagem.'), 'error')
+                return redirect(url_for('auth.profile'))
+            if error_code == 'invalid_image':
+                flash(_('Arquivo de imagem inválido. Formatos permitidos: JPG, PNG e GIF.'), 'error')
+                return redirect(url_for('auth.profile'))
+            if error_code == 'profile_persist_failed':
                 flash(_('Não foi possível atualizar o perfil. Revise os dados e tente novamente.'), 'error')
+                return redirect(url_for('auth.profile'))
+
+            if current_user.session_timeout_minutes > 0:
+                session['last_activity_ts'] = int(time.time())
+            else:
+                session.pop('last_activity_ts', None)
+            flash(_('Perfil atualizado com sucesso!'), 'success')
 
         elif action == 'change_password':
-            current_password = request.form.get('current_password') or ''
-            new_password = request.form.get('new_password') or ''
-
-            if not current_user.check_password(current_password):
+            error_code = change_user_password(
+                user=current_user,
+                current_password=request.form.get('current_password') or '',
+                new_password=request.form.get('new_password') or '',
+            )
+            if error_code == 'invalid_current_password':
                 flash(_('Senha atual incorreta.'), 'error')
-            elif not is_strong_password(new_password):
+            elif error_code == 'weak_password':
                 flash(
                     _(
                         'A nova senha deve ter ao menos %(length)d caracteres, incluindo letras maiúsculas, minúsculas e números.',
@@ -418,29 +348,22 @@ def profile():
                     ),
                     'error',
                 )
+            elif error_code == 'password_update_failed':
+                flash(_('Não foi possível alterar a senha. Tente novamente.'), 'error')
             else:
-                current_user.set_password(new_password)
-                try:
-                    db.session.commit()
-                    flash(_('Senha alterada com sucesso!'), 'success')
-                except Exception:
-                    db.session.rollback()
-                    flash(_('Não foi possível alterar a senha. Tente novamente.'), 'error')
+                flash(_('Senha alterada com sucesso!'), 'success')
 
         elif action == 'delete_account':
             confirmation = (request.form.get('confirmation') or '').strip().upper()
             if confirmation == DELETE_CONFIRMATION_TOKEN:
-                user = current_user
-                _remove_profile_image_if_custom(user.profile_image)
+                user = current_user._get_current_object()
                 logout_user()
-                db.session.delete(user)
-                try:
-                    db.session.commit()
+                error_code = delete_user_account(user, current_app.root_path)
+                if not error_code:
                     flash(_('Sua conta foi excluída permanentemente.'), 'info')
                     return redirect(url_for('public.welcome'))
-                except Exception:
-                    db.session.rollback()
-                    flash(_('Não foi possível excluir a conta neste momento.'), 'error')
+                flash(_('Não foi possível excluir a conta neste momento.'), 'error')
+                return redirect(url_for('auth.profile'))
 
             flash(
                 _(
@@ -458,7 +381,7 @@ def profile():
 
 
 @auth_bp.route('/session/refresh', methods=['POST'])
-def refresh_session():
+def refresh_session() -> ResponseReturnValue:
     if not current_user.is_authenticated:
         return jsonify({'ok': False, 'expired': True}), 401
 

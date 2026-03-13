@@ -12,7 +12,7 @@ class Goal(db.Model):
     target_amount = db.Column(db.Float, nullable=False)
     current_amount = db.Column(db.Float, default=0.0)
     deadline = db.Column(db.Date, nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
     created_at = db.Column(db.DateTime, default=datetime.now)
 

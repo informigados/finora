@@ -1,5 +1,6 @@
 from flask import Blueprint, send_file
 from flask_login import login_required, current_user
+from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
 from services.reports import generate_pdf_report
 from services.calculations import get_monthly_stats
@@ -13,7 +14,7 @@ export_bp = Blueprint('export', __name__)
 
 @export_bp.route('/export/<type>/<int:year>/<int:month>')
 @login_required
-def export_data(type, year, month):
+def export_data(type: str, year: int, month: int) -> ResponseReturnValue:
     entries = db.session.query(Finance).filter(
         Finance.user_id == current_user.id,
         extract('year', Finance.due_date) == year,

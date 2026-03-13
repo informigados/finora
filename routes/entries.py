@@ -1,19 +1,22 @@
 from flask import Blueprint, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
 from models.finance import Finance
 from models.recurring import RecurringEntry
 from database.db import db
-from services.validators import validate_finance_data
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
+from services.ownership import get_owned_or_none
+from services.recurring_service import VALID_RECURRENCE_FREQUENCIES, get_next_run_date
+from services.validators import parse_finance_form
+from datetime import datetime
 
 entries_bp = Blueprint('entries', __name__)
-VALID_ENTRY_TYPES = {'Receita', 'Despesa'}
-VALID_ENTRY_STATUS = {'Pago', 'Pendente', 'Atrasado'}
 
 
-def _redirect_dashboard_context(fallback_year=None, fallback_month=None):
+def _redirect_dashboard_context(
+    fallback_year: int | None = None,
+    fallback_month: int | None = None,
+) -> ResponseReturnValue:
     year = request.form.get('redirect_year', type=int)
     month = request.form.get('redirect_month', type=int)
     page = request.form.get('redirect_page', type=int)
@@ -33,47 +36,24 @@ def _redirect_dashboard_context(fallback_year=None, fallback_month=None):
 
 @entries_bp.route('/entries/add', methods=['POST'])
 @login_required
-def add_entry():
+def add_entry() -> ResponseReturnValue:
     data = request.form
     try:
-        validation_errors = validate_finance_data(data)
+        payload, validation_errors = parse_finance_form(data)
         if validation_errors:
             flash(_(validation_errors[0]), 'error')
             return _redirect_dashboard_context()
 
-        description = (data.get('description') or '').strip()
-
-        # Validate critical numeric fields
-        try:
-            val = float(data['value'])
-            if val < 0:
-                raise ValueError("Value cannot be negative.")
-        except ValueError:
-            flash(_('Valor inválido. Insira um número válido e positivo.'), 'error')
-            return _redirect_dashboard_context()
-            
-        entry_type = data.get('type')
-        entry_status = data.get('status')
-        if entry_type not in VALID_ENTRY_TYPES:
-            flash(_('Tipo de lançamento inválido.'), 'error')
-            return _redirect_dashboard_context()
-        if entry_status not in VALID_ENTRY_STATUS:
-            flash(_('Status de lançamento inválido.'), 'error')
-            return _redirect_dashboard_context()
-
-        due_d = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
-        pay_d = datetime.strptime(data['payment_date'], '%Y-%m-%d').date() if data.get('payment_date') else None
-
         # 1. Create the initial entry
         new_entry = Finance(
-            description=description,
-            value=val,
-            category=data['category'],
-            type=entry_type,
-            status=entry_status,
-            due_date=due_d,
-            payment_date=pay_d,
-            observations=data.get('observations'),
+            description=payload['description'],
+            value=payload['value'],
+            category=payload['category'],
+            type=payload['type'],
+            status=payload['status'],
+            due_date=payload['due_date'],
+            payment_date=payload['payment_date'],
+            observations=payload['observations'],
             user_id=current_user.id
         )
         db.session.add(new_entry)
@@ -82,24 +62,23 @@ def add_entry():
         if data.get('is_recurring') == 'on':
             freq = data.get('frequency')
             start_date = new_entry.due_date
-            
-            # Calculate next run date
-            next_run = start_date
-            if freq == 'Diário':
-                next_run += timedelta(days=1)
-            elif freq == 'Semanal':
-                next_run += timedelta(weeks=1)
-            elif freq == 'Mensal':
-                next_run += relativedelta(months=1)
-            elif freq == 'Anual':
-                next_run += relativedelta(years=1)
-            
-            end_d = datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data.get('end_date') else None
-                
-            if freq not in {'Diário', 'Semanal', 'Mensal', 'Anual'}:
+
+            if freq not in VALID_RECURRENCE_FREQUENCIES:
                 flash(_('Frequência de recorrência inválida.'), 'error')
                 db.session.rollback()
                 return _redirect_dashboard_context()
+
+            next_run = get_next_run_date(start_date, freq)
+            if not next_run:
+                flash(_('Frequência de recorrência inválida.'), 'error')
+                db.session.rollback()
+                return _redirect_dashboard_context()
+
+            end_d = (
+                datetime.strptime(data['end_date'], '%Y-%m-%d').date()
+                if data.get('end_date')
+                else None
+            )
 
             recurring = RecurringEntry(
                 description=new_entry.description,
@@ -118,7 +97,7 @@ def add_entry():
             flash(_('Lançamento adicionado com sucesso!'), 'success')
             
         db.session.commit()
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         flash(_('Erro ao adicionar lançamento. Verifique os dados e tente novamente.'), 'error')
         
@@ -126,12 +105,12 @@ def add_entry():
 
 @entries_bp.route('/entries/delete/<int:id>', methods=['POST'])
 @login_required
-def delete_entry(id):
-    entry = db.session.get(Finance, id)
+def delete_entry(id: int) -> ResponseReturnValue:
+    entry = get_owned_or_none(Finance, id, current_user.id)
     fallback_year = entry.due_date.year if entry else None
     fallback_month = entry.due_date.month if entry else None
 
-    if entry and entry.user_id == current_user.id:
+    if entry:
         try:
             db.session.delete(entry)
             db.session.commit()
@@ -143,52 +122,30 @@ def delete_entry(id):
 
 @entries_bp.route('/entries/edit/<int:id>', methods=['POST'])
 @login_required
-def edit_entry(id):
-    entry = db.session.get(Finance, id)
+def edit_entry(id: int) -> ResponseReturnValue:
+    entry = get_owned_or_none(Finance, id, current_user.id)
     fallback_year = entry.due_date.year if entry else None
     fallback_month = entry.due_date.month if entry else None
 
-    if entry and entry.user_id == current_user.id:
+    if entry:
         data = request.form
         try:
-            validation_errors = validate_finance_data(data)
+            payload, validation_errors = parse_finance_form(data)
             if validation_errors:
                 flash(_(validation_errors[0]), 'error')
                 return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
 
-            try:
-                val = float(data['value'])
-                if val < 0:
-                    raise ValueError("Value cannot be negative.")
-            except ValueError:
-                flash(_('Valor inválido. Insira um número válido e positivo.'), 'error')
-                return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
-
-            entry_type = data.get('type')
-            entry_status = data.get('status')
-            if entry_type not in VALID_ENTRY_TYPES:
-                flash(_('Tipo de lançamento inválido.'), 'error')
-                return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
-            if entry_status not in VALID_ENTRY_STATUS:
-                flash(_('Status de lançamento inválido.'), 'error')
-                return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
-
-            description = (data.get('description') or '').strip()
-            if not description:
-                flash(_('Descrição é obrigatória.'), 'error')
-                return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
-
-            entry.description = description
-            entry.value = val
-            entry.category = data['category']
-            entry.type = entry_type
-            entry.status = entry_status
-            entry.due_date = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
-            entry.payment_date = datetime.strptime(data['payment_date'], '%Y-%m-%d').date() if data.get('payment_date') else None
-            entry.observations = data.get('observations')
+            entry.description = payload['description']
+            entry.value = payload['value']
+            entry.category = payload['category']
+            entry.type = payload['type']
+            entry.status = payload['status']
+            entry.due_date = payload['due_date']
+            entry.payment_date = payload['payment_date']
+            entry.observations = payload['observations']
             db.session.commit()
             flash(_('Lançamento atualizado com sucesso!'), 'success')
-        except Exception as e:
+        except Exception:
             db.session.rollback()
             flash(_('Erro ao atualizar lançamento.'), 'error')
             

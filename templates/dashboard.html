@@ -1,8 +1,39 @@
 {% extends "base.html" %}
 
+{% block title %}{{ _('Painel Financeiro') }} | Finora{% endblock %}
+
 {% block content %}
 {% set default_due_date = today.strftime('%Y-%m-%d') if today.year == year and today.month == month else "%04d-%02d-01"|format(year, month) %}
 {% set current_page = entries_pagination.page if entries_pagination else 1 %}
+<div class="dashboard-skeleton mb-4" aria-hidden="true">
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-4"><div class="skeleton-card"></div></div>
+        <div class="col-12 col-lg-8">
+            <div class="row g-3">
+                <div class="col-md-4"><div class="skeleton-card"></div></div>
+                <div class="col-md-4"><div class="skeleton-card"></div></div>
+                <div class="col-md-4"><div class="skeleton-card"></div></div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card card-premium p-4">
+                <div class="skeleton-line w-25 mb-3"></div>
+                <div class="skeleton-line w-100 mb-2"></div>
+                <div class="skeleton-line w-100 mb-2"></div>
+                <div class="skeleton-line w-75"></div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card card-premium p-4">
+                <div class="skeleton-line w-50 mb-4"></div>
+                <div class="skeleton-circle"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="dashboard-content">
 <!-- Top Controls -->
 <div class="row mb-4 align-items-center">
     <div class="col-md-6">
@@ -88,11 +119,11 @@
             <div class="card-header card-header-premium d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
                 <div>
                     <i data-lucide="list" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Lançamentos do Mês') }}
-                    <span class="badge bg-secondary ms-2" id="itemCount">{{ entries|length }} {{ _('itens') }}</span>
+                    <span class="badge bg-secondary ms-2" id="itemCount" aria-live="polite">{{ entries|length }} {{ _('itens') }}</span>
                 </div>
                 <div class="position-relative search-container">
                     <i data-lucide="search" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted icon-sm"></i>
-                    <input type="text" id="searchInput" class="form-control form-control-sm ps-5 rounded-pill" placeholder="{{ _('Buscar lançamentos...') }}" onkeyup="filterTable()">
+                    <input type="text" id="searchInput" class="form-control form-control-sm ps-5 rounded-pill" placeholder="{{ _('Buscar lançamentos...') }}" aria-label="{{ _('Buscar lançamentos') }}" onkeyup="filterTable()">
                 </div>
             </div>
             <div class="card-body p-0">
@@ -136,7 +167,7 @@
                                             aria-label="{{ _('Editar') }}">
                                         <i data-lucide="edit" class="icon-sm"></i>
                                     </button>
-                                    <form action="{{ url_for('entries.delete_entry', id=entry.id) }}" method="POST" class="d-inline" data-confirm-msg="{{ _('Tem certeza?') }}" onsubmit="return confirm(this.dataset.confirmMsg);">
+                                    <form action="{{ url_for('entries.delete_entry', id=entry.id) }}" method="POST" class="d-inline" data-confirm="{{ _('Tem certeza que deseja excluir este lançamento?') }}">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <input type="hidden" name="redirect_year" value="{{ year }}"/>
                                         <input type="hidden" name="redirect_month" value="{{ month }}"/>
@@ -170,19 +201,19 @@
                 <nav aria-label="{{ _('Paginação dos lançamentos') }}">
                     <ul class="pagination pagination-sm mb-0 justify-content-center">
                         <li class="page-item {% if not entries_pagination.has_prev %}disabled{% endif %}">
-                            <a class="page-link" href="{{ url_for('dashboard.view_month', year=year, month=month, page=entries_pagination.prev_num) if entries_pagination.has_prev else '#' }}">{{ _('Anterior') }}</a>
+                            <a class="page-link" href="{{ url_for('dashboard.view_month', year=year, month=month, page=entries_pagination.prev_num) if entries_pagination.has_prev else '#' }}" {% if not entries_pagination.has_prev %}tabindex="-1" aria-disabled="true"{% endif %}>{{ _('Anterior') }}</a>
                         </li>
                         {% for p in entries_pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
                             {% if p %}
                             <li class="page-item {% if p == entries_pagination.page %}active{% endif %}">
-                                <a class="page-link" href="{{ url_for('dashboard.view_month', year=year, month=month, page=p) }}">{{ p }}</a>
+                                <a class="page-link" href="{{ url_for('dashboard.view_month', year=year, month=month, page=p) }}" {% if p == entries_pagination.page %}aria-current="page"{% endif %}>{{ p }}</a>
                             </li>
                             {% else %}
                             <li class="page-item disabled"><span class="page-link">…</span></li>
                             {% endif %}
                         {% endfor %}
                         <li class="page-item {% if not entries_pagination.has_next %}disabled{% endif %}">
-                            <a class="page-link" href="{{ url_for('dashboard.view_month', year=year, month=month, page=entries_pagination.next_num) if entries_pagination.has_next else '#' }}">{{ _('Próxima') }}</a>
+                            <a class="page-link" href="{{ url_for('dashboard.view_month', year=year, month=month, page=entries_pagination.next_num) if entries_pagination.has_next else '#' }}" {% if not entries_pagination.has_next %}tabindex="-1" aria-disabled="true"{% endif %}>{{ _('Próxima') }}</a>
                         </li>
                     </ul>
                 </nav>
@@ -196,7 +227,13 @@
         <div class="card card-premium mb-3">
             <div class="card-header card-header-premium"><i data-lucide="pie-chart" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Despesas por Categoria') }}</div>
             <div class="card-body card-body-premium">
+                <div id="catChartEmpty" class="text-center text-muted small py-5 d-none">
+                    <i data-lucide="pie-chart" class="icon-lg mb-2"></i>
+                    <div>{{ _('Ainda não há despesas suficientes para montar o gráfico deste período.') }}</div>
+                </div>
                 <canvas id="catChart" 
+                        role="img"
+                        aria-label="{{ _('Gráfico de despesas por categoria') }}"
                         data-labels='{{ stats.chart_labels|tojson }}' 
                         data-values='{{ stats.chart_values|tojson }}'></canvas>
             </div>
@@ -205,21 +242,23 @@
         <div class="card card-premium">
             <div class="card-header card-header-premium"><i data-lucide="download-cloud" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Exportar & Importar') }}</div>
             <div class="card-body card-body-premium d-grid gap-2">
-                <a href="{{ url_for('export.export_data', type='pdf', year=year, month=month) }}" class="btn btn-outline-danger d-flex justify-content-center align-items-center">
+                <a href="{{ url_for('export.export_data', type='pdf', year=year, month=month) }}" class="btn btn-outline-danger d-flex justify-content-center align-items-center" data-loading-link="{{ _('Gerando PDF...') }}">
                     <i data-lucide="file-text" class="me-2 icon-sm"></i>{{ _('Relatório PDF') }}
                 </a>
-                <a href="{{ url_for('export.export_data', type='csv', year=year, month=month) }}" class="btn btn-outline-success d-flex justify-content-center align-items-center">
+                <a href="{{ url_for('export.export_data', type='csv', year=year, month=month) }}" class="btn btn-outline-success d-flex justify-content-center align-items-center" data-loading-link="{{ _('Gerando CSV...') }}">
                     <i data-lucide="file-spreadsheet" class="me-2 icon-sm"></i>{{ _('Planilha CSV') }}
                 </a>
-                <a href="{{ url_for('export.export_data', type='txt', year=year, month=month) }}" class="btn btn-outline-secondary d-flex justify-content-center align-items-center">
+                <a href="{{ url_for('export.export_data', type='txt', year=year, month=month) }}" class="btn btn-outline-secondary d-flex justify-content-center align-items-center" data-loading-link="{{ _('Gerando TXT...') }}">
                     <i data-lucide="file" class="me-2 icon-sm"></i>{{ _('Arquivo TXT') }}
                 </a>
                 <hr>
-                <form action="{{ url_for('import.import_file') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ url_for('import.import_file') }}" method="POST" enctype="multipart/form-data" data-loading-text="{{ _('Importando...') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="input-group">
                         <input type="file" name="file" class="form-control" accept=".csv, .xlsx" required aria-label="{{ _('Arquivo para importação') }}">
-                        <button class="btn btn-primary d-flex align-items-center" type="submit" aria-label="{{ _('Importar') }}"><i data-lucide="upload" class="icon-sm"></i></button>
+                        <button class="btn btn-primary d-flex align-items-center" type="submit" aria-label="{{ _('Importar') }}">
+                            <i data-lucide="upload" class="icon-sm me-1"></i><span>{{ _('Importar') }}</span>
+                        </button>
                     </div>
                     <small class="text-muted">{{ _('CSV ou XLSX (máx. 10 MB)') }}</small>
                 </form>
@@ -264,14 +303,7 @@
                             <label for="catInput" class="form-label">{{ _('Categoria') }}</label>
                             <input type="text" id="catInput" name="category" class="form-control" list="catList" required>
                             <datalist id="catList">
-                                <option value="{{ _('Alimentação') }}"></option>
-                                <option value="{{ _('Moradia') }}"></option>
-                                <option value="{{ _('Transporte') }}"></option>
-                                <option value="{{ _('Lazer') }}"></option>
-                                <option value="{{ _('Saúde') }}"></option>
-                                <option value="{{ _('Educação') }}"></option>
-                                <option value="{{ _('Salário') }}"></option>
-                                <option value="{{ _('Investimento') }}"></option>
+                                {% include "partials/category_datalist_options.html" %}
                             </datalist>
                         </div>
                         <div class="col-6">
@@ -332,6 +364,7 @@
         </div>
     </div>
 </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -342,27 +375,32 @@
         const ctx = chartCanvas.getContext('2d');
         const labels = JSON.parse(chartCanvas.dataset.labels || '[]');
         const dataValues = JSON.parse(chartCanvas.dataset.values || '[]');
-        
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: dataValues,
-                    backgroundColor: [
-                        '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4'
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' }
+
+        if (!dataValues.length || dataValues.every((value) => Number(value) <= 0)) {
+            chartCanvas.classList.add('d-none');
+            document.getElementById('catChartEmpty')?.classList.remove('d-none');
+        } else {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: [
+                            '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     // Modal Handling

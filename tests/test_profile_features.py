@@ -1,5 +1,3 @@
-
-import pytest
 from models.user import User
 from database.db import db
 
@@ -152,3 +150,42 @@ def test_refresh_session_requires_auth(client):
     assert response.status_code == 401
     payload = response.get_json()
     assert payload['ok'] is False
+
+
+def test_profile_change_password_success(client, app):
+    with app.app_context():
+        user = User(username='changepass', email='changepass@example.com', name='Change Pass')
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.commit()
+
+    client.post('/login', data={'identifier': 'changepass', 'password': 'Password123'}, follow_redirects=True)
+
+    response = client.post('/profile', data={
+        'action': 'change_password',
+        'current_password': 'Password123',
+        'new_password': 'NewPassword123',
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b'Senha alterada com sucesso' in response.data
+
+
+def test_profile_delete_account_success(client, app):
+    with app.app_context():
+        user = User(username='deleteacct', email='deleteacct@example.com', name='Delete Account')
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.commit()
+
+    client.post('/login', data={'identifier': 'deleteacct', 'password': 'Password123'}, follow_redirects=True)
+    response = client.post('/profile', data={
+        'action': 'delete_account',
+        'confirmation': 'EXCLUIR',
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b'Sua conta foi exclu' in response.data
+
+    with app.app_context():
+        assert User.query.filter_by(username='deleteacct').first() is None

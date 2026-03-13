@@ -1,14 +1,20 @@
 from datetime import datetime
 from urllib.parse import urlparse
 
-from flask import Flask, request, session, flash, redirect, url_for, g
+import click
+import shutil
+import tempfile
+from flask import Flask, request, session, flash, redirect, url_for, g, jsonify
 from flask_babel import Babel, gettext as _
 from flask_login import LoginManager, current_user, logout_user
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import inspect, text
+from alembic.config import Config as AlembicConfig
+from alembic.script import ScriptDirectory
 from database.db import db
 from config import config
+from extensions import limiter
 from routes.dashboard import dashboard_bp
 from routes.entries import entries_bp
 from routes.export import export_bp
@@ -18,6 +24,10 @@ from routes.budgets import budgets_bp
 from routes.auth import auth_bp
 from routes.backup import backup_bp
 from routes.public import public_bp
+from services.catalogs import DEFAULT_FINANCE_CATEGORIES
+from services.db_resilience import run_idempotent_db_operation
+from services.logging_utils import configure_application_logging, request_id_context
+from services.maintenance_service import run_recurring_maintenance, start_recurring_scheduler
 import os
 from threading import Timer
 
@@ -28,8 +38,28 @@ import time
 RUNTIME_SQLITE_COLUMN_PATCHES = {
     'user': {
         'session_timeout_minutes': 'INTEGER NOT NULL DEFAULT 0',
+        'failed_login_attempts': 'INTEGER NOT NULL DEFAULT 0',
+        'locked_until': 'DATETIME',
     }
 }
+
+REQUIRED_APPLICATION_TABLES = frozenset(
+    {'user', 'finances', 'goals', 'budgets', 'recurring_entries'}
+)
+
+
+CONTENT_SECURITY_POLICY = "; ".join([
+    "default-src 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "img-src 'self' data:",
+    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com",
+    "connect-src 'self'",
+])
 
 
 def ensure_runtime_schema_compatibility(app):
@@ -79,6 +109,123 @@ def ensure_runtime_schema_compatibility(app):
             )
 
 
+def _resolve_sqlite_database_path(app):
+    database_uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    if not database_uri.startswith('sqlite:///'):
+        return None
+
+    db_path = database_uri.replace('sqlite:///', '', 1)
+    if not db_path or db_path == ':memory:':
+        return None
+
+    if os.path.isabs(db_path):
+        return db_path
+
+    return os.path.join(app.root_path, db_path)
+
+
+def _build_alembic_config(app):
+    migrations_dir = os.path.join(app.root_path, 'migrations')
+    alembic_config = AlembicConfig(os.path.join(migrations_dir, 'alembic.ini'))
+    alembic_config.set_main_option('script_location', migrations_dir.replace('%', '%%'))
+    alembic_config.set_main_option(
+        'sqlalchemy.url',
+        app.config['SQLALCHEMY_DATABASE_URI'].replace('%', '%%'),
+    )
+    return alembic_config
+
+
+def _get_alembic_head_revision(app):
+    return ScriptDirectory.from_config(_build_alembic_config(app)).get_current_head()
+
+
+def _stamp_alembic_head(app):
+    head_revision = _get_alembic_head_revision(app)
+    with db.engine.begin() as connection:
+        connection.execute(
+            text(
+                'CREATE TABLE IF NOT EXISTS alembic_version '
+                '(version_num VARCHAR(32) NOT NULL)'
+            )
+        )
+        connection.execute(text('DELETE FROM alembic_version'))
+        connection.execute(
+            text('INSERT INTO alembic_version (version_num) VALUES (:version_num)'),
+            {'version_num': head_revision},
+        )
+
+
+def ensure_sqlite_schema_bootstrapped(app):
+    if app.config.get('TESTING'):
+        return
+
+    db_path = _resolve_sqlite_database_path(app)
+    if not db_path:
+        return
+
+    with app.app_context():
+        try:
+            table_names = set(inspect(db.engine).get_table_names())
+        except Exception:
+            app.logger.exception('Falha ao inspecionar schema SQLite na inicializacao.')
+            return
+
+        if REQUIRED_APPLICATION_TABLES.issubset(table_names):
+            return
+
+        application_tables_present = table_names.intersection(REQUIRED_APPLICATION_TABLES)
+        if application_tables_present:
+            missing_tables = sorted(REQUIRED_APPLICATION_TABLES.difference(table_names))
+            app.logger.error(
+                'Schema SQLite incompleto detectado. Tabelas ausentes: %s. '
+                'Execute "flask db upgrade" ou restaure um backup valido.',
+                ', '.join(missing_tables),
+            )
+            return
+
+        if table_names not in (set(), {'alembic_version'}):
+            app.logger.error(
+                'Schema SQLite inconsistente detectado com tabelas inesperadas: %s.',
+                ', '.join(sorted(table_names)),
+            )
+            return
+
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        repair_backup_path = f'{db_path}.bootstrap_repair_{timestamp}.bak'
+
+        try:
+            db.session.remove()
+            db.engine.dispose()
+
+            if os.path.exists(db_path):
+                shutil.copy2(db_path, repair_backup_path)
+                os.remove(db_path)
+                app.logger.warning(
+                    'Banco SQLite inconsistente detectado. Backup criado em %s antes do reparo.',
+                    repair_backup_path,
+                )
+
+            db.create_all()
+            _stamp_alembic_head(app)
+            db.engine.dispose()
+            repaired_tables = set(inspect(db.engine).get_table_names())
+        except Exception:
+            app.logger.exception(
+                'Falha ao reparar automaticamente o schema SQLite local.'
+            )
+            return
+
+        if REQUIRED_APPLICATION_TABLES.issubset(repaired_tables):
+            app.logger.info(
+                'Schema SQLite local reparado com sucesso via bootstrap Alembic.'
+            )
+            return
+
+        app.logger.error(
+            'Reparo automatico do schema SQLite nao concluiu todas as tabelas esperadas.'
+        )
+
+
 def seed_default_user(app):
     if app.config.get('TESTING') or not app.config.get('ENABLE_DEFAULT_USER_SEED'):
         return
@@ -88,8 +235,9 @@ def seed_default_user(app):
         from sqlalchemy.exc import OperationalError
         
         try:
-            username = os.environ.get('DEFAULT_USER_USERNAME', 'example')
-            email = os.environ.get('DEFAULT_USER_EMAIL', 'user@example.com.br')
+            username = os.environ.get('DEFAULT_USER_USERNAME', 'admin')
+            email = os.environ.get('DEFAULT_USER_EMAIL', 'admin@finora.local')
+            name = os.environ.get('DEFAULT_USER_NAME', 'Administrador de Teste')
             password = os.environ.get('DEFAULT_USER_PASSWORD')
 
             if not password:
@@ -104,7 +252,7 @@ def seed_default_user(app):
                 default_user = User(
                     username=username,
                     email=email,
-                    name='Usuário Exemplo'
+                    name=name
                 )
                 default_user.set_password(password)
                 recovery_key = str(uuid.uuid4()).replace('-', '').upper()[:16]
@@ -112,7 +260,16 @@ def seed_default_user(app):
                 
                 db.session.add(default_user)
                 db.session.commit()
-                app.logger.info("Usuário padrão criado com sucesso.")
+                app.logger.info(
+                    "Usuário padrão criado com sucesso. username=%s email=%s",
+                    username,
+                    email,
+                )
+            else:
+                app.logger.info(
+                    "Usuário padrão já existente; seed ignorado. username=%s",
+                    username,
+                )
         except OperationalError:
             # Tables likely don't exist yet (e.g. before first migration)
             pass
@@ -132,6 +289,7 @@ def create_app(config_name='default'):
     
     # Load configuration
     app.config.from_object(config[config_name])
+    configure_application_logging(app)
 
     if config_name == 'production' and not app.config.get('SECRET_KEY'):
         raise RuntimeError(
@@ -139,21 +297,23 @@ def create_app(config_name='default'):
         )
     
     # Babel configuration
-    babel = Babel(app, locale_selector=get_locale)
+    Babel(app, locale_selector=get_locale)
     
     # CSRF Protection
-    csrf = CSRFProtect(app)
+    CSRFProtect(app)
+
+    limiter.init_app(app)
     
     db.init_app(app)
     
     # Import models so Alembic can detect them
     from models.user import User
-    from models.finance import Finance
-    from models.goal import Goal
-    from models.recurring import RecurringEntry
-    from models.budget import Budget
+    import models.budget  # noqa: F401
+    import models.finance  # noqa: F401
+    import models.goal  # noqa: F401
+    import models.recurring  # noqa: F401
     
-    migrate = Migrate(app, db)
+    Migrate(app, db)
     
     # Login Manager configuration
     login_manager = LoginManager()
@@ -170,6 +330,13 @@ def create_app(config_name='default'):
 
     @app.before_request
     def enforce_session_timeout():
+        request_id = (
+            request.headers.get(app.config.get('REQUEST_ID_HEADER', 'X-Request-ID'))
+            or request.headers.get('X-Correlation-ID')
+            or uuid.uuid4().hex
+        )
+        g.request_id = request_id
+        g.request_id_token = request_id_context.set(request_id)
         g.session_timeout_minutes = 0
         g.session_expires_at = None
 
@@ -202,7 +369,47 @@ def create_app(config_name='default'):
             'current_year': datetime.now().year,
             'session_timeout_minutes': getattr(g, 'session_timeout_minutes', 0),
             'session_expires_at': getattr(g, 'session_expires_at', None),
+            'default_finance_categories': DEFAULT_FINANCE_CATEGORIES,
         }
+
+    @app.after_request
+    def apply_security_headers(response):
+        response.headers.setdefault(
+            app.config.get('REQUEST_ID_HEADER', 'X-Request-ID'),
+            getattr(g, 'request_id', '-'),
+        )
+        response.headers.setdefault('X-Content-Type-Options', 'nosniff')
+        response.headers.setdefault('X-Frame-Options', 'DENY')
+        response.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
+        response.headers.setdefault(
+            'Permissions-Policy',
+            'camera=(), microphone=(), geolocation=()',
+        )
+        response.headers.setdefault('Cross-Origin-Opener-Policy', 'same-origin')
+        response.headers.setdefault('Cross-Origin-Resource-Policy', 'same-origin')
+        response.headers.setdefault('Content-Security-Policy', CONTENT_SECURITY_POLICY)
+
+        if (
+            app.config.get('SESSION_COOKIE_SECURE')
+            and request.is_secure
+            and request.host.split(':', 1)[0] not in {'127.0.0.1', 'localhost'}
+        ):
+            response.headers.setdefault(
+                'Strict-Transport-Security',
+                'max-age=31536000; includeSubDomains',
+            )
+
+        return response
+
+    @app.teardown_request
+    def reset_request_context(_error=None):
+        token = getattr(g, 'request_id_token', None)
+        if token is not None:
+            g.request_id_token = None
+            try:
+                request_id_context.reset(token)
+            except RuntimeError:
+                pass
     
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(entries_bp)
@@ -245,8 +452,28 @@ def create_app(config_name='default'):
     @app.route('/favicon.ico')
     def favicon():
         return redirect(url_for('static', filename='favicon.svg', v='20260302e'))
+
+    @app.route('/health')
+    def health():
+        try:
+            run_idempotent_db_operation(lambda: db.session.execute(text('SELECT 1')))
+            return jsonify({'status': 'ok', 'database': 'ok'}), 200
+        except Exception:
+            db.session.rollback()
+            app.logger.exception('Falha no health check do banco de dados.')
+            return jsonify({'status': 'degraded', 'database': 'error'}), 503
+
+    @app.cli.command('process-recurring')
+    @click.option('--quiet', is_flag=True, help='Reduz a saída textual do comando.')
+    def process_recurring_command(quiet):
+        result = run_recurring_maintenance(app)
+        if not quiet:
+            click.echo(
+                'Recurring maintenance complete: '
+                f"{result['processed_entries']} entries for {result['affected_users']} user(s)."
+            )
         
-    # Seed default user if not exists
+    ensure_sqlite_schema_bootstrapped(app)
     ensure_runtime_schema_compatibility(app)
     seed_default_user(app)
 
@@ -264,9 +491,47 @@ def find_free_port(start_port=5000):
                 port += 1
     return start_port
 
+
+def _browser_launch_guard_path(port):
+    return os.path.join(
+        tempfile.gettempdir(),
+        f'finora_browser_launch_{port}.lock',
+    )
+
+
+def _acquire_browser_launch_guard(port, ttl_seconds=15):
+    guard_path = _browser_launch_guard_path(port)
+    now = time.time()
+
+    try:
+        if os.path.exists(guard_path):
+            age_seconds = now - os.path.getmtime(guard_path)
+            if age_seconds < ttl_seconds:
+                return False
+
+        with open(guard_path, 'w', encoding='utf-8') as guard_file:
+            guard_file.write(str(now))
+    except OSError:
+        return True
+
+    return True
+
+
 def open_browser(port):
     import webbrowser
-    webbrowser.open_new(f"http://127.0.0.1:{port}/")
+    webbrowser.open(f"http://127.0.0.1:{port}/", new=0, autoraise=True)
+
+
+def schedule_browser_open(port, delay_seconds=1.5):
+    auto_open_enabled = os.environ.get('FINORA_AUTO_OPEN_BROWSER', '1').strip().lower()
+    if auto_open_enabled not in {'1', 'true', 'yes', 'on'}:
+        return False
+
+    if not _acquire_browser_launch_guard(port):
+        return False
+
+    Timer(delay_seconds, lambda: open_browser(port)).start()
+    return True
 
 if __name__ == '__main__':
     from waitress import serve
@@ -274,17 +539,19 @@ if __name__ == '__main__':
     # Production mode check (simple heuristic or env var)
     env_config = os.environ.get('FLASK_ENV', 'development')
     app = create_app(env_config if env_config in config else 'default')
-    
     port = find_free_port(5000)
-    
+
     if env_config == 'production':
+        run_recurring_maintenance(app)
+        start_recurring_scheduler(app)
         print(f"Starting FINORA in PRODUCTION mode on port {port}...")
         print(f"Access at http://127.0.0.1:{port}")
-        Timer(1.5, lambda: open_browser(port)).start()
+        schedule_browser_open(port)
         serve(app, host='127.0.0.1', port=port)
     else:
         if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-            pass 
+            run_recurring_maintenance(app)
+            start_recurring_scheduler(app)
         else:
-            Timer(1.5, lambda: open_browser(port)).start()
-        app.run(host='127.0.0.1', port=port, debug=True)
+            schedule_browser_open(port)
+        app.run(host='127.0.0.1', port=port, debug=app.config.get('DEBUG', False))

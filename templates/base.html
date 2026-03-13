@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FINORA - Organizador Financeiro</title>
+    <title>{% block title %}FINORA - Organizador Financeiro{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}?v=20260302e" />
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.svg') }}?v=20260302e" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -21,11 +21,13 @@
     {% block styles %}{% endblock %}
   </head>
   <body
+    class="page-shell page-shell-enter"
     data-session-timeout-minutes="{{ session_timeout_minutes or 0 }}"
     data-session-expires-at="{{ session_expires_at or 0 }}"
   >
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-premium">
-      <div class="container">
+    <a href="#mainContent" class="skip-link">{{ _('Pular para o conteúdo principal') }}</a>
+    <nav class="navbar navbar-expand-md navbar-dark navbar-premium">
+      <div class="container navbar-shell">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('dashboard.index') if current_user.is_authenticated else url_for('public.welcome') }}">
           <svg class="brand-mark me-2" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M21.21 15.89A10 10 0 1 1 8.11 2.79"></path>
@@ -33,86 +35,103 @@
           </svg>FINORA
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="{{ _('Alternar navegação') }}">
-          <span class="navbar-toggler-icon"></span>
+        <button class="navbar-toggler navbar-toggler-premium" id="mainNavbarToggle" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="{{ _('Alternar navegação') }}">
+          <span class="navbar-toggler-icons" aria-hidden="true">
+            <svg class="navbar-toggle-icon navbar-toggle-icon-menu" viewBox="0 0 24 24">
+              <path d="M4 7h16"></path>
+              <path d="M4 12h16"></path>
+              <path d="M4 17h16"></path>
+            </svg>
+            <svg class="navbar-toggle-icon navbar-toggle-icon-close d-none" viewBox="0 0 24 24">
+              <path d="m6 6 12 12"></path>
+              <path d="m18 6-12 12"></path>
+            </svg>
+          </span>
         </button>
 
         <div class="collapse navbar-collapse" id="mainNavbar">
-          <div class="navbar-nav me-auto gap-lg-2 pt-3 pt-lg-0">
-            {% if current_user.is_authenticated %}
-            <a href="{{ url_for('dashboard.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('dashboard') else '' }}">{{ _('Painel') }}</a>
-            <a href="{{ url_for('goals.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('goals') else '' }}">{{ _('Metas') }}</a>
-            <a href="{{ url_for('budgets.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('budgets') else '' }}">{{ _('Orçamentos') }}</a>
-            <a href="{{ url_for('public.about') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}">{{ _('Sobre') }}</a>
-            {% else %}
-            <a href="{{ url_for('public.welcome') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.welcome' else '' }}">{{ _('Início') }}</a>
-            <a href="{{ url_for('auth.login') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.login' else '' }}">{{ _('Entrar') }}</a>
-            <a href="{{ url_for('auth.register') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.register' else '' }}">{{ _('Cadastrar') }}</a>
-            <a href="{{ url_for('public.about') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}">{{ _('Sobre') }}</a>
-            {% endif %}
-          </div>
-
-          <div class="d-flex flex-column flex-lg-row gap-2 gap-lg-3 align-items-lg-center pb-3 pb-lg-0">
-            {% if current_user.is_authenticated %}
-            <div class="dropdown">
-              <button class="btn btn-link text-white text-decoration-none dropdown-toggle p-0 border-0 d-flex align-items-center gap-2 navbar-user-trigger" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                {% if current_user.profile_image and current_user.profile_image != 'default_profile.svg' and current_user.profile_image != 'default_profile.png' %}
-                <img
-                  src="{{ url_for('static', filename='profile_pics/' + current_user.profile_image) }}"
-                  alt="{{ _('Foto de perfil') }}"
-                  class="navbar-user-avatar"
-                  onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');"
-                />
-                <span class="navbar-user-fallback d-none" aria-hidden="true">
-                  <i data-lucide="user" class="icon-xs"></i>
-                </span>
+          <div class="navbar-mobile-panel">
+            <div class="navbar-menu-shell">
+              <div class="navbar-nav navbar-main-nav">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('dashboard') else '' }}" {% if request.endpoint and request.endpoint.startswith('dashboard') %}aria-current="page"{% endif %}>{{ _('Painel') }}</a>
+                <a href="{{ url_for('goals.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('goals') else '' }}" {% if request.endpoint and request.endpoint.startswith('goals') %}aria-current="page"{% endif %}>{{ _('Metas') }}</a>
+                <a href="{{ url_for('budgets.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('budgets') else '' }}" {% if request.endpoint and request.endpoint.startswith('budgets') %}aria-current="page"{% endif %}>{{ _('Orçamentos') }}</a>
+                <a href="{{ url_for('public.about') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}" {% if request.endpoint == 'public.about' %}aria-current="page"{% endif %}>{{ _('Sobre') }}</a>
                 {% else %}
-                <span class="navbar-user-fallback" aria-hidden="true">
-                  <i data-lucide="user" class="icon-xs"></i>
-                </span>
+                <a href="{{ url_for('public.welcome') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.welcome' else '' }}" {% if request.endpoint == 'public.welcome' %}aria-current="page"{% endif %}>{{ _('Início') }}</a>
+                <a href="{{ url_for('auth.login') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.login' else '' }}" {% if request.endpoint == 'auth.login' %}aria-current="page"{% endif %}>{{ _('Entrar') }}</a>
+                <a href="{{ url_for('auth.register') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.register' else '' }}" {% if request.endpoint == 'auth.register' %}aria-current="page"{% endif %}>{{ _('Cadastrar') }}</a>
+                <a href="{{ url_for('public.about') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}" {% if request.endpoint == 'public.about' %}aria-current="page"{% endif %}>{{ _('Sobre') }}</a>
                 {% endif %}
-                <span>{{ current_user.username }}</span>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-                <li><a class="dropdown-item d-flex align-items-center" href="{{ url_for('auth.profile') }}"><i data-lucide="user" class="me-2 text-muted icon-xs"></i>{{ _('Meu Perfil') }}</a></li>
-                <li><a class="dropdown-item text-success d-flex align-items-center" href="{{ url_for('backup.download_backup') }}"><i data-lucide="database" class="me-2 icon-xs"></i>{{ _('Gerar Backup') }}</a></li>
-                <li><hr class="dropdown-divider" /></li>
-                <li><a class="dropdown-item text-danger d-flex align-items-center" href="{{ url_for('auth.logout') }}"><i data-lucide="log-out" class="me-2 icon-xs"></i>{{ _('Sair') }}</a></li>
-              </ul>
-            </div>
-            {% endif %}
-
-            <div class="dropdown">
-              <button class="btn btn-sm btn-outline-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown" aria-label="{{ _('Alterar idioma') }}">
-                <i data-lucide="globe" class="icon-sm"></i>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow">
-                <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='pt') }}">🇧🇷 Português</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='en') }}">🇺🇸 English</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='es') }}">🇪🇸 Español</a></li>
-              </ul>
+              </div>
             </div>
 
-            <button id="themeToggle" class="btn btn-link text-white p-0 border-0 theme-toggle text-start text-lg-center" aria-label="{{ _('Alternar tema') }}">
-              <svg id="themeMoon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 3a7.5 7.5 0 0 0 0 15 7.5 7.5 0 0 0 5.77-2.7A8.5 8.5 0 1 1 12 3Z"></path>
-              </svg>
-              <svg id="themeSun" viewBox="0 0 24 24" class="d-none" aria-hidden="true">
-                <circle cx="12" cy="12" r="4"></circle>
-                <path d="M12 2v2"></path>
-                <path d="M12 20v2"></path>
-                <path d="m4.93 4.93 1.41 1.41"></path>
-                <path d="m17.66 17.66 1.41 1.41"></path>
-                <path d="M2 12h2"></path>
-                <path d="M20 12h2"></path>
-                <path d="m6.34 17.66-1.41 1.41"></path>
-                <path d="m19.07 4.93-1.41 1.41"></path>
-              </svg>
-            </button>
+            <div class="navbar-tools">
+              {% if current_user.is_authenticated %}
+              <div class="dropdown navbar-account-dropdown">
+                <button class="btn btn-link text-white text-decoration-none dropdown-toggle border-0 d-flex align-items-center gap-2 navbar-user-trigger navbar-tool-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% if current_user.profile_image and current_user.profile_image != 'default_profile.svg' and current_user.profile_image != 'default_profile.png' %}
+                  <img
+                    src="{{ url_for('static', filename='profile_pics/' + current_user.profile_image) }}"
+                    alt="{{ _('Foto de perfil') }}"
+                    class="navbar-user-avatar"
+                    onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');"
+                  />
+                  <span class="navbar-user-fallback d-none" aria-hidden="true">
+                    <i data-lucide="user" class="icon-xs"></i>
+                  </span>
+                  {% else %}
+                  <span class="navbar-user-fallback" aria-hidden="true">
+                    <i data-lucide="user" class="icon-xs"></i>
+                  </span>
+                  {% endif %}
+                  <span>{{ current_user.username }}</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                  <li><a class="dropdown-item d-flex align-items-center" href="{{ url_for('auth.profile') }}"><i data-lucide="user" class="me-2 text-muted icon-xs"></i>{{ _('Meu Perfil') }}</a></li>
+                  <li><a class="dropdown-item text-success d-flex align-items-center" href="{{ url_for('backup.download_backup') }}"><i data-lucide="database" class="me-2 icon-xs"></i>{{ _('Gerar Backup') }}</a></li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li><a class="dropdown-item text-danger d-flex align-items-center" href="{{ url_for('auth.logout') }}"><i data-lucide="log-out" class="me-2 icon-xs"></i>{{ _('Sair') }}</a></li>
+                </ul>
+              </div>
+              {% endif %}
+
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-light dropdown-toggle border-0 navbar-tool-btn" type="button" data-bs-toggle="dropdown" aria-label="{{ _('Alterar idioma') }}">
+                  <i data-lucide="globe" class="icon-sm"></i>
+                  <span class="navbar-tool-label">{{ _('Idioma') }}</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                  <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='pt') }}">🇧🇷 Português</a></li>
+                  <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='en') }}">🇺🇸 English</a></li>
+                  <li><a class="dropdown-item" href="{{ url_for('set_language', lang_code='es') }}">🇪🇸 Español</a></li>
+                </ul>
+              </div>
+
+              <button id="themeToggle" class="btn btn-link text-white border-0 theme-toggle navbar-tool-btn" aria-label="{{ _('Alternar tema') }}" data-navbar-close="true">
+                <svg id="themeMoon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3a7.5 7.5 0 0 0 0 15 7.5 7.5 0 0 0 5.77-2.7A8.5 8.5 0 1 1 12 3Z"></path>
+                </svg>
+                <svg id="themeSun" viewBox="0 0 24 24" class="d-none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="4"></circle>
+                  <path d="M12 2v2"></path>
+                  <path d="M12 20v2"></path>
+                  <path d="m4.93 4.93 1.41 1.41"></path>
+                  <path d="m17.66 17.66 1.41 1.41"></path>
+                  <path d="M2 12h2"></path>
+                  <path d="M20 12h2"></path>
+                  <path d="m6.34 17.66-1.41 1.41"></path>
+                  <path d="m19.07 4.93-1.41 1.41"></path>
+                </svg>
+                <span class="navbar-tool-label">{{ _('Tema') }}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </nav>
+    <div id="navbarBackdrop" class="navbar-mobile-backdrop"></div>
 
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
       {% with messages = get_flashed_messages(with_categories=true) %}
@@ -141,7 +160,25 @@
     </div>
     {% endif %}
 
-    <main class="container container-app py-4 {{ 'main-home' if request.endpoint == 'public.welcome' else '' }}">{% block content %}{% endblock %}</main>
+    <div class="modal fade" id="confirmActionModal" tabindex="-1" aria-labelledby="confirmActionModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-content-premium">
+          <div class="modal-header modal-header-premium">
+            <h5 class="modal-title" id="confirmActionModalLabel">{{ _('Confirmar ação') }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar') }}"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-0" id="confirmActionModalText">{{ _('Deseja continuar?') }}</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+            <button type="button" class="btn btn-danger" id="confirmActionModalSubmit">{{ _('Confirmar') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main id="mainContent" class="container container-app py-4 {{ 'main-home' if request.endpoint == 'public.welcome' else '' }}">{% block content %}{% endblock %}</main>
 
     <footer class="app-footer border-top">
       <div class="container text-center py-4">
@@ -161,6 +198,20 @@
       const themeToggle = document.getElementById("themeToggle");
       const themeMoon = document.getElementById("themeMoon");
       const themeSun = document.getElementById("themeSun");
+      const navbarCollapseEl = document.getElementById("mainNavbar");
+      const navbarToggle = document.getElementById("mainNavbarToggle");
+      const navbarBackdrop = document.getElementById("navbarBackdrop");
+      const navbarCollapse = navbarCollapseEl ? bootstrap.Collapse.getOrCreateInstance(navbarCollapseEl, { toggle: false }) : null;
+      const toggleMenuIcon = navbarToggle?.querySelector(".navbar-toggle-icon-menu");
+      const toggleCloseIcon = navbarToggle?.querySelector(".navbar-toggle-icon-close");
+
+      function syncNavbarToggleState(isOpen) {
+        navbarToggle?.classList.toggle("is-open", isOpen);
+        navbarBackdrop?.classList.toggle("show", isOpen);
+        document.body.classList.toggle("navbar-mobile-open", isOpen);
+        toggleMenuIcon?.classList.toggle("d-none", isOpen);
+        toggleCloseIcon?.classList.toggle("d-none", !isOpen);
+      }
 
       function updateThemeIcons(theme) {
         if (!themeMoon || !themeSun) return;
@@ -174,6 +225,21 @@
       }
 
       updateThemeIcons(root.getAttribute("data-theme") || "light");
+      requestAnimationFrame(() => {
+        document.body.classList.remove("page-shell-enter");
+      });
+
+      navbarCollapseEl?.addEventListener("show.bs.collapse", () => syncNavbarToggleState(true));
+      navbarCollapseEl?.addEventListener("hide.bs.collapse", () => syncNavbarToggleState(false));
+      navbarBackdrop?.addEventListener("click", () => navbarCollapse?.hide());
+
+      navbarCollapseEl?.addEventListener("click", (event) => {
+        const target = event.target instanceof Element
+          ? event.target.closest("a.nav-main-link, a.dropdown-item, [data-navbar-close='true']")
+          : null;
+        if (!target || window.innerWidth >= 768) return;
+        navbarCollapse?.hide();
+      });
 
       if (themeToggle) {
         themeToggle.addEventListener("click", () => {
@@ -182,6 +248,59 @@
           root.setAttribute("data-theme", next);
           localStorage.setItem("theme", next);
           updateThemeIcons(next);
+        });
+      }
+
+      document.querySelectorAll("form[data-loading-text]").forEach((form) => {
+        form.addEventListener("submit", () => {
+          const submitButton = form.querySelector('button[type="submit"]');
+          if (!submitButton || submitButton.disabled) return;
+          submitButton.dataset.originalHtml = submitButton.innerHTML;
+          submitButton.disabled = true;
+          submitButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span><span>${form.dataset.loadingText}</span>`;
+        });
+      });
+
+      document.querySelectorAll("a[data-loading-link]").forEach((link) => {
+        link.addEventListener("click", () => {
+          link.classList.add("disabled");
+          link.setAttribute("aria-disabled", "true");
+          link.innerHTML = `<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span><span>${link.dataset.loadingLink}</span>`;
+        }, { once: true });
+      });
+
+      const confirmModalElement = document.getElementById("confirmActionModal");
+      const confirmModalText = document.getElementById("confirmActionModalText");
+      const confirmModalSubmit = document.getElementById("confirmActionModalSubmit");
+      const confirmModal = confirmModalElement ? new bootstrap.Modal(confirmModalElement) : null;
+      let pendingConfirmForm = null;
+
+      document.addEventListener("submit", (event) => {
+        const form = event.target;
+        if (!(form instanceof HTMLFormElement)) return;
+        if (!form.dataset.confirm || form.dataset.confirmed === "true") return;
+
+        event.preventDefault();
+        pendingConfirmForm = form;
+        if (confirmModalText) {
+          confirmModalText.textContent = form.dataset.confirm;
+        }
+        confirmModal?.show();
+      });
+
+      if (confirmModalSubmit) {
+        confirmModalSubmit.addEventListener("click", () => {
+          if (!pendingConfirmForm) return;
+          pendingConfirmForm.dataset.confirmed = "true";
+          pendingConfirmForm.requestSubmit();
+          confirmModal?.hide();
+          pendingConfirmForm = null;
+        });
+      }
+
+      if (confirmModalElement) {
+        confirmModalElement.addEventListener("hidden.bs.modal", () => {
+          pendingConfirmForm = null;
         });
       }
     </script>

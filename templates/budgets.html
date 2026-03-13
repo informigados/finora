@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %}{{ _('Orçamentos') }} | Finora{% endblock %}
+
 {% block content %}
 <div class="row mb-4 align-items-center">
     <div class="col-md-6">
@@ -26,7 +28,7 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#" data-budget='{{ item.budget.to_dict()|tojson }}' onclick='prepareEdit(JSON.parse(this.getAttribute("data-budget")))' data-bs-toggle="modal" data-bs-target="#editBudgetModal">{{ _('Editar') }}</a></li>
                             <li>
-                                <form action="{{ url_for('budgets.delete_budget', id=item.budget.id) }}" method="POST" data-confirm="{{ _('Tem certeza?') }}" onsubmit="return confirm(this.getAttribute('data-confirm'));">
+                                <form action="{{ url_for('budgets.delete_budget', id=item.budget.id) }}" method="POST" data-confirm="{{ _('Tem certeza que deseja excluir este orçamento?') }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <button class="dropdown-item text-danger" type="submit">{{ _('Excluir') }}</button>
                                 </form>
@@ -91,14 +93,7 @@
                         <label for="budgetCategory" class="form-label">{{ _('Categoria') }}</label>
                         <input type="text" name="category" class="form-control" list="catList" id="budgetCategory" required>
                          <datalist id="catList">
-                            <option value="{{ _('Alimentação') }}"></option>
-                            <option value="{{ _('Moradia') }}"></option>
-                            <option value="{{ _('Transporte') }}"></option>
-                            <option value="{{ _('Lazer') }}"></option>
-                            <option value="{{ _('Saúde') }}"></option>
-                            <option value="{{ _('Educação') }}"></option>
-                            <option value="{{ _('Salário') }}"></option>
-                            <option value="{{ _('Investimento') }}"></option>
+                            {% include "partials/category_datalist_options.html" %}
                         </datalist>
                     </div>
                     <div class="mb-3">

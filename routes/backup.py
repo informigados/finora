@@ -1,7 +1,10 @@
 from flask import Blueprint, send_file, flash, redirect, current_app, url_for
 from flask_login import login_required
+from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
 from database.db import db
+import tempfile
+import sqlite3
 import os
 import zipfile
 import io
@@ -11,7 +14,7 @@ backup_bp = Blueprint('backup', __name__)
 
 @backup_bp.route('/backup/download')
 @login_required
-def download_backup():
+def download_backup() -> ResponseReturnValue:
     try:
         engine_url = db.engine.url
         if not engine_url.drivername.startswith('sqlite'):
@@ -31,10 +34,25 @@ def download_backup():
         if not os.path.exists(db_path):
             flash(_('Banco de dados não encontrado para backup.'), 'error')
             return redirect(url_for('dashboard.index'))
-            
+
         memory_file = io.BytesIO()
-        with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
-            zf.write(db_path, os.path.basename(db_path))
+        with tempfile.NamedTemporaryFile(suffix='.sqlite3', delete=False) as snapshot_file:
+            snapshot_path = snapshot_file.name
+
+        try:
+            source = sqlite3.connect(db_path)
+            destination = sqlite3.connect(snapshot_path)
+            try:
+                source.backup(destination)
+            finally:
+                destination.close()
+                source.close()
+
+            with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+                zf.write(snapshot_path, os.path.basename(db_path))
+        finally:
+            if os.path.exists(snapshot_path):
+                os.remove(snapshot_path)
             
         memory_file.seek(0)
         

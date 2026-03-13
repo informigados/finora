@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
+from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
 from datetime import date
 from services.calculations import get_monthly_stats
-from services.recurring_service import process_recurring_entries
 from models.finance import Finance
 from sqlalchemy import extract
 from database.db import db
@@ -13,18 +13,13 @@ DASHBOARD_ENTRIES_PER_PAGE = 50
 
 @dashboard_bp.route('/dashboard')
 @login_required
-def index():
+def index() -> ResponseReturnValue:
     today = date.today()
     return redirect(url_for('dashboard.view_month', year=today.year, month=today.month))
 
 @dashboard_bp.route('/dashboard/<int:year>/<int:month>')
 @login_required
-def view_month(year, month):
-    # Process recurring entries
-    processed = process_recurring_entries(current_user.id)
-    if processed > 0:
-        flash(_('%(count)d lançamentos recorrentes foram gerados.', count=processed), 'info')
-
+def view_month(year: int, month: int) -> ResponseReturnValue:
     stats = get_monthly_stats(month, year, user_id=current_user.id)
     
     # Translate chart labels
@@ -67,7 +62,7 @@ def view_month(year, month):
 
 @dashboard_bp.route('/dashboard/<int:year>')
 @login_required
-def view_year(year):
+def view_year(year: int) -> ResponseReturnValue:
     monthly_data = []
     total_year_receita = 0
     total_year_despesa = 0
@@ -96,7 +91,7 @@ def view_year(year):
 
 @dashboard_bp.route('/dashboard/change_period', methods=['POST'])
 @login_required
-def change_period():
+def change_period() -> ResponseReturnValue:
     month = request.form.get('month', type=int)
     year = request.form.get('year', type=int)
     if not year:

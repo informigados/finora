@@ -1,8 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
 from database.db import db
 from models.budget import Budget
+from services.catalogs import normalize_finance_category
+from services.ownership import get_owned_or_none
 from services.budget_service import get_budget_status
 from datetime import date
 
@@ -11,7 +14,7 @@ VALID_BUDGET_PERIODS = {'Mensal', 'Anual'}
 
 @budgets_bp.route('/budgets')
 @login_required
-def index():
+def index() -> ResponseReturnValue:
     today = date.today()
     month = request.args.get('month', today.month, type=int)
     year = request.args.get('year', today.year, type=int)
@@ -26,10 +29,14 @@ def index():
 
 @budgets_bp.route('/budgets/add', methods=['POST'])
 @login_required
-def add_budget():
+def add_budget() -> ResponseReturnValue:
     data = request.form
     try:
+        category = normalize_finance_category(data.get('category'))
         limit_amount = float(data['limit_amount'])
+        if not category:
+            flash(_('Categoria inválida. Selecione uma categoria permitida.'), 'error')
+            return redirect(url_for('budgets.index'))
         if limit_amount <= 0:
             flash(_('O limite do orçamento deve ser maior que zero.'), 'error')
             return redirect(url_for('budgets.index'))
@@ -40,7 +47,7 @@ def add_budget():
         # Check if budget for category already exists
         existing = Budget.query.filter_by(
             user_id=current_user.id, 
-            category=data['category'],
+            category=category,
             period=data['period']
         ).first()
         
@@ -48,7 +55,7 @@ def add_budget():
             flash(_('Já existe um orçamento para esta categoria neste período.'), 'error')
         else:
             new_budget = Budget(
-                category=data['category'],
+                category=category,
                 limit_amount=limit_amount,
                 period=data['period'],
                 user_id=current_user.id
@@ -57,7 +64,7 @@ def add_budget():
             db.session.commit()
             flash(_('Orçamento definido com sucesso!'), 'success')
              
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         flash(_('Erro ao definir orçamento.'), 'error')
          
@@ -65,9 +72,9 @@ def add_budget():
 
 @budgets_bp.route('/budgets/edit/<int:id>', methods=['POST'])
 @login_required
-def edit_budget(id):
-    budget = db.session.get(Budget, id)
-    if budget and budget.user_id == current_user.id:
+def edit_budget(id: int) -> ResponseReturnValue:
+    budget = get_owned_or_none(Budget, id, current_user.id)
+    if budget:
         try:
             limit_amount = float(request.form['limit_amount'])
             if limit_amount <= 0:
@@ -88,9 +95,9 @@ def edit_budget(id):
 
 @budgets_bp.route('/budgets/delete/<int:id>', methods=['POST'])
 @login_required
-def delete_budget(id):
-    budget = db.session.get(Budget, id)
-    if budget and budget.user_id == current_user.id:
+def delete_budget(id: int) -> ResponseReturnValue:
+    budget = get_owned_or_none(Budget, id, current_user.id)
+    if budget:
         try:
             db.session.delete(budget)
             db.session.commit()

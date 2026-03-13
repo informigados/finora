@@ -53,13 +53,17 @@ def get_monthly_stats(month: int, year: int, user_id: Optional[int] = None) -> D
         'chart_values': category_values
     }
 
-def get_yearly_stats(year: int) -> Dict[str, Any]:
+def get_yearly_stats(year: int, user_id: Optional[int] = None) -> Dict[str, Any]:
+    if user_id is None:
+        raise ValueError('user_id is required for yearly stats')
+
     monthly_rows = db.session.query(
         extract('month', Finance.due_date).label('month'),
         func.sum(case((Finance.type == 'Receita', Finance.value), else_=0)).label('receitas'),
         func.sum(case((Finance.type == 'Despesa', Finance.value), else_=0)).label('despesas'),
     ).filter(
-        extract('year', Finance.due_date) == year
+        extract('year', Finance.due_date) == year,
+        Finance.user_id == user_id,
     ).group_by(
         extract('month', Finance.due_date)
     ).order_by(

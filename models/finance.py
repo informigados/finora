@@ -17,7 +17,7 @@ class Finance(db.Model):
     due_date = db.Column(db.Date, nullable=False)
     payment_date = db.Column(db.Date, nullable=True)
     observations = db.Column(db.Text, nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) # Nullable for migration, but should be filled
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)

@@ -104,3 +104,69 @@ def test_process_recurring_backfill_multiple_occurrences(app):
         db.session.refresh(rec)
         assert rec.next_run_date == today + timedelta(days=1)
         assert rec.last_run_date == today
+
+
+def test_dashboard_no_longer_processes_recurring_entries(client, app):
+    with app.app_context():
+        from models.user import User
+        from database.db import db
+
+        user = User(username='dashrec', email='dashrec@example.com', name='Dash Rec')
+        user.set_password('Pass1234')
+        db.session.add(user)
+        db.session.commit()
+
+        today = datetime.now().date()
+        rec = RecurringEntry(
+            description='Dashboard Deferred Entry',
+            value=99.0,
+            category='Lazer',
+            type='Despesa',
+            frequency='Diário',
+            start_date=today - timedelta(days=1),
+            next_run_date=today,
+            user_id=user.id
+        )
+        db.session.add(rec)
+        db.session.commit()
+
+    client.post('/login', data={'identifier': 'dashrec', 'password': 'Pass1234'}, follow_redirects=True)
+    response = client.get(f'/dashboard/{today.year}/{today.month}', follow_redirects=True)
+
+    assert response.status_code == 200
+
+    with app.app_context():
+        assert Finance.query.filter_by(description='Dashboard Deferred Entry').count() == 0
+
+
+def test_process_recurring_cli_command(runner, app):
+    with app.app_context():
+        from models.user import User
+        from database.db import db
+
+        user = User(username='cliuser', email='cli@example.com', name='Cli User')
+        user.set_password('Pass1234')
+        db.session.add(user)
+        db.session.commit()
+
+        today = datetime.now().date()
+        rec = RecurringEntry(
+            description='CLI Due Entry',
+            value=77.0,
+            category='Moradia',
+            type='Despesa',
+            frequency='Diário',
+            start_date=today - timedelta(days=1),
+            next_run_date=today,
+            user_id=user.id
+        )
+        db.session.add(rec)
+        db.session.commit()
+
+    result = runner.invoke(args=['process-recurring'])
+
+    assert result.exit_code == 0
+    assert 'Recurring maintenance complete: 1 entries for 1 user(s).' in result.output
+
+    with app.app_context():
+        assert Finance.query.filter_by(description='CLI Due Entry').count() == 1
