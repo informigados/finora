@@ -312,6 +312,17 @@ def test_import_finances_rejects_negative_values():
         import_finances_from_file(uploaded, user_id=1)
 
 
+def test_import_finances_rejects_zero_value():
+    csv_content = (
+        'descricao,valor,categoria,tipo,status,data\n'
+        'Item zero,0,Lazer,Despesa,Pago,2026-03-10\n'
+    )
+    uploaded = FileStorage(stream=io.BytesIO(csv_content.encode('utf-8')), filename='finances.csv')
+
+    with pytest.raises(ImportValidationError):
+        import_finances_from_file(uploaded, user_id=1)
+
+
 def test_import_finances_accepts_decimal_values():
     csv_content = (
         'descricao,valor,categoria,tipo,status,data\n'
