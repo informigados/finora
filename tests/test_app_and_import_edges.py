@@ -314,7 +314,7 @@ def test_import_finances_rejects_file_above_row_limit():
 
 
 def test_import_finances_rejects_zero_value_entries():
-    # This file contains only one invalid row because imports require values > 0.
+    # This CSV content contains only one invalid row because imports require values > 0.
     csv_content = (
         'descricao,valor,categoria,tipo,status,data\n'
         'Item inválido,0,Lazer,Despesa,Pago,2026-03-10\n'
