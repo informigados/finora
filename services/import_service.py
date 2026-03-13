@@ -22,12 +22,17 @@ SUPPORTED_IMPORT_EXTENSIONS = {".csv", ".xlsx"}
 TYPE_MAP = {
     "receita": "Receita",
     "despesa": "Despesa",
+    "income": "Receita",
+    "expense": "Despesa",
 }
 
 STATUS_MAP = {
     "pago": "Pago",
     "pendente": "Pendente",
     "atrasado": "Atrasado",
+    "paid": "Pago",
+    "pending": "Pendente",
+    "overdue": "Atrasado",
 }
 
 COLUMN_ALIASES = {
@@ -156,7 +161,6 @@ def _read_csv_rows(uploaded_file: FileStorage) -> list[tuple[int, dict[str, Any]
         )
 
     sample = text[:2048]
-    delimiter = ","
     try:
         delimiter = csv.Sniffer().sniff(sample, delimiters=",;|\t").delimiter
     except csv.Error:

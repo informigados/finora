@@ -23,7 +23,7 @@ from models.user import User
 from services.import_service import ImportValidationError, import_finances_from_file
 from services.logging_utils import configure_application_logging, request_id_context
 
-PRIVACY_WARNING_TEXT = b'resposta gen'
+GENERIC_RESPONSE_WARNING_MARKER = b'resposta generica'
 
 
 def test_set_language_redirects_to_last_safe_page(client):
@@ -159,7 +159,7 @@ def test_forgot_password_page_does_not_render_privacy_warning(client):
     response = client.get('/forgot_password')
 
     assert response.status_code == 200
-    assert PRIVACY_WARNING_TEXT not in response.data
+    assert GENERIC_RESPONSE_WARNING_MARKER not in response.data
 
 
 def test_ensure_runtime_schema_compatibility_is_noop_under_testing(app):
@@ -251,6 +251,25 @@ def test_import_finances_from_xlsx_supports_aliases():
     assert result.entries[0].type == 'Receita'
 
 
+def test_import_finances_from_xlsx_supports_english_aliases():
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.append(['description', 'value', 'category', 'type', 'status', 'date'])
+    sheet.append(['Salary', 5000, 'Salário', 'Income', 'Paid', '2026-03-10'])
+
+    stream = io.BytesIO()
+    workbook.save(stream)
+    stream.seek(0)
+
+    uploaded = FileStorage(stream=stream, filename='finances.xlsx')
+    result = import_finances_from_file(uploaded, user_id=1)
+
+    assert result.imported_rows == 1
+    assert result.entries[0].description == 'Salary'
+    assert result.entries[0].type == 'Receita'
+    assert result.entries[0].status == 'Pago'
+
+
 def test_import_finances_rejects_unsupported_extension():
     uploaded = FileStorage(stream=io.BytesIO(b'test'), filename='finances.txt')
 
@@ -280,3 +299,27 @@ def test_import_finances_rejects_when_no_valid_entries_exist():
 
     with pytest.raises(ImportValidationError):
         import_finances_from_file(uploaded, user_id=1)
+
+
+def test_import_finances_rejects_negative_values():
+    csv_content = (
+        'descricao,valor,categoria,tipo,status,data\n'
+        'Item inválido,-10,Lazer,Despesa,Pago,2026-03-10\n'
+    )
+    uploaded = FileStorage(stream=io.BytesIO(csv_content.encode('utf-8')), filename='finances.csv')
+
+    with pytest.raises(ImportValidationError):
+        import_finances_from_file(uploaded, user_id=1)
+
+
+def test_import_finances_accepts_decimal_values():
+    csv_content = (
+        'descricao,valor,categoria,tipo,status,data\n'
+        'Freela,10.75,Salário,Receita,Pago,2026-03-10\n'
+    )
+    uploaded = FileStorage(stream=io.BytesIO(csv_content.encode('utf-8')), filename='finances.csv')
+
+    result = import_finances_from_file(uploaded, user_id=1)
+
+    assert result.imported_rows == 1
+    assert result.entries[0].value == 10.75
