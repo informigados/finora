@@ -35,6 +35,17 @@ def test_set_language_uses_safe_referrer(client):
     assert response.headers['Location'].endswith('/about')
 
 
+def test_set_language_preserves_local_query_string(client):
+    response = client.get(
+        '/set_language/en',
+        headers={'Referer': 'http://localhost/dashboard/2026/3?page=2'},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/dashboard/2026/3?page=2')
+
+
 def test_set_language_rejects_unsafe_referrer(client):
     response = client.get(
         '/set_language/en',

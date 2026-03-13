@@ -429,15 +429,25 @@ def create_app(config_name='default'):
     #     from models.budget import Budget
     #     db.create_all()
 
-    def _is_safe_redirect(target: str | None) -> bool:
+    def _get_safe_local_redirect_target(target: str | None) -> str | None:
         if not target:
-            return False
+            return None
+
         host_url = urlparse(request.host_url)
         redirect_url = urlparse(target)
-        return (
-            redirect_url.scheme in ('http', 'https', '')
-            and (not redirect_url.netloc or redirect_url.netloc == host_url.netloc)
-        )
+        if redirect_url.scheme not in ('http', 'https', ''):
+            return None
+        if redirect_url.netloc and redirect_url.netloc != host_url.netloc:
+            return None
+        if not redirect_url.path.startswith('/'):
+            return None
+
+        local_target = redirect_url.path
+        if redirect_url.query:
+            local_target = f'{local_target}?{redirect_url.query}'
+        if redirect_url.fragment:
+            local_target = f'{local_target}#{redirect_url.fragment}'
+        return local_target
 
     @app.route('/set_language/<lang_code>')
     def set_language(lang_code):
@@ -445,8 +455,9 @@ def create_app(config_name='default'):
             session['lang'] = lang_code
             flash(_('Idioma alterado com sucesso!'), 'success')
         fallback = url_for('public.welcome')
-        if _is_safe_redirect(request.referrer):
-            return redirect(request.referrer)
+        redirect_target = _get_safe_local_redirect_target(request.referrer)
+        if redirect_target:
+            return redirect(redirect_target)
         return redirect(fallback)
 
     @app.route('/favicon.ico')
