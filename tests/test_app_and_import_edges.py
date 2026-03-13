@@ -285,7 +285,7 @@ def test_import_finances_rejects_file_above_row_limit():
     )
     uploaded = FileStorage(stream=io.BytesIO(csv_content.encode('utf-8')), filename='finances.csv')
 
-    with pytest.raises(ImportValidationError):
+    with pytest.raises(ImportValidationError, match='limite de 1 linhas permitidas'):
         import_finances_from_file(uploaded, user_id=1, max_rows=1)
 
 
@@ -308,7 +308,7 @@ def test_import_finances_rejects_negative_values():
     )
     uploaded = FileStorage(stream=io.BytesIO(csv_content.encode('utf-8')), filename='finances.csv')
 
-    with pytest.raises(ImportValidationError):
+    with pytest.raises(ImportValidationError, match='Valor deve ser maior que zero'):
         import_finances_from_file(uploaded, user_id=1)
 
 
@@ -319,7 +319,7 @@ def test_import_finances_rejects_zero_value():
     )
     uploaded = FileStorage(stream=io.BytesIO(csv_content.encode('utf-8')), filename='finances.csv')
 
-    with pytest.raises(ImportValidationError):
+    with pytest.raises(ImportValidationError, match='Valor deve ser maior que zero'):
         import_finances_from_file(uploaded, user_id=1)
 
 

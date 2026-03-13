@@ -105,8 +105,10 @@ def import_finances_from_file(
             errors.append(f"Linha {row_number}: {exc}")
 
     if not entries and errors:
+        first_error = errors[0]
         raise ImportValidationError(
-            "Nenhum lançamento válido foi encontrado no arquivo enviado."
+            "Nenhum lançamento válido foi encontrado no arquivo enviado. "
+            f"Primeiro erro: {first_error}"
         )
 
     return ImportResult(
