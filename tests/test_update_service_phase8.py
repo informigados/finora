@@ -4,6 +4,7 @@ import zipfile
 
 import pytest
 
+from config import DEFAULT_APP_VERSION
 from database.db import db
 from models.system import AppUpdateState
 from models.user import User
@@ -61,7 +62,7 @@ def test_check_for_updates_marks_state_as_available_when_newer_version_in_manife
     )
     app.config['UPDATE_MANIFEST_URL'] = str(manifest_path)
     app.config['UPDATE_ALLOW_LOCAL_ASSETS'] = True
-    app.config['APP_VERSION'] = '1.3.0'
+    app.config['APP_VERSION'] = DEFAULT_APP_VERSION
 
     with app.app_context():
         result = update_service.check_for_updates(app)
@@ -69,7 +70,7 @@ def test_check_for_updates_marks_state_as_available_when_newer_version_in_manife
 
         assert result['update_available'] is True
         assert state.status == 'available'
-        assert state.installed_version == '1.3.0'
+        assert state.installed_version == DEFAULT_APP_VERSION
         assert state.latest_known_version == '1.3.1'
         assert state.last_checked_at is not None
 
@@ -105,7 +106,7 @@ def test_apply_update_installs_package_and_preserves_excluded_directories(app, t
     app.config['UPDATE_TARGET_ROOT'] = str(target_root)
     app.config['UPDATE_DOWNLOAD_DIR'] = str(tmp_path / 'updates')
     app.config['UPDATE_ALLOW_LOCAL_ASSETS'] = True
-    app.config['APP_VERSION'] = '1.3.0'
+    app.config['APP_VERSION'] = DEFAULT_APP_VERSION
 
     with app.app_context():
         user = User(username='updater', email='updater@example.com', name='Updater')
@@ -156,7 +157,7 @@ def test_apply_update_restores_backup_when_upgrade_fails(app, tmp_path, monkeypa
     app.config['UPDATE_TARGET_ROOT'] = str(target_root)
     app.config['UPDATE_DOWNLOAD_DIR'] = str(tmp_path / 'updates')
     app.config['UPDATE_ALLOW_LOCAL_ASSETS'] = True
-    app.config['APP_VERSION'] = '1.3.0'
+    app.config['APP_VERSION'] = DEFAULT_APP_VERSION
 
     with app.app_context():
         with pytest.raises(RuntimeError, match='migration failed'):
@@ -183,7 +184,7 @@ def test_about_routes_expose_update_section_and_check_flow(client, app, tmp_path
     )
     app.config['UPDATE_MANIFEST_URL'] = str(manifest_path)
     app.config['UPDATE_ALLOW_LOCAL_ASSETS'] = True
-    app.config['APP_VERSION'] = '1.3.0'
+    app.config['APP_VERSION'] = DEFAULT_APP_VERSION
 
     with app.app_context():
         user = User(username='aboutupdater', email='aboutupdater@example.com', name='About Updater')
@@ -193,14 +194,15 @@ def test_about_routes_expose_update_section_and_check_flow(client, app, tmp_path
 
     response = client.get('/about')
     assert response.status_code == 200
-    assert b'Atualiza' in response.data
-    assert b'Vers' in response.data
-    assert b'name="csrf_token"' in response.data
-    assert b'manifesto local padr' in response.data
+    about_html = response.get_data(as_text=True)
+    assert 'Atualizações do Sistema' in about_html
+    assert 'Versão instalada' in about_html
+    assert 'name="csrf_token"' in about_html
+    assert 'O manifesto local padrão está ativo para status e testes seguros.' in about_html
 
     check_response = client.post('/about/check-update', follow_redirects=True)
     assert check_response.status_code == 200
-    assert b'Nova vers' in check_response.data
+    assert 'Nova versão disponível: 1.3.1.' in check_response.get_data(as_text=True)
 
     apply_requires_login = client.post('/about/apply-update', follow_redirects=False)
     assert apply_requires_login.status_code == 302
@@ -241,7 +243,7 @@ def test_about_shows_update_error_details_to_authenticated_users(client, app):
 
 
 def test_check_for_updates_uses_bundled_manifest_when_not_overridden(app):
-    app.config['APP_VERSION'] = '1.3.0'
+    app.config['APP_VERSION'] = DEFAULT_APP_VERSION
     app.config['UPDATE_CHANNEL'] = 'stable'
 
     with app.app_context():
@@ -249,7 +251,7 @@ def test_check_for_updates_uses_bundled_manifest_when_not_overridden(app):
         overview = update_service.get_update_overview(app)
 
     assert result.get('error') is None
-    assert result['manifest']['version'] == '1.3.0'
+    assert result['manifest']['version'] == DEFAULT_APP_VERSION
     assert result['update_available'] is False
     assert overview['update_configured'] is True
     assert overview['update_remote_configured'] is False
@@ -267,7 +269,7 @@ def test_check_for_updates_blocks_local_assets_from_local_manifest_by_default(ap
         },
     )
     app.config['UPDATE_MANIFEST_URL'] = str(manifest_path)
-    app.config['APP_VERSION'] = '1.3.0'
+    app.config['APP_VERSION'] = DEFAULT_APP_VERSION
     app.config['UPDATE_ALLOW_LOCAL_ASSETS'] = False
 
     with app.app_context():

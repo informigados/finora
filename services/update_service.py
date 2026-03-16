@@ -12,6 +12,7 @@ from urllib.request import urlopen
 
 from sqlalchemy import inspect
 
+from config import DEFAULT_APP_VERSION
 from database.db import db
 from models.system import AppUpdateState
 from models.time_utils import utcnow_naive
@@ -43,6 +44,8 @@ UPDATE_SYNC_EXCLUDES = UPDATE_RUNTIME_EXCLUDES.union({'database'})
 UPDATE_FILE_EXCLUDES = frozenset({
     '.env',
 })
+
+
 def update_schema_is_ready() -> bool:
     table_names = set(inspect(db.engine).get_table_names())
     return UPDATE_REQUIRED_TABLES.issubset(table_names)
@@ -76,7 +79,7 @@ def compare_versions(left_version, right_version):
     while len(right_tokens) < max_length:
         right_tokens.append((0, 0))
 
-    for left_token, right_token in zip(left_tokens, right_tokens, strict=False):
+    for left_token, right_token in zip(left_tokens, right_tokens, strict=True):
         if left_token < right_token:
             return -1
         if left_token > right_token:
@@ -96,7 +99,7 @@ def _get_update_download_dir(app):
 
 def get_or_create_update_state(app):
     state = AppUpdateState.query.order_by(AppUpdateState.id.asc()).first()
-    installed_version = app.config.get('APP_VERSION', '1.3.0')
+    installed_version = app.config.get('APP_VERSION', DEFAULT_APP_VERSION)
     update_channel = app.config.get('UPDATE_CHANNEL', 'stable')
 
     if state is None:
@@ -381,9 +384,14 @@ def _run_database_upgrade(app):
     target_root = _get_update_target_root(app)
     environment = _build_upgrade_environment(app)
 
-    # Fixed interpreter command with sanitized cwd and environment.
-    result = subprocess.run(  # nosec B603,B607
-        [sys.executable, '-m', 'flask', 'db', 'upgrade'],
+    command = [sys.executable, '-m', 'flask', 'db', 'upgrade']
+    # Bandit B603 rationale:
+    # - `command` is a fixed argv list executed with shell=False, so shell parsing does not occur.
+    # - `sys.executable` resolves to the current interpreter path instead of a user-controlled binary name.
+    # - `cwd` is the application-managed update target directory returned by `_get_update_target_root(app)`.
+    # - `env` is rebuilt by `_build_upgrade_environment(app)` and exposes only a minimal allowlist.
+    result = subprocess.run(  # nosec B603
+        command,
         cwd=target_root,
         env=environment,
         capture_output=True,

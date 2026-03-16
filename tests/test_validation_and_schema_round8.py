@@ -1,7 +1,9 @@
 import io
+from datetime import date
+from unittest.mock import patch
 
 import pytest
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from werkzeug.datastructures import FileStorage, MultiDict
 
 from database.db import db
@@ -17,6 +19,41 @@ from services.validators import parse_finance_form, validate_finance_data
 def test_finance_and_goal_user_id_are_non_nullable():
     assert Finance.__table__.c.user_id.nullable is False
     assert Goal.__table__.c.user_id.nullable is False
+
+
+def test_finance_insert_with_null_user_id_raises_error(app):
+    with app.app_context():
+        finance = Finance(
+            description='Conta sem usuario',
+            value=25.0,
+            category='Utilidades',
+            subcategory='Água',
+            type='Despesa',
+            status='Pago',
+            due_date=date(2026, 3, 10),
+            user_id=None,
+        )
+        db.session.add(finance)
+
+        with pytest.raises((IntegrityError, OperationalError)):
+            db.session.commit()
+
+        db.session.rollback()
+
+
+def test_goal_insert_with_null_user_id_raises_error(app):
+    with app.app_context():
+        goal = Goal(
+            name='Meta sem usuario',
+            target_amount=1000.0,
+            user_id=None,
+        )
+        db.session.add(goal)
+
+        with pytest.raises((IntegrityError, OperationalError)):
+            db.session.commit()
+
+        db.session.rollback()
 
 
 def test_validate_finance_data_rejects_unknown_category():
@@ -155,6 +192,26 @@ def test_run_idempotent_db_operation_retries_retryable_errors(app):
 
         assert run_idempotent_db_operation(flaky_operation) == 'ok'
         assert calls['count'] == 2
+
+
+def test_run_idempotent_db_operation_raises_after_max_retries_and_applies_backoff(app):
+    with app.app_context():
+        app.config['DB_IDEMPOTENT_MAX_RETRIES'] = 2
+        app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = 0.25
+        call_count = 0
+        dummy_sql_for_retry_test = 'SELECT 1'
+
+        def always_failing_operation():
+            nonlocal call_count
+            call_count += 1
+            raise OperationalError(dummy_sql_for_retry_test, {}, RuntimeError('db still down'))
+
+        with patch('services.db_resilience.time.sleep') as sleep_mock:
+            with pytest.raises(OperationalError):
+                run_idempotent_db_operation(always_failing_operation)
+
+        assert call_count == 3
+        assert [call.args[0] for call in sleep_mock.call_args_list] == [0.25, 0.5]
 
 
 def test_run_idempotent_db_operation_does_not_hide_non_retryable_errors(app):

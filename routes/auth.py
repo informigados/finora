@@ -6,6 +6,7 @@ from flask_babel import gettext as _
 from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
+from config import DEFAULT_APP_VERSION
 from database.db import db
 from extensions import limiter
 from models.time_utils import utcnow_naive
@@ -571,7 +572,7 @@ def profile() -> ResponseReturnValue:
     }
     profile_context = get_profile_hub_context(
         current_user_obj,
-        current_app.config.get('APP_VERSION', '1.3.0'),
+        current_app.config.get('APP_VERSION', DEFAULT_APP_VERSION),
         current_app.config.get('BACKUP_DEFAULT_RETENTION_COUNT', 20),
         pagination_params=pagination_params,
         page_sizes=page_sizes,

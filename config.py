@@ -13,6 +13,7 @@ LOCAL_SECRET_KEY_PATH = os.path.join(basedir, 'database', '.finora_secret_key')
 LOCAL_SECRET_KEY_PREFIX = 'finora-local:v1:'  # nosec B105
 LEGACY_LOCAL_SECRET_KEY_PREFIX = 'finora-key:v1:'  # nosec B105
 DEFAULT_UPDATE_MANIFEST_PATH = os.path.join(basedir, 'updates', 'manifest.json')
+DEFAULT_APP_VERSION = '1.3.0'
 
 
 def _env_flag(name, default=False):
@@ -90,8 +91,9 @@ def get_or_create_local_secret_key():
 
     return _derive_local_secret_key()
 
+
 class Config:
-    APP_VERSION = os.environ.get('APP_VERSION', '1.3.0')
+    APP_VERSION = os.environ.get('APP_VERSION', DEFAULT_APP_VERSION)
     APP_BASE_URL = os.environ.get('APP_BASE_URL', '')
     APP_TIMEZONE = os.environ.get('APP_TIMEZONE', 'America/Sao_Paulo')
     SECRET_KEY = os.environ.get('SECRET_KEY')

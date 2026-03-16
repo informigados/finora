@@ -40,13 +40,14 @@ def test_config_secret_key_generation_handles_read_and_write_oserror(tmp_path, m
     monkeypatch.setattr(config_module, 'LOCAL_SECRET_KEY_PATH', str(tmp_path / '.finora_secret_key'))
 
     real_open = builtins.open
-    state = {'calls': 0}
+    call_count = 0
 
     def flaky_open(*args, **kwargs):
-        state['calls'] += 1
-        if state['calls'] == 1:
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
             raise OSError('read failed')
-        if state['calls'] == 2:
+        if call_count == 2:
             raise OSError('write failed')
         return real_open(*args, **kwargs)
 
@@ -192,7 +193,7 @@ def test_public_routes_cover_redirect_and_update_branches(client, app, monkeypat
     monkeypatch.setattr(
         public_routes,
         'check_for_updates',
-        lambda _app: {'update_available': False, 'manifest': {'version': '1.3.0'}},
+        lambda _app: {'update_available': False, 'manifest': {'version': config_module.DEFAULT_APP_VERSION}},
     )
     response = client.post('/about/check-update', follow_redirects=True)
     assert response.status_code == 200
