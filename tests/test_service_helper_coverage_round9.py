@@ -322,10 +322,13 @@ def test_backup_service_maintenance_and_scheduler_short_circuit(app, monkeypatch
         'skipped': True,
     }
 
+    def raise_boom():
+        raise RuntimeError('boom')
+
     monkeypatch.setattr(
         backup_service,
         'backup_schema_is_ready',
-        lambda: (_ for _ in ()).throw(RuntimeError('boom')),
+        raise_boom,
     )
     assert backup_service.run_backup_maintenance(app) == {
         'processed_backups': 0,
@@ -358,7 +361,7 @@ def test_backup_service_schedule_parse_and_persist_failures(app, monkeypatch):
         def fail_commit():
             raise RuntimeError('commit failed')
 
-        monkeypatch.setattr(db.session, 'commit', fail_commit)
+        monkeypatch.setattr(backup_service.db.session, 'commit', fail_commit)
         assert backup_service.apply_backup_schedule_update(
             user,
             {'enabled': '1', 'frequency': 'Semanal'},

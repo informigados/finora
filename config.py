@@ -1,5 +1,4 @@
 import os
-import secrets
 import base64
 import getpass
 import hashlib
@@ -56,9 +55,15 @@ def _decrypt_persisted_local_secret(persisted_value):
     return decrypted_secret.decode('utf-8')
 
 
-def _encrypt_local_secret(secret_value):
-    encrypted_payload = _get_local_secret_cipher().encrypt(secret_value.encode('utf-8'))
-    return f'{LOCAL_SECRET_KEY_PREFIX}{encrypted_payload.decode("utf-8")}'
+def _derive_local_secret_key():
+    fingerprint = '|'.join(
+        (
+            platform.node() or 'unknown-host',
+            getpass.getuser() or 'unknown-user',
+            os.path.abspath(basedir),
+        )
+    ).encode('utf-8')
+    return hashlib.sha256(b'finora-local-secret|' + fingerprint).hexdigest()
 
 
 def get_or_create_local_secret_key():
@@ -73,18 +78,10 @@ def get_or_create_local_secret_key():
                 if existing_secret:
                     return existing_secret
     except (OSError, InvalidToken):
-        # If the persisted local key cannot be read or decrypted, fall back to generating a new one.
+        # If the persisted local key cannot be read or decrypted, fall back to a derived local key.
         pass
 
-    generated_secret = secrets.token_urlsafe(48)
-    try:
-        os.makedirs(os.path.dirname(LOCAL_SECRET_KEY_PATH), exist_ok=True)
-        with open(LOCAL_SECRET_KEY_PATH, 'w', encoding='utf-8') as secret_file:
-            secret_file.write(_encrypt_local_secret(generated_secret))
-    except OSError:
-        return generated_secret
-
-    return generated_secret
+    return _derive_local_secret_key()
 
 class Config:
     APP_VERSION = os.environ.get('APP_VERSION', '1.3.0')

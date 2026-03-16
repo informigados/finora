@@ -44,7 +44,7 @@ def _prepare_target_root(tmp_path):
     return target_root
 
 
-def test_check_for_updates_marks_state_available_from_local_manifest(app, tmp_path):
+def test_check_for_updates_marks_state_as_available_when_newer_version_in_manifest(app, tmp_path):
     unused_package = tmp_path / 'unused.zip'
     unused_package.write_bytes(b'PK')
     manifest_path = _write_manifest(
@@ -74,7 +74,7 @@ def test_check_for_updates_marks_state_available_from_local_manifest(app, tmp_pa
         assert state.last_checked_at is not None
 
 
-def test_apply_update_copies_package_runs_upgrade_and_preserves_runtime_dirs(app, tmp_path, monkeypatch):
+def test_apply_update_installs_package_and_preserves_excluded_directories(app, tmp_path, monkeypatch):
     target_root = _prepare_target_root(tmp_path)
     package_path = _build_update_package(
         tmp_path,
@@ -128,7 +128,7 @@ def test_apply_update_copies_package_runs_upgrade_and_preserves_runtime_dirs(app
     assert (target_root / 'database' / 'keep.txt').read_text(encoding='utf-8') == 'keep-me'
 
 
-def test_apply_update_restores_snapshot_when_upgrade_fails(app, tmp_path, monkeypatch):
+def test_apply_update_restores_backup_when_upgrade_fails(app, tmp_path, monkeypatch):
     target_root = _prepare_target_root(tmp_path)
     package_path = _build_update_package(
         tmp_path,

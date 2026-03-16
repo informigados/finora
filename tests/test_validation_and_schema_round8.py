@@ -53,6 +53,9 @@ def test_parse_finance_form_normalizes_allowed_category_alias():
     assert errors == []
     assert payload['category'] == 'Trabalho'
     assert payload['subcategory'] == 'Salário'
+
+
+def test_normalize_finance_category_housing_alias():
     assert normalize_finance_category('housing') == 'Moradia'
 
 
@@ -142,11 +145,12 @@ def test_import_service_requires_due_date():
 def test_run_idempotent_db_operation_retries_retryable_errors(app):
     with app.app_context():
         calls = {'count': 0}
+        dummy_sql_for_retry_test = 'SELECT 1'
 
         def flaky_operation():
             calls['count'] += 1
             if calls['count'] == 1:
-                raise OperationalError('SELECT 1', {}, RuntimeError('db down'))
+                raise OperationalError(dummy_sql_for_retry_test, {}, RuntimeError('db down'))
             return 'ok'
 
         assert run_idempotent_db_operation(flaky_operation) == 'ok'
