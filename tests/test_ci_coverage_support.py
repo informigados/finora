@@ -110,8 +110,7 @@ def test_mail_service_covers_local_log_smtp_tls_ssl_and_failure(monkeypatch):
     assert mail_service.send_email(app, '', 'Assunto', 'Corpo')['reason'] == 'missing_recipient'
     assert mail_service.send_email(app, 'dest@example.com', 'Assunto', 'Corpo')['delivery'] == 'log'
     assert 'info' in logged
-    _message, *payload = logged['info']
-    assert payload[-1] == len('Corpo')
+    assert logged['info'][-1] == len('Corpo')
 
     class FakeSMTP:
         def __init__(self, *_args, **_kwargs):

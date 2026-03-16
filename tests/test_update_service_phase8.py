@@ -147,11 +147,10 @@ def test_apply_update_restores_backup_when_upgrade_fails(app, tmp_path, monkeypa
         },
     )
 
-    monkeypatch.setattr(
-        update_service,
-        '_run_database_upgrade',
-        lambda _app: (_ for _ in ()).throw(RuntimeError('migration failed')),
-    )
+    def raise_migration_failed(_app):
+        raise RuntimeError('migration failed')
+
+    monkeypatch.setattr(update_service, '_run_database_upgrade', raise_migration_failed)
 
     app.config['UPDATE_MANIFEST_URL'] = str(manifest_path)
     app.config['UPDATE_TARGET_ROOT'] = str(target_root)

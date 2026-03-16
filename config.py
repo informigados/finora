@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 LOCAL_SECRET_KEY_PATH = os.path.join(basedir, 'database', '.finora_secret_key')
-LOCAL_SECRET_KEY_PREFIX = 'finora-key:v1:'
+LOCAL_SECRET_KEY_PREFIX = 'finora-local:v1:'  # nosec B105
+LEGACY_LOCAL_SECRET_KEY_PREFIX = 'finora-key:v1:'  # nosec B105
 DEFAULT_UPDATE_MANIFEST_PATH = os.path.join(basedir, 'updates', 'manifest.json')
 
 
@@ -47,10 +48,16 @@ def _decrypt_persisted_local_secret(persisted_value):
     persisted_value = (persisted_value or '').strip()
     if not persisted_value:
         return ''
-    if not persisted_value.startswith(LOCAL_SECRET_KEY_PREFIX):
+    matched_prefix = None
+    for prefix in (LOCAL_SECRET_KEY_PREFIX, LEGACY_LOCAL_SECRET_KEY_PREFIX):
+        if persisted_value.startswith(prefix):
+            matched_prefix = prefix
+            break
+
+    if matched_prefix is None:
         return persisted_value
 
-    encrypted_payload = persisted_value[len(LOCAL_SECRET_KEY_PREFIX):].encode('utf-8')
+    encrypted_payload = persisted_value[len(matched_prefix):].encode('utf-8')
     decrypted_secret = _get_local_secret_cipher().decrypt(encrypted_payload)
     return decrypted_secret.decode('utf-8')
 

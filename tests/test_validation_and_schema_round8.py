@@ -159,5 +159,8 @@ def test_run_idempotent_db_operation_retries_retryable_errors(app):
 
 def test_run_idempotent_db_operation_does_not_hide_non_retryable_errors(app):
     with app.app_context():
+        def failing_operation():
+            raise RuntimeError('boom')
+
         with pytest.raises(RuntimeError):
-            run_idempotent_db_operation(lambda: (_ for _ in ()).throw(RuntimeError('boom')))
+            run_idempotent_db_operation(failing_operation)
