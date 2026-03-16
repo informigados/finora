@@ -16,6 +16,14 @@ from services.import_service import ImportValidationError, import_finances_from_
 from services.validators import parse_finance_form, validate_finance_data
 
 TEST_SQL_STATEMENT = 'SELECT 1'
+TEST_BACKOFF_SECONDS = 0.25
+
+
+def _compute_expected_backoffs(base_backoff_seconds: float, max_retries: int):
+    return [
+        base_backoff_seconds * attempt
+        for attempt in range(1, max_retries + 1)
+    ]
 
 
 def test_finance_and_goal_user_id_are_non_nullable():
@@ -201,17 +209,25 @@ def test_import_service_requires_due_date():
 
 def test_run_idempotent_db_operation_retries_retryable_errors(app):
     with app.app_context():
+        original_backoff = app.config.get('DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS')
         call_count = 0
+        try:
+            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = TEST_BACKOFF_SECONDS
 
-        def flaky_operation():
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                raise OperationalError(TEST_SQL_STATEMENT, {}, RuntimeError('db down'))
-            return 'ok'
+            def flaky_operation():
+                nonlocal call_count
+                call_count += 1
+                if call_count == 1:
+                    raise OperationalError(TEST_SQL_STATEMENT, {}, RuntimeError('db down'))
+                return 'ok'
 
-        assert run_idempotent_db_operation(flaky_operation) == 'ok'
-        assert call_count == 2
+            with patch('services.db_resilience.time.sleep') as sleep_mock:
+                assert run_idempotent_db_operation(flaky_operation) == 'ok'
+
+            assert call_count == 2
+            sleep_mock.assert_called_once_with(TEST_BACKOFF_SECONDS)
+        finally:
+            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = original_backoff
 
 
 def test_run_idempotent_db_operation_raises_after_max_retries(app):
@@ -220,7 +236,7 @@ def test_run_idempotent_db_operation_raises_after_max_retries(app):
         original_backoff = app.config.get('DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS')
         try:
             app.config['DB_IDEMPOTENT_MAX_RETRIES'] = 2
-            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = 0.25
+            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = TEST_BACKOFF_SECONDS
             max_retries = app.config['DB_IDEMPOTENT_MAX_RETRIES']
             call_count = 0
 
@@ -244,7 +260,7 @@ def test_run_idempotent_db_operation_applies_backoff(app):
         original_backoff = app.config.get('DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS')
         try:
             app.config['DB_IDEMPOTENT_MAX_RETRIES'] = 2
-            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = 0.25
+            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = TEST_BACKOFF_SECONDS
             call_count = 0
 
             def always_failing_operation():
@@ -258,10 +274,7 @@ def test_run_idempotent_db_operation_applies_backoff(app):
 
             base_backoff = app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS']
             max_retries = app.config['DB_IDEMPOTENT_MAX_RETRIES']
-            expected_backoffs = [
-                base_backoff * attempt
-                for attempt in range(1, max_retries + 1)
-            ]
+            expected_backoffs = _compute_expected_backoffs(base_backoff, max_retries)
 
             assert call_count == max_retries + 1
             assert [call.args[0] for call in sleep_mock.call_args_list] == expected_backoffs
