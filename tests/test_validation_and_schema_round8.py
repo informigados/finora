@@ -15,6 +15,8 @@ from services.db_resilience import run_idempotent_db_operation
 from services.import_service import ImportValidationError, import_finances_from_file
 from services.validators import parse_finance_form, validate_finance_data
 
+DUMMY_SQL_FOR_RETRY_TEST = 'SELECT 1'
+
 
 def test_finance_and_goal_user_id_are_non_nullable():
     assert Finance.__table__.c.user_id.nullable is False
@@ -35,7 +37,7 @@ def test_finance_insert_with_null_user_id_raises_error(app):
         )
         db.session.add(finance)
 
-        with pytest.raises((IntegrityError, OperationalError)):
+        with pytest.raises(IntegrityError):
             db.session.commit()
 
         db.session.rollback()
@@ -50,7 +52,7 @@ def test_goal_insert_with_null_user_id_raises_error(app):
         )
         db.session.add(goal)
 
-        with pytest.raises((IntegrityError, OperationalError)):
+        with pytest.raises(IntegrityError):
             db.session.commit()
 
         db.session.rollback()
@@ -182,13 +184,12 @@ def test_import_service_requires_due_date():
 def test_run_idempotent_db_operation_retries_retryable_errors(app):
     with app.app_context():
         call_count = 0
-        dummy_sql_for_retry_test = 'SELECT 1'
 
         def flaky_operation():
             nonlocal call_count
             call_count += 1
             if call_count == 1:
-                raise OperationalError(dummy_sql_for_retry_test, {}, RuntimeError('db down'))
+                raise OperationalError(DUMMY_SQL_FOR_RETRY_TEST, {}, RuntimeError('db down'))
             return 'ok'
 
         assert run_idempotent_db_operation(flaky_operation) == 'ok'
@@ -200,12 +201,11 @@ def test_run_idempotent_db_operation_raises_after_max_retries_and_applies_backof
         app.config['DB_IDEMPOTENT_MAX_RETRIES'] = 2
         app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = 0.25
         call_count = 0
-        dummy_sql_for_retry_test = 'SELECT 1'
 
         def always_failing_operation():
             nonlocal call_count
             call_count += 1
-            raise OperationalError(dummy_sql_for_retry_test, {}, RuntimeError('db still down'))
+            raise OperationalError(DUMMY_SQL_FOR_RETRY_TEST, {}, RuntimeError('db still down'))
 
         with patch('services.db_resilience.time.sleep') as sleep_mock:
             with pytest.raises(OperationalError):
