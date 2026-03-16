@@ -24,7 +24,7 @@ def test_finance_and_goal_user_id_are_non_nullable():
 def test_finance_insert_with_null_user_id_raises_error(app):
     with app.app_context():
         finance = Finance(
-            description='Conta sem usuario',
+            description='Conta sem usuário',
             value=25.0,
             category='Utilidades',
             subcategory='Água',
@@ -44,7 +44,7 @@ def test_finance_insert_with_null_user_id_raises_error(app):
 def test_goal_insert_with_null_user_id_raises_error(app):
     with app.app_context():
         goal = Goal(
-            name='Meta sem usuario',
+            name='Meta sem usuário',
             target_amount=1000.0,
             user_id=None,
         )
@@ -111,7 +111,7 @@ def test_budget_route_rejects_invalid_category(client, app):
     )
 
     assert response.status_code == 200
-    assert b'Categoria inv\xc3\xa1lida' in response.data
+    assert b'Categoria inv\xc3\xa1lida. Selecione uma categoria permitida.' in response.data
 
 
 def test_import_service_normalizes_allowed_category_alias():
