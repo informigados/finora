@@ -273,7 +273,7 @@ Or:
 - Upgraded UX with dynamic page titles, better loading and empty states, confirmation modal flow, mobile/navigation polish, and accessibility improvements.
 - Added enterprise-grade quality gates with CI, CodeQL, Ruff, pre-commit, dependency auditing, expanded test coverage, and release/rollback guidance.
 
-### 2026-03-15 (1.3.0)
+### 2026-03-16 (1.3.0)
 
 - Introduced the `Meu Perfil` hub with recovery key controls, managed backups, login sessions, activity history, and system status.
 - Added automatic backup routines with retention policy and persisted backup history.
