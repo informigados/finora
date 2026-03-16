@@ -120,11 +120,12 @@ def test_budget_route_rejects_invalid_category(client, app):
             db.session.commit()
             user_id = user.id
 
-        client.post(
+        login_response = client.post(
             '/login',
             data={'identifier': 'budgetinvalidcat', 'password': 'Pass1234'},
             follow_redirects=True,
         )
+        assert login_response.status_code == 200
         response = client.post(
             '/budgets/add',
             data={'category': 'OutraCategoria', 'limit_amount': '100', 'period': 'Mensal'},
