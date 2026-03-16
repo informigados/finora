@@ -3,6 +3,7 @@ from datetime import date
 from database.db import db
 from models.finance import Finance
 from models.user import User
+from routes import auth as auth_module
 from services.auth_service import generate_reset_password_token
 
 
@@ -55,6 +56,27 @@ def test_forgot_password_email_flow_returns_generic_message(client, app):
 
     assert response.status_code == 200
     assert b'Se existir uma conta correspondente' in response.data
+
+
+def test_forgot_password_email_flow_calls_mail_sender_for_existing_user(client, app, monkeypatch):
+    _create_user(app, 'recovermailcall', 'recovermailcall@example.com')
+    calls = []
+
+    def fake_send_reset_password_email(user):
+        calls.append(user.email)
+        return {'ok': True, 'delivery': 'smtp'}
+
+    monkeypatch.setattr(auth_module, 'send_reset_password_email', fake_send_reset_password_email)
+
+    response = client.post(
+        '/forgot_password',
+        data={'identifier': 'recovermailcall', 'method': 'email'},
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b'Se existir uma conta correspondente' in response.data
+    assert calls == ['recovermailcall@example.com']
 
 
 def test_reset_password_offline_rejects_weak_password(client, app):

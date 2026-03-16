@@ -1,5 +1,5 @@
 from database.db import db
-from datetime import datetime
+from models.time_utils import utcnow_naive
 
 class RecurringEntry(db.Model):
     __tablename__ = 'recurring_entries'
@@ -11,7 +11,9 @@ class RecurringEntry(db.Model):
     description = db.Column(db.String(100), nullable=False)
     value = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(50), nullable=False)
+    subcategory = db.Column(db.String(80), nullable=True)
     type = db.Column(db.String(20), nullable=False)  # 'Receita', 'Despesa'
+    payment_method = db.Column(db.String(40), nullable=True)
     frequency = db.Column(db.String(20), nullable=False) # 'Diário', 'Semanal', 'Mensal', 'Anual'
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=True)
@@ -21,7 +23,7 @@ class RecurringEntry(db.Model):
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
-    created_at = db.Column(db.DateTime, default=datetime.now)
+    created_at = db.Column(db.DateTime, default=utcnow_naive)
 
     def to_dict(self):
         return {
@@ -29,7 +31,9 @@ class RecurringEntry(db.Model):
             'description': self.description,
             'value': self.value,
             'category': self.category,
+            'subcategory': self.subcategory,
             'type': self.type,
+            'payment_method': self.payment_method,
             'frequency': self.frequency,
             'start_date': self.start_date.isoformat() if self.start_date else None,
             'next_run_date': self.next_run_date.isoformat() if self.next_run_date else None,

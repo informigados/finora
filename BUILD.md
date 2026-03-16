@@ -17,6 +17,11 @@ Install Inno Setup 6:
 
 - https://jrsoftware.org/isinfo.php
 
+Linux/macOS note:
+
+- `gunicorn` is included only for non-Windows environments and is not used in the official Windows executable/installer flow.
+- The packaged Windows distribution uses `waitress`, while `gunicorn` is intended only for direct source deployments on Unix-like systems.
+
 ## 2. Release Version
 
 Release version is centralized in the `VERSION` file at project root.
@@ -24,7 +29,7 @@ Release version is centralized in the `VERSION` file at project root.
 Example:
 
 ```text
-1.2.0
+1.3.0
 ```
 
 Before generating a release, update this file to the target version.
@@ -92,7 +97,7 @@ Expected output:
 If you already generated `dist\Finora`, you can compile manually:
 
 ```powershell
-"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.2.0 finora_installer.iss
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.3.0 finora_installer.iss
 ```
 
 ## 7. Database Migration Requirement
@@ -118,8 +123,9 @@ The migration chain is also expected to bootstrap a fresh local SQLite database 
 8. `python -m babel.messages.frontend compile -d translations` executed
 9. `VERSION` updated to target release
 10. `python create_installer.py` generated both EXE and Setup
-11. Smoke test login, dashboard, import/export, backup, and profile update
+11. Smoke test login, dashboard, import/export, backup center, recovery key actions, `/about` update check, and profile observability
 12. Confirm production log output is being written to `logs/finora.log` (or the configured log path)
+13. If `UPDATE_MANIFEST_URL` is configured, validate version check and pre-update backup flow in a controlled environment
 
 ## 9. Rollback Checklist
 
@@ -129,7 +135,7 @@ If a release must be rolled back, use this sequence:
 2. Restore the previous tagged installer/executable
 3. If the database schema was migrated forward, verify downgrade feasibility before changing binaries
 4. Restore the last known-good backup before any incompatible schema/data migration
-5. Validate login, dashboard, import/export, backup, and recurring maintenance after rollback
+5. Validate login, dashboard, import/export, managed backup flow, and recurring maintenance after rollback
 6. Record incident date, version, migration state, and remediation notes
 
 ## 10. Recommended GitHub Release Contents
@@ -138,3 +144,4 @@ If a release must be rolled back, use this sequence:
 - `Finora_Setup_v<version>.exe`
 - Changelog
 - Upgrade notes (especially migration requirements)
+- Update manifest notes when the release is intended to be consumed by the built-in updater

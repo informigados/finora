@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app import create_app
 from database.db import db
+from models.audit import UserSession
 from models.user import User
 from routes import auth as auth_module
 from routes import backup as backup_module
@@ -55,6 +56,12 @@ def test_session_timeout_redirects_to_login_when_inactive(client, app):
     assert response.status_code == 200
     assert b'Sess\xc3\xa3o expirada por inatividade' in response.data
     assert b'Usu\xc3\xa1rio ou e-mail' in response.data
+
+    with app.app_context():
+        session_entry = UserSession.query.first()
+        assert session_entry is not None
+        assert session_entry.is_current is False
+        assert session_entry.ended_reason == 'timeout'
 
 
 def test_register_handles_integrity_error_gracefully(client, monkeypatch):
@@ -122,7 +129,11 @@ def test_backup_download_handles_snapshot_failure(tmp_path, monkeypatch):
 
     client = app.test_client()
     _login(client, 'backupfailure')
-    monkeypatch.setattr(backup_module.sqlite3, 'connect', lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError('boom')))
+    monkeypatch.setattr(
+        backup_module,
+        'create_backup_for_user',
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError('boom')),
+    )
 
     response = client.get('/backup/download', follow_redirects=True)
 

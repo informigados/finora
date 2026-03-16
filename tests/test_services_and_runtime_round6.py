@@ -1,17 +1,18 @@
 import io
+import os
 from datetime import date, timedelta
-from types import SimpleNamespace
 
 import openpyxl
 import pytest
 from werkzeug.datastructures import FileStorage
 
-from app import ensure_runtime_schema_compatibility, find_free_port, seed_default_user
+from app import create_app, ensure_runtime_schema_compatibility, find_free_port, seed_default_user
 from database.db import db
+from models.backup import BackupRecord, BackupSchedule
 from models.recurring import RecurringEntry
 from models.user import User
 from routes import backup as backup_module
-from services import import_service, recurring_service
+from services import backup_service, import_service, recurring_service
 from services.import_service import ImportValidationError
 
 
@@ -24,12 +25,20 @@ def _create_user(app, username, email, password='Password123'):
         return user.id
 
 
-def test_backup_download_rejects_non_sqlite_engine(auth_client, monkeypatch):
-    fake_db = SimpleNamespace(
-        engine=SimpleNamespace(url=SimpleNamespace(drivername='postgresql', database='finora')),
-        session=db.session,
+def _login(client, username, password='Password123'):
+    return client.post(
+        '/login',
+        data={'identifier': username, 'password': password},
+        follow_redirects=True,
     )
-    monkeypatch.setattr(backup_module, 'db', fake_db)
+
+
+def test_backup_download_rejects_non_sqlite_engine(auth_client, monkeypatch):
+    monkeypatch.setattr(
+        backup_module,
+        'create_backup_for_user',
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(ValueError('Backup por arquivo está disponível apenas para SQLite.')),
+    )
 
     response = auth_client.get('/backup/download', follow_redirects=True)
 
@@ -38,18 +47,180 @@ def test_backup_download_rejects_non_sqlite_engine(auth_client, monkeypatch):
 
 
 def test_backup_download_rejects_missing_database_file(auth_client, monkeypatch):
-    fake_db = SimpleNamespace(
-        engine=SimpleNamespace(url=SimpleNamespace(drivername='sqlite', database='missing.db')),
-        session=db.session,
+    monkeypatch.setattr(
+        backup_module,
+        'create_backup_for_user',
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(ValueError('Banco de dados não encontrado para backup.')),
     )
-    monkeypatch.setattr(backup_module, 'db', fake_db)
-    monkeypatch.setattr(backup_module.os.path, 'isabs', lambda _path: False)
-    monkeypatch.setattr(backup_module.os.path, 'exists', lambda _path: False)
 
     response = auth_client.get('/backup/download', follow_redirects=True)
 
     assert response.status_code == 200
     assert b'Banco de dados n\xc3\xa3o encontrado para backup' in response.data
+
+
+def test_backup_schedule_update_persists_configuration(auth_client, app):
+    response = auth_client.post(
+        '/backup/schedule',
+        data={
+            'enabled': 'on',
+            'frequency': 'Semanal',
+            'times_per_period': '2',
+            'day_of_week': '4',
+            'run_hour': '9',
+            'run_minute': '30',
+            'retention_count': '6',
+        },
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b'Rotina de backup atualizada com sucesso' in response.data
+
+    with app.app_context():
+        user = User.query.filter_by(username='testuser').first()
+        schedule = BackupSchedule.query.filter_by(user_id=user.id).first()
+        assert schedule is not None
+        assert schedule.enabled is True
+        assert schedule.frequency == 'Semanal'
+        assert schedule.times_per_period == 2
+        assert schedule.day_of_week == 4
+        assert schedule.retention_count == 6
+        assert schedule.next_run_at is not None
+
+
+def test_apply_backup_schedule_update_rejects_invalid_frequency(app):
+    with app.app_context():
+        user = User(username='backupinvalid', email='backupinvalid@example.com', name='Backup Invalid')
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.commit()
+
+        error_code = backup_service.apply_backup_schedule_update(
+            user,
+            form={
+                'enabled': 'on',
+                'frequency': 'Anual',
+                'times_per_period': '1',
+                'run_hour': '3',
+                'run_minute': '0',
+                'retention_count': '5',
+            },
+            default_retention_count=20,
+        )
+
+        assert error_code == 'invalid_frequency'
+
+
+def test_run_backup_maintenance_processes_due_schedule(tmp_path):
+    db_path = tmp_path / 'backup-maintenance.db'
+    app = create_app('development')
+    app.config.update(
+        TESTING=False,
+        WTF_CSRF_ENABLED=False,
+        SQLALCHEMY_DATABASE_URI=f"sqlite:///{db_path.as_posix()}",
+        BACKUP_STORAGE_DIR=str(tmp_path / 'backups'),
+        ENABLE_RECURRING_SCHEDULER=False,
+    )
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        user = User(username='backupauto', email='backupauto@example.com', name='Backup Auto')
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.commit()
+
+        schedule = BackupSchedule(
+            user_id=user.id,
+            enabled=True,
+            frequency='Diário',
+            times_per_period=1,
+            run_hour=1,
+            run_minute=0,
+            retention_count=1,
+            next_run_at=backup_service.utcnow_naive() - timedelta(minutes=5),
+        )
+        db.session.add(schedule)
+        db.session.commit()
+
+        result = backup_service.run_backup_maintenance(app)
+
+        assert result['processed_backups'] == 1
+        assert result['affected_users'] == 1
+        assert BackupRecord.query.filter_by(user_id=user.id).count() == 1
+        refreshed_schedule = db.session.get(BackupSchedule, schedule.id)
+        assert refreshed_schedule.last_run_at is not None
+        assert refreshed_schedule.next_run_at is not None
+
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
+
+
+def test_delete_saved_backup_route_removes_record_and_file(tmp_path):
+    db_path = tmp_path / 'backup-delete.db'
+    app = create_app('development')
+    app.config.update(
+        TESTING=True,
+        WTF_CSRF_ENABLED=False,
+        SQLALCHEMY_DATABASE_URI=f"sqlite:///{db_path.as_posix()}",
+        BACKUP_STORAGE_DIR=str(tmp_path / 'backups'),
+        ENABLE_RECURRING_SCHEDULER=False,
+    )
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        user = User(username='backupdelete', email='backupdelete@example.com', name='Backup Delete')
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.commit()
+        user_id = user.id
+
+        backup_dir = tmp_path / 'backups' / f'user_{user_id}'
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        backup_file = backup_dir / 'manual.zip'
+        backup_file.write_bytes(b'PKdemo')
+
+        record = BackupRecord(
+            user_id=user_id,
+            trigger_source='Manual',
+            status='Concluido',
+            file_name='manual.zip',
+            storage_path=str(backup_file),
+            file_size_bytes=backup_file.stat().st_size,
+            checksum='checksum',
+        )
+        db.session.add(record)
+        db.session.commit()
+        record_id = record.id
+
+    client = app.test_client()
+    _login(client, 'backupdelete')
+    response = client.post(f'/backup/history/{record_id}/delete', follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b'Backup removido com sucesso' in response.data
+
+    with app.app_context():
+        assert db.session.get(BackupRecord, record_id) is None
+        assert not os.path.exists(backup_file)
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
+
+
+def test_run_backup_maintenance_skips_when_schema_is_incomplete(app, monkeypatch):
+    monkeypatch.setattr(backup_service, 'backup_schema_is_ready', lambda: False)
+
+    result = backup_service.run_backup_maintenance(app)
+
+    assert result == {'processed_backups': 0, 'affected_users': 0, 'skipped': True}
+
+
+def test_start_backup_scheduler_returns_none_in_testing(app):
+    assert backup_service.start_backup_scheduler(app) is None
 
 
 def test_seed_default_user_skips_when_password_missing(app, monkeypatch):

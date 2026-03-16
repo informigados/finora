@@ -1,5 +1,5 @@
 from database.db import db
-from datetime import datetime
+from models.time_utils import utcnow_naive
 
 class Budget(db.Model):
     __tablename__ = 'budgets'
@@ -15,8 +15,8 @@ class Budget(db.Model):
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    created_at = db.Column(db.DateTime, default=utcnow_naive)
+    updated_at = db.Column(db.DateTime, default=utcnow_naive, onupdate=utcnow_naive)
 
     def to_dict(self):
         return {

@@ -3,6 +3,7 @@ from datetime import date
 from database.db import db
 from models.finance import Finance
 from models.user import User
+from itsdangerous import URLSafeSerializer
 from services.auth_service import generate_reset_password_token
 
 
@@ -36,6 +37,69 @@ def test_reset_password_token_rejects_invalid_token(client):
 
     assert response.status_code == 200
     assert b'Link de recupera' in response.data
+
+
+def test_user_recovery_key_roundtrip_and_tamper_returns_none(app):
+    with app.app_context():
+        user = User(username='roundtripuser', email='roundtrip@example.com', name='Roundtrip User')
+        user.set_password('Password123')
+        user.set_recovery_key('ROUNDTRIPKEY1234')
+        db.session.add(user)
+        db.session.commit()
+
+        assert user.recovery_key_salt
+        assert user.get_recovery_key() == 'ROUNDTRIPKEY1234'
+        assert user.check_recovery_key('ROUNDTRIPKEY1234') is True
+
+        user.recovery_key_ciphertext = 'tampered'
+        db.session.commit()
+        assert user.get_recovery_key() is None
+
+
+def test_user_recovery_key_reads_legacy_signed_payload(app):
+    with app.app_context():
+        user = User(username='legacyrecovery', email='legacyrecovery@example.com', name='Legacy Recovery')
+        user.set_password('Password123')
+        serializer = URLSafeSerializer(app.config['SECRET_KEY'], salt='finora-recovery-key')
+        user.recovery_key_ciphertext = serializer.dumps({'key': 'LEGACYRECOVERY12'})
+        db.session.add(user)
+        db.session.commit()
+
+        assert user.get_recovery_key() == 'LEGACYRECOVERY12'
+
+
+def test_user_recovery_key_reads_legacy_encrypted_payload_without_user_salt(app):
+    with app.app_context():
+        user = User(username='legacyenc', email='legacyenc@example.com', name='Legacy Enc')
+        user.set_password('Password123')
+        user.recovery_key_ciphertext = User._serialize_recovery_key('LEGACYENCODED12')
+        user.recovery_key_salt = None
+        db.session.add(user)
+        db.session.commit()
+
+        assert user.get_recovery_key() == 'LEGACYENCODED12'
+
+
+def test_profile_visit_rewraps_legacy_recovery_key_storage(client, app):
+    with app.app_context():
+        user = User(username='rewraplegacy', email='rewraplegacy@example.com', name='Rewrap Legacy')
+        user.set_password('Password123')
+        serializer = URLSafeSerializer(app.config['SECRET_KEY'], salt='finora-recovery-key')
+        user.recovery_key_ciphertext = serializer.dumps({'key': 'LEGACYPROFILE123'})
+        user.recovery_key_salt = None
+        db.session.add(user)
+        db.session.commit()
+
+    client.post('/login', data={'identifier': 'rewraplegacy', 'password': 'Password123'}, follow_redirects=True)
+    response = client.get('/profile')
+
+    assert response.status_code == 200
+
+    with app.app_context():
+        refreshed = User.query.filter_by(username='rewraplegacy').first()
+        assert refreshed.recovery_key_salt
+        assert refreshed.recovery_key_ciphertext.startswith('enc:')
+        assert refreshed.get_recovery_key() == 'LEGACYPROFILE123'
 
 
 def test_dashboard_redirects_when_page_exceeds_total(client, app):
@@ -101,3 +165,58 @@ def test_year_dashboard_is_scoped_to_authenticated_user(client, app):
     assert response.status_code == 200
     assert b'500.00' in response.data
     assert b'900.00' not in response.data
+
+
+def test_reset_password_token_is_invalidated_after_successful_use(client, app):
+    with app.app_context():
+        user = User(username='reusetokenuser', email='reusetoken@example.com', name='Reuse Token User')
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.commit()
+        token = generate_reset_password_token(user)
+
+    first_response = client.post(
+        f'/reset_password/{token}',
+        data={'new_password': 'BetterPass123'},
+        follow_redirects=True,
+    )
+    assert first_response.status_code == 200
+    assert b'Sua senha foi atualizada com sucesso' in first_response.data
+
+    second_response = client.get(
+        f'/reset_password/{token}',
+        follow_redirects=True,
+    )
+    assert second_response.status_code == 200
+    assert b'Link de recupera' in second_response.data
+
+    with app.app_context():
+        refreshed_user = User.query.filter_by(username='reusetokenuser').first()
+        assert refreshed_user.password_reset_token_hash
+
+
+def test_profile_password_change_increments_reset_token_version(client, app):
+    with app.app_context():
+        user = User(username='versionedreset', email='versionedreset@example.com', name='Versioned Reset')
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.commit()
+        token = generate_reset_password_token(user)
+
+    client.post('/login', data={'identifier': 'versionedreset', 'password': 'Password123'}, follow_redirects=True)
+    response = client.post(
+        '/profile',
+        data={
+            'action': 'change_password',
+            'current_password': 'Password123',
+            'new_password': 'BetterPass123',
+        },
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b'Senha alterada com sucesso' in response.data
+
+    expired_token_response = client.get(f'/reset_password/{token}', follow_redirects=True)
+    assert expired_token_response.status_code == 200
+    assert b'Link de recupera' in expired_token_response.data

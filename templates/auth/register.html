@@ -5,10 +5,10 @@
 {% block content %}
 <div class="row justify-content-center align-items-center auth-shell">
     <div class="col-md-6 col-lg-5">
-        <div class="card shadow-lg border-0">
+        <div class="card card-premium auth-card-premium border-0">
             <div class="card-body p-5">
                 <h3 class="text-center mb-4">{{ _('Criar Conta') }}</h3>
-                <form action="{{ url_for('auth.register') }}" method="POST" id="registerForm" class="auth-form-clean-validation">
+                <form action="{{ url_for('auth.register') }}" method="POST" id="registerForm" class="auth-form-clean-validation" data-loading-text="{{ _('Cadastrando...') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-3">
                         <label for="name" class="form-label">{{ _('Nome Completo') }}</label>
@@ -62,7 +62,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ csp_nonce }}">
 document.addEventListener('DOMContentLoaded', function() {
     const usernameInput = document.getElementById('username');
     const emailInput = document.getElementById('email');
@@ -72,18 +72,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const usernameHelp = document.getElementById('username-help');
     const emailHelp = document.getElementById('email-help');
 
-    function setFieldState(input, iconEl, helpEl, availableText, unavailableText, isAvailable) {
+    function refreshLucideIcons() {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    }
+
+    function setFieldState(input, iconEl, helpEl, availableText, unavailableText, isAvailable, neutralText = '') {
         iconEl.style.display = 'block';
-        iconEl.innerHTML = isAvailable
-            ? '<i data-lucide="check" class="text-success icon-sm"></i>'
-            : '<i data-lucide="x" class="text-danger icon-sm"></i>';
-        helpEl.textContent = isAvailable ? availableText : unavailableText;
-        helpEl.className = isAvailable ? 'form-text text-success' : 'form-text text-danger';
+        if (neutralText) {
+            iconEl.innerHTML = '<i data-lucide="info" class="text-muted icon-sm"></i>';
+            helpEl.textContent = neutralText;
+            helpEl.className = 'form-text text-muted';
+        } else {
+            iconEl.innerHTML = isAvailable
+                ? '<i data-lucide="check" class="text-success icon-sm"></i>'
+                : '<i data-lucide="x" class="text-danger icon-sm"></i>';
+            helpEl.textContent = isAvailable ? availableText : unavailableText;
+            helpEl.className = isAvailable ? 'form-text text-success' : 'form-text text-danger';
+        }
 
         // Keep native field border feedback, but avoid duplicated bootstrap validation icon.
-        input.classList.toggle('is-valid', isAvailable);
-        input.classList.toggle('is-invalid', !isAvailable);
-        lucide.createIcons();
+        input.classList.toggle('is-valid', isAvailable && !neutralText);
+        input.classList.toggle('is-invalid', !isAvailable && !neutralText);
+        refreshLucideIcons();
     }
     
     // Check Username Availability
@@ -106,7 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     usernameHelp,
                     "{{ _('Nome de usuário disponível') }}",
                     "{{ _('Nome de usuário já está em uso') }}",
-                    Boolean(data.available)
+                    Boolean(data.available),
+                    data.verified === false ? data.message || '' : ''
                 );
             });
         }
@@ -148,7 +161,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     emailHelp,
                     "{{ _('E-mail disponível') }}",
                     "{{ _('E-mail já está em uso') }}",
-                    Boolean(data.available)
+                    Boolean(data.available),
+                    data.verified === false ? data.message || '' : ''
                 );
             });
         }

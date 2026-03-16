@@ -10,7 +10,7 @@ from models.goal import Goal
 from models.user import User
 from services.catalogs import normalize_finance_category
 from services.db_resilience import run_idempotent_db_operation
-from services.import_service import import_finances_from_file
+from services.import_service import ImportValidationError, import_finances_from_file
 from services.validators import parse_finance_form, validate_finance_data
 
 
@@ -51,7 +51,8 @@ def test_parse_finance_form_normalizes_allowed_category_alias():
     )
 
     assert errors == []
-    assert payload['category'] == 'Salário'
+    assert payload['category'] == 'Trabalho'
+    assert payload['subcategory'] == 'Salário'
     assert normalize_finance_category('housing') == 'Moradia'
 
 
@@ -83,7 +84,59 @@ def test_import_service_normalizes_allowed_category_alias():
     result = import_finances_from_file(uploaded, user_id=1)
 
     assert result.imported_rows == 1
-    assert result.entries[0].category == 'Salário'
+    assert result.entries[0].category == 'Trabalho'
+    assert result.entries[0].subcategory == 'Salário'
+
+
+def test_parse_finance_form_accepts_explicit_valid_subcategory():
+    payload, errors = parse_finance_form(
+        MultiDict(
+            {
+                'description': 'Mercado',
+                'value': '80',
+                'category': 'Alimentação',
+                'subcategory': 'Supermercado',
+                'type': 'Despesa',
+                'status': 'Pago',
+                'due_date': '2026-03-10',
+            }
+        )
+    )
+
+    assert errors == []
+    assert payload['category'] == 'Alimentação'
+    assert payload['subcategory'] == 'Supermercado'
+
+
+def test_validate_finance_data_rejects_zero_value():
+    errors = validate_finance_data(
+        MultiDict(
+            {
+                'description': 'Conta',
+                'value': '0',
+                'category': 'Utilidades',
+                'subcategory': 'Água',
+                'type': 'Despesa',
+                'status': 'Pago',
+                'due_date': '2026-03-10',
+            }
+        )
+    )
+
+    assert 'Valor deve ser maior que zero.' in errors
+
+
+def test_import_service_requires_due_date():
+    csv_content = (
+        'description,value,category,type,status,due_date\n'
+        'Salary,5000,salary,Receita,Pago,\n'
+    )
+    uploaded = FileStorage(stream=io.BytesIO(csv_content.encode('utf-8')), filename='finances.csv')
+
+    with pytest.raises(ImportValidationError) as exc_info:
+        import_finances_from_file(uploaded, user_id=1)
+
+    assert 'Data de vencimento' in str(exc_info.value)
 
 
 def test_run_idempotent_db_operation_retries_retryable_errors(app):

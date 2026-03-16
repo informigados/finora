@@ -1,8 +1,11 @@
 import os
+import secrets
 from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
+LOCAL_SECRET_KEY_PATH = os.path.join(basedir, 'database', '.finora_secret_key')
+DEFAULT_UPDATE_MANIFEST_PATH = os.path.join(basedir, 'updates', 'manifest.json')
 
 
 def _env_flag(name, default=False):
@@ -21,7 +24,35 @@ def _env_int(name, default):
     except (TypeError, ValueError):
         return default
 
+
+def get_or_create_local_secret_key():
+    secret_key = os.environ.get('SECRET_KEY')
+    if secret_key:
+        return secret_key
+
+    try:
+        if os.path.exists(LOCAL_SECRET_KEY_PATH):
+            with open(LOCAL_SECRET_KEY_PATH, encoding='utf-8') as secret_file:
+                existing_secret = secret_file.read().strip()
+                if existing_secret:
+                    return existing_secret
+    except OSError:
+        pass
+
+    generated_secret = secrets.token_urlsafe(48)
+    try:
+        os.makedirs(os.path.dirname(LOCAL_SECRET_KEY_PATH), exist_ok=True)
+        with open(LOCAL_SECRET_KEY_PATH, 'w', encoding='utf-8') as secret_file:
+            secret_file.write(generated_secret)
+    except OSError:
+        return generated_secret
+
+    return generated_secret
+
 class Config:
+    APP_VERSION = os.environ.get('APP_VERSION', '1.3.0')
+    APP_BASE_URL = os.environ.get('APP_BASE_URL', '')
+    APP_TIMEZONE = os.environ.get('APP_TIMEZONE', 'America/Sao_Paulo')
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
@@ -44,8 +75,10 @@ class Config:
     AUTH_RATE_LIMIT_LOOKUPS = '30 per minute'
     RATELIMIT_HEADERS_ENABLED = True
     RATELIMIT_ENABLED = True
+    RATELIMIT_STORAGE_URI = os.environ.get('RATELIMIT_STORAGE_URI', 'memory://')
     ENABLE_RECURRING_SCHEDULER = True
     RECURRING_PROCESS_INTERVAL_SECONDS = 300
+    ENABLE_BACKUP_SCHEDULER = _env_flag('ENABLE_BACKUP_SCHEDULER', default=True)
     DB_IDEMPOTENT_MAX_RETRIES = 2
     DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS = 0.15
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
@@ -62,10 +95,37 @@ class Config:
     LOG_FILE_NAME = os.environ.get('LOG_FILE_NAME', 'finora.log')
     LOG_MAX_BYTES = _env_int('LOG_MAX_BYTES', 1_048_576)
     LOG_BACKUP_COUNT = _env_int('LOG_BACKUP_COUNT', 5)
+    BACKUP_STORAGE_DIR = os.environ.get('BACKUP_STORAGE_DIR') or os.path.join(basedir, 'backups')
+    BACKUP_SCHEDULER_INTERVAL_SECONDS = _env_int('BACKUP_SCHEDULER_INTERVAL_SECONDS', 300)
+    BACKUP_DEFAULT_RETENTION_COUNT = _env_int('BACKUP_DEFAULT_RETENTION_COUNT', 20)
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', '')
+    MAIL_PORT = _env_int('MAIL_PORT', 587)
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', '')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '')
+    MAIL_USE_TLS = _env_flag('MAIL_USE_TLS', default=True)
+    MAIL_USE_SSL = _env_flag('MAIL_USE_SSL', default=False)
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', '')
+    MAIL_FROM_NAME = os.environ.get('MAIL_FROM_NAME', 'Finora')
+    MAIL_TIMEOUT_SECONDS = _env_int('MAIL_TIMEOUT_SECONDS', 10)
+    UPDATE_CHANNEL = os.environ.get('UPDATE_CHANNEL', 'stable')
+    UPDATE_MANIFEST_URL = os.environ.get('UPDATE_MANIFEST_URL') or DEFAULT_UPDATE_MANIFEST_PATH
+    UPDATE_DOWNLOAD_DIR = os.environ.get('UPDATE_DOWNLOAD_DIR') or os.path.join(basedir, 'updates')
+    UPDATE_TARGET_ROOT = os.environ.get('UPDATE_TARGET_ROOT') or basedir
+    UPDATE_CHECK_TIMEOUT_SECONDS = _env_int('UPDATE_CHECK_TIMEOUT_SECONDS', 10)
+    UPDATE_ALLOW_LOCAL_ASSETS = _env_flag('UPDATE_ALLOW_LOCAL_ASSETS', default=False)
+    ACTIVITY_LOG_RETENTION_DAYS = _env_int('ACTIVITY_LOG_RETENTION_DAYS', 180)
+    SYSTEM_EVENT_RETENTION_DAYS = _env_int('SYSTEM_EVENT_RETENTION_DAYS', 90)
+    TRUST_PROXY_HEADERS = _env_flag('TRUST_PROXY_HEADERS', default=False)
+    RECURRING_MAX_CATCH_UP_RUNS = _env_int('RECURRING_MAX_CATCH_UP_RUNS', 90)
+    PROFILE_BACKUPS_PAGE_SIZE = _env_int('PROFILE_BACKUPS_PAGE_SIZE', 10)
+    PROFILE_SESSIONS_PAGE_SIZE = _env_int('PROFILE_SESSIONS_PAGE_SIZE', 10)
+    PROFILE_ACTIVITIES_PAGE_SIZE = _env_int('PROFILE_ACTIVITIES_PAGE_SIZE', 15)
+    PROFILE_SYSTEM_EVENTS_PAGE_SIZE = _env_int('PROFILE_SYSTEM_EVENTS_PAGE_SIZE', 12)
+    PDF_EXPORT_MAX_ROWS = _env_int('PDF_EXPORT_MAX_ROWS', 5000)
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev_key_finora_fallback'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'database', 'finora.db')
 

@@ -46,6 +46,7 @@ def test_export_csv_is_scoped_to_authenticated_user(auth_client, app):
                 type='Receita',
                 status='Pago',
                 due_date=datetime(2026, 3, 5).date(),
+                payment_method='Transferência / PIX',
                 user_id=owner.id,
             ),
             Finance(
@@ -65,6 +66,7 @@ def test_export_csv_is_scoped_to_authenticated_user(auth_client, app):
     assert response.status_code == 200
     assert response.mimetype == 'text/csv'
     assert 'Owner Salary' in response.text
+    assert 'Transferência / PIX' in response.text
     assert 'Other Salary' not in response.text
 
 

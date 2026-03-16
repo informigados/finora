@@ -6,7 +6,11 @@ from itsdangerous import URLSafeTimedSerializer
 from werkzeug.datastructures import FileStorage
 
 import app as app_module
-from app import ensure_runtime_schema_compatibility, ensure_sqlite_schema_bootstrapped
+from app import (
+    ensure_runtime_schema_compatibility,
+    ensure_sqlite_schema_bootstrapped,
+    ensure_sqlite_schema_up_to_date,
+)
 from database.db import db
 from models.goal import Goal
 from models.user import User
@@ -38,6 +42,56 @@ def test_resolve_reset_token_rejects_missing_payload_fields(app):
 
         assert auth_service.resolve_user_from_reset_token(missing_email_token) == (None, 'invalid')
         assert auth_service.resolve_user_from_reset_token(missing_user_token) == (None, 'invalid')
+
+
+def test_profile_service_uses_remote_addr_when_proxy_headers_are_not_trusted(app):
+    with app.test_request_context(
+        '/',
+        headers={'X-Forwarded-For': '203.0.113.5'},
+        environ_base={'REMOTE_ADDR': '127.0.0.1'},
+    ):
+        app.config['TRUST_PROXY_HEADERS'] = False
+        assert profile_service._request_ip_address(app_module.request) == '127.0.0.1'
+
+
+def test_profile_service_can_trust_forwarded_ip_when_enabled(app):
+    with app.test_request_context(
+        '/',
+        headers={'X-Forwarded-For': '203.0.113.5, 10.0.0.1'},
+        environ_base={'REMOTE_ADDR': '127.0.0.1'},
+    ):
+        app.config['TRUST_PROXY_HEADERS'] = True
+        assert profile_service._request_ip_address(app_module.request) == '203.0.113.5'
+
+
+def test_ensure_user_session_reuses_recent_session_with_same_client_fingerprint(app):
+    with app.app_context():
+        user = User(username='sessionreuse', email='sessionreuse@example.com', name='Session Reuse')
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.commit()
+
+        existing_session = profile_service.UserSession(
+            user_id=user.id,
+            session_token_hash='existing-hash',
+            ip_address='127.0.0.1',
+            user_agent='pytest-agent',
+            started_at=profile_service.utcnow_naive(),
+            last_seen_at=profile_service.utcnow_naive(),
+            is_current=True,
+        )
+        db.session.add(existing_session)
+        db.session.commit()
+
+        session_store = {}
+        with app.test_request_context('/', headers={'User-Agent': 'pytest-agent'}, environ_base={'REMOTE_ADDR': '127.0.0.1'}):
+            reused = profile_service.ensure_user_session(user, app_module.request, session_store)
+
+        assert reused is not None
+        assert reused.id == existing_session.id
+        assert 'audit_session_token' not in session_store
+        assert session_store['audit_session_id'] == existing_session.id
+        assert profile_service.UserSession.query.filter_by(user_id=user.id, is_current=True).count() == 1
 
 
 def test_resolve_reset_token_rejects_email_mismatch_and_unknown_user(app):
@@ -125,6 +179,27 @@ def test_runtime_schema_compatibility_applies_missing_columns(app, monkeypatch):
     assert committed['count'] == 2
 
 
+def test_runtime_schema_compatibility_skips_alembic_managed_sqlite(app, monkeypatch):
+    app.config['TESTING'] = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///runtime.db'
+
+    class FakeInspector:
+        def get_table_names(self):
+            return ['alembic_version', 'user']
+
+        def get_columns(self, _table_name):
+            return []
+
+    monkeypatch.setattr(app_module, 'inspect', lambda _engine: FakeInspector())
+    monkeypatch.setattr(
+        db.session,
+        'execute',
+        lambda _statement: (_ for _ in ()).throw(AssertionError('runtime patch should be skipped')),
+    )
+
+    ensure_runtime_schema_compatibility(app)
+
+
 def test_runtime_schema_compatibility_rolls_back_on_failure(app, monkeypatch):
     app.config['TESTING'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///runtime.db'
@@ -193,6 +268,114 @@ def test_ensure_sqlite_schema_bootstrapped_repairs_alembic_only_database(app, mo
     assert stamp_calls['count'] == 1
     assert backups
     assert Path(backups[0][0]) == db_path
+
+
+def test_ensure_sqlite_schema_bootstrapped_creates_empty_database_without_backup(app, monkeypatch, tmp_path):
+    app.config['TESTING'] = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{(tmp_path / 'empty.db').as_posix()}"
+    db_path = Path(tmp_path) / 'empty.db'
+    db_path.write_text('', encoding='utf-8')
+
+    inspections = iter([
+        set(),
+        {'alembic_version', 'user', 'finances', 'goals', 'budgets', 'recurring_entries'},
+    ])
+    backup_calls = {'count': 0}
+    remove_calls = {'count': 0}
+
+    class FakeInspector:
+        def __init__(self, table_names):
+            self._table_names = table_names
+
+        def get_table_names(self):
+            return list(self._table_names)
+
+    monkeypatch.setattr(app_module, 'inspect', lambda _engine: FakeInspector(next(inspections)))
+    monkeypatch.setattr(app_module.db.session, 'remove', lambda: None)
+    monkeypatch.setattr(app_module.db.engine, 'dispose', lambda: None)
+    monkeypatch.setattr(
+        app_module.shutil,
+        'copy2',
+        lambda *_args, **_kwargs: backup_calls.__setitem__('count', backup_calls['count'] + 1),
+    )
+    monkeypatch.setattr(
+        app_module.os,
+        'remove',
+        lambda *_args, **_kwargs: remove_calls.__setitem__('count', remove_calls['count'] + 1),
+    )
+    create_all_calls = {'count': 0}
+    stamp_calls = {'count': 0}
+    monkeypatch.setattr(app_module.db, 'create_all', lambda: create_all_calls.__setitem__('count', create_all_calls['count'] + 1))
+    monkeypatch.setattr(
+        app_module,
+        '_stamp_alembic_head',
+        lambda _app: stamp_calls.__setitem__('count', stamp_calls['count'] + 1),
+    )
+
+    ensure_sqlite_schema_bootstrapped(app)
+
+    assert create_all_calls['count'] == 1
+    assert stamp_calls['count'] == 1
+    assert backup_calls['count'] == 0
+    assert remove_calls['count'] == 0
+
+
+def test_ensure_sqlite_schema_up_to_date_runs_pending_migrations(app, monkeypatch, tmp_path):
+    app.config['TESTING'] = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{(tmp_path / 'stale.db').as_posix()}"
+
+    class FakeInspector:
+        def get_table_names(self):
+            return ['alembic_version', 'user']
+
+    upgrade_calls = {'count': 0}
+    dispose_calls = {'count': 0}
+    remove_calls = {'count': 0}
+
+    monkeypatch.setattr(app_module, 'inspect', lambda _engine: FakeInspector())
+    monkeypatch.setattr(
+        db.session,
+        'execute',
+        lambda _statement: type('Result', (), {'scalar': lambda self: 'd3a7f9c2b4e1'})(),
+    )
+    monkeypatch.setattr(app_module, '_get_alembic_head_revision', lambda _app: 'e4c9b7f1a2d3')
+    monkeypatch.setattr(
+        app_module.alembic_command,
+        'upgrade',
+        lambda *_args, **_kwargs: upgrade_calls.__setitem__('count', upgrade_calls['count'] + 1),
+    )
+    monkeypatch.setattr(app_module.db.session, 'remove', lambda: remove_calls.__setitem__('count', remove_calls['count'] + 1))
+    monkeypatch.setattr(app_module.db.engine, 'dispose', lambda: dispose_calls.__setitem__('count', dispose_calls['count'] + 1))
+
+    ensure_sqlite_schema_up_to_date(app)
+
+    assert upgrade_calls['count'] == 1
+    assert remove_calls['count'] >= 1
+    assert dispose_calls['count'] == 1
+
+
+def test_ensure_sqlite_schema_up_to_date_skips_when_revision_is_current(app, monkeypatch, tmp_path):
+    app.config['TESTING'] = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{(tmp_path / 'current.db').as_posix()}"
+
+    class FakeInspector:
+        def get_table_names(self):
+            return ['alembic_version', 'user']
+
+    monkeypatch.setattr(app_module, 'inspect', lambda _engine: FakeInspector())
+    monkeypatch.setattr(
+        db.session,
+        'execute',
+        lambda _statement: type('Result', (), {'scalar': lambda self: 'e4c9b7f1a2d3'})(),
+    )
+    monkeypatch.setattr(app_module, '_get_alembic_head_revision', lambda _app: 'e4c9b7f1a2d3')
+    monkeypatch.setattr(
+        app_module.alembic_command,
+        'upgrade',
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError('upgrade should be skipped')),
+    )
+
+    ensure_sqlite_schema_up_to_date(app)
 
 
 def test_seed_default_user_handles_unexpected_failure(app, monkeypatch):

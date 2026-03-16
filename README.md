@@ -8,9 +8,9 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/informigados/finora)
 
 Finora is a local-first personal finance application built with Flask.  
-It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, backups, profile management, and multilingual UI.
+It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, managed backups, profile observability, guided updates, and multilingual UI.
 
-Current stable version: `1.2.0`
+Current stable version: `1.3.0`
 
 ## 🧱 Tech Stack
 
@@ -28,9 +28,14 @@ Current stable version: `1.2.0`
 - Recurring transaction generation
 - Budget planning by category (monthly/yearly)
 - Financial goals tracking
+- Hierarchical financial catalog: type, category, subcategory
+- Payment/receiving method tracking in entries, imports, exports, and reports
 - Import (CSV/XLSX) with validation and row-level error handling
 - Export (PDF/CSV/TXT)
-- Local backup download
+- Managed backup center with manual generation, retention, and automatic scheduling
+- Recovery key display, resend, regeneration, and e-mail delivery
+- Profile hub with sessions, activity history, system status, and support shortcuts
+- Guided update system on `/about` with version check, pre-update backup, and migration-safe apply flow
 - Internationalization: Portuguese (default), English, Spanish
 
 ## 📁 Project Structure
@@ -90,6 +95,38 @@ Optional:
 
 - `FINORA_AUTO_OPEN_BROWSER=0` disables automatic browser opening on startup.
 
+Optional update and mail settings:
+
+```ini
+# App metadata
+APP_VERSION=1.3.0
+APP_BASE_URL=http://127.0.0.1:5000
+
+# Automatic update
+UPDATE_CHANNEL=stable
+UPDATE_MANIFEST_URL=
+UPDATE_DOWNLOAD_DIR=updates
+UPDATE_TARGET_ROOT=.
+UPDATE_CHECK_TIMEOUT_SECONDS=10
+UPDATE_ALLOW_LOCAL_ASSETS=0
+
+# Backup automation
+ENABLE_BACKUP_SCHEDULER=1
+BACKUP_STORAGE_DIR=backups
+BACKUP_DEFAULT_RETENTION_COUNT=20
+
+# Mail delivery
+MAIL_SERVER=
+MAIL_PORT=587
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_USE_TLS=1
+MAIL_USE_SSL=0
+MAIL_DEFAULT_SENDER=
+MAIL_FROM_NAME=Finora
+MAIL_TIMEOUT_SECONDS=10
+```
+
 ## 👤 Optional Default Test User
 
 Finora supports an optional default user seed for local environments, including local desktop/package runs.
@@ -113,6 +150,34 @@ DEFAULT_USER_USERNAME=admin
 DEFAULT_USER_EMAIL=admin@finora.local
 DEFAULT_USER_PASSWORD=admin123
 ```
+
+## 🔄 Updates and Recovery
+
+- The `/about` page shows the installed version, latest known version, channel, and update status.
+- Finora ships with a local read-only manifest in `updates/manifest.json` so the update area can report status even before a remote channel is configured.
+- If `UPDATE_MANIFEST_URL` is configured, Finora can check for a newer package and apply it with:
+  - pre-update backup snapshot
+  - package staging and validation
+  - protected copy that preserves runtime folders such as `database/`
+  - automatic `flask db upgrade` after file replacement
+- Local packages referenced by a local manifest stay blocked by default. Only enable `UPDATE_ALLOW_LOCAL_ASSETS=1` for trusted offline update workflows.
+- Recovery keys can be copied from the profile, re-emailed, or regenerated.
+- When SMTP is not configured, e-mail delivery falls back to local log mode for development.
+
+## 👤 Profile Hub and Backups
+
+- `Meu Perfil` centralizes account settings, password changes, recovery key management, backups, sessions, activities, and system status.
+- `Meus Backups` supports:
+  - manual backup generation
+  - automatic daily/weekly/monthly schedules
+  - retention policy
+  - backup download and deletion
+- The profile status area shows:
+  - login sessions
+  - recent activities
+  - system events
+  - update status
+  - backup and scheduler health
 
 ## 🗄️ Database Notes
 
@@ -207,6 +272,15 @@ Or:
 - Reduced duplication by moving auth/profile, validation, ownership, catalogs, and recurring logic into dedicated services.
 - Upgraded UX with dynamic page titles, better loading and empty states, confirmation modal flow, mobile/navigation polish, and accessibility improvements.
 - Added enterprise-grade quality gates with CI, CodeQL, Ruff, pre-commit, dependency auditing, expanded test coverage, and release/rollback guidance.
+
+### 2026-03-15 (1.3.0)
+
+- Introduced the `Meu Perfil` hub with recovery key controls, managed backups, login sessions, activity history, and system status.
+- Added automatic backup routines with retention policy and persisted backup history.
+- Added the guided update system on `/about`, including version checks, pre-update backup, safe package apply flow, and migration execution.
+- Expanded the finance domain with category and subcategory hierarchy plus payment/receiving method support across create, edit, import, export, and reports.
+- Improved top navigation behavior and mobile layout polish.
+- Expanded observability with audit events for core business actions and richer operational status visibility.
 
 ## 👥 Authors
 

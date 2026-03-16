@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-02 12:17-0300\n"
+"POT-Creation-Date: 2026-03-16 00:58-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,1216 +17,2081 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app.py:161
+#: app.py:423
 msgid "Por favor, faça login para acessar esta página."
 msgstr ""
 
-#: app.py:191
+#: app.py:481
 msgid "Sessão expirada por inatividade. Faça login novamente."
 msgstr ""
 
-#: app.py:239
+#: app.py:577
 msgid "Idioma alterado com sucesso!"
 msgstr ""
 
-#: routes/auth.py:83
+#: routes/auth.py:47
+msgid ""
+"Se existir uma conta correspondente, as instruções de recuperação foram "
+"processadas. Use o método escolhido para concluir a redefinição de senha."
+msgstr ""
+
+#: routes/auth.py:54
+msgid ""
+"Muitas tentativas de acesso foram detectadas. Aguarde alguns minutos "
+"antes de tentar novamente."
+msgstr ""
+
+#: routes/auth.py:64
 msgid "Nome de usuário inválido."
 msgstr ""
 
-#: routes/auth.py:94
+#: routes/auth.py:76
 msgid "E-mail inválido."
 msgstr ""
 
-#: routes/auth.py:111
+#: routes/auth.py:95
 msgid "Informe usuário/e-mail e senha para continuar."
 msgstr ""
 
-#: routes/auth.py:119
+#: routes/auth.py:121
 msgid "Por favor verifique seus dados de login e tente novamente."
 msgstr ""
 
-#: routes/auth.py:141 routes/auth.py:290
+#: routes/auth.py:157 routes/auth.py:359
 msgid "Por favor, insira um endereço de e-mail válido."
 msgstr ""
 
-#: routes/auth.py:145
+#: routes/auth.py:161
 msgid "Nome de usuário deve ter pelo menos 3 caracteres."
 msgstr ""
 
-#: routes/auth.py:151
+#: routes/auth.py:167
 #, python-format
 msgid ""
 "A senha deve ter ao menos %(length)d caracteres, incluindo letras "
 "maiúsculas, minúsculas e números."
 msgstr ""
 
-#: routes/auth.py:160
+#: routes/auth.py:176
 msgid "Endereço de e-mail ou nome de usuário já existe."
 msgstr ""
 
-#: routes/auth.py:173
+#: routes/auth.py:189
 msgid "Não foi possível concluir o cadastro. Verifique os dados informados."
 msgstr ""
 
-#: routes/auth.py:178
+#: routes/auth.py:194
 #, python-format
 msgid ""
 "Conta criada com sucesso! Sua chave de recuperação é: %(key)s. Guarde-a "
 "em local seguro!"
 msgstr ""
 
-#: routes/auth.py:202
+#: routes/auth.py:212
+msgid "Também enviamos a chave de recuperação para o seu e-mail."
+msgstr ""
+
+#: routes/auth.py:214
+msgid ""
+"O envio por e-mail da chave de recuperação não pôde ser concluído neste "
+"momento."
+msgstr ""
+
+#: routes/auth.py:247
 msgid "Método de recuperação inválido."
 msgstr ""
 
-#: routes/auth.py:210
-msgid "Usuário não encontrado."
-msgstr ""
-
-#: routes/auth.py:216
-msgid ""
-"Um link de recuperação foi enviado para seu e-mail (Simulação: verifique "
-"o console)."
-msgstr ""
-
-#: routes/auth.py:243 routes/auth.py:351
+#: routes/auth.py:278 routes/auth.py:319 routes/auth.py:409
 #, python-format
 msgid ""
 "A nova senha deve ter ao menos %(length)d caracteres, incluindo letras "
 "maiúsculas, minúsculas e números."
 msgstr ""
 
-#: routes/auth.py:254
+#: routes/auth.py:291 routes/auth.py:331
 msgid "Sua senha foi atualizada com sucesso!"
 msgstr ""
 
-#: routes/auth.py:258
+#: routes/auth.py:295 routes/auth.py:335
 msgid "Não foi possível atualizar a senha. Tente novamente."
 msgstr ""
 
-#: routes/auth.py:260
-msgid "Chave de recuperação inválida."
-msgstr ""
-
-#: routes/auth.py:267
+#: routes/auth.py:298
 msgid ""
-"Funcionalidade de token ainda não implementada (use a chave de "
-"recuperação)."
+"Dados de recuperação inválidos. Verifique as informações e tente "
+"novamente."
 msgstr ""
 
-#: routes/auth.py:285
+#: routes/auth.py:307
+msgid "Este link de recuperação expirou. Solicite um novo link."
+msgstr ""
+
+#: routes/auth.py:310
+msgid "Link de recuperação inválido."
+msgstr ""
+
+#: routes/auth.py:356
 msgid "Tempo de sessão inválido."
 msgstr ""
 
-#: routes/auth.py:297
+#: routes/auth.py:362
 msgid "Este endereço de e-mail já está em uso."
 msgstr ""
 
-#: routes/auth.py:311
+#: routes/auth.py:365
 msgid "A imagem excede o tamanho máximo permitido de 2 MB."
 msgstr ""
 
-#: routes/auth.py:317
+#: routes/auth.py:368
 msgid "Nome de arquivo inválido para upload de imagem."
 msgstr ""
 
-#: routes/auth.py:328
+#: routes/auth.py:371
 msgid "Arquivo de imagem inválido. Formatos permitidos: JPG, PNG e GIF."
 msgstr ""
 
-#: routes/auth.py:337
-msgid "Perfil atualizado com sucesso!"
-msgstr ""
-
-#: routes/auth.py:340
+#: routes/auth.py:381
 msgid "Não foi possível atualizar o perfil. Revise os dados e tente novamente."
 msgstr ""
 
-#: routes/auth.py:347
+#: routes/auth.py:396
+msgid "Perfil atualizado com sucesso!"
+msgstr ""
+
+#: routes/auth.py:405
 msgid "Senha atual incorreta."
 msgstr ""
 
-#: routes/auth.py:360
-msgid "Senha alterada com sucesso!"
-msgstr ""
-
-#: routes/auth.py:363
+#: routes/auth.py:422
 msgid "Não foi possível alterar a senha. Tente novamente."
 msgstr ""
 
-#: routes/auth.py:374
+#: routes/auth.py:431
+msgid "Senha alterada com sucesso!"
+msgstr ""
+
+#: routes/auth.py:441
 msgid "Sua conta foi excluída permanentemente."
 msgstr ""
 
-#: routes/auth.py:378
+#: routes/auth.py:450
 msgid "Não foi possível excluir a conta neste momento."
 msgstr ""
 
-#: routes/auth.py:382
+#: routes/auth.py:455
 #, python-format
 msgid ""
 "Confirmação incorreta para exclusão de conta. Digite %(token)s para "
 "confirmar."
 msgstr ""
 
-#: routes/backup.py:17
-msgid "Banco de dados não encontrado para backup."
+#: routes/auth.py:463
+msgid ""
+"Sua chave atual não está disponível para reenvio. Gere uma nova chave "
+"para continuar."
 msgstr ""
 
-#: routes/backup.py:37
+#: routes/auth.py:476
+msgid "Chave de recuperação enviada para o seu e-mail."
+msgstr ""
+
+#: routes/auth.py:485
+msgid "Não foi possível enviar a chave de recuperação por e-mail."
+msgstr ""
+
+#: routes/auth.py:502
+msgid "Não foi possível gerar uma nova chave de recuperação."
+msgstr ""
+
+#: routes/auth.py:516
+#, python-format
+msgid "Nova chave de recuperação gerada com sucesso: %(key)s"
+msgstr ""
+
+#: routes/auth.py:522
+msgid "A nova chave também foi enviada para o seu e-mail."
+msgstr ""
+
+#: routes/auth.py:524
+msgid "O envio por e-mail da nova chave não pôde ser concluído."
+msgstr ""
+
+#: routes/backup.py:38
 msgid "Erro ao gerar backup. Tente novamente."
 msgstr ""
 
-#: routes/budgets.py:34 routes/budgets.py:74
+#: routes/backup.py:47
+msgid "O arquivo de backup não está mais disponível para download."
+msgstr ""
+
+#: routes/backup.py:64
+msgid "Não foi possível remover o backup selecionado."
+msgstr ""
+
+#: routes/backup.py:67
+msgid "Backup removido com sucesso!"
+msgstr ""
+
+#: routes/backup.py:81
+msgid "Os valores informados para a rotina de backup são inválidos."
+msgstr ""
+
+#: routes/backup.py:82
+msgid "Frequência de backup inválida."
+msgstr ""
+
+#: routes/backup.py:83
+msgid "Quantidade de execuções por período inválida."
+msgstr ""
+
+#: routes/backup.py:84
+msgid "Hora inicial inválida para a rotina de backup."
+msgstr ""
+
+#: routes/backup.py:85
+msgid "Minuto inválido para a rotina de backup."
+msgstr ""
+
+#: routes/backup.py:86
+msgid "Retenção máxima inválida para backups."
+msgstr ""
+
+#: routes/backup.py:87
+msgid "Dia da semana inválido para a rotina semanal."
+msgstr ""
+
+#: routes/backup.py:88
+msgid "Dia do mês inválido para a rotina mensal."
+msgstr ""
+
+#: routes/backup.py:89
+msgid "Não foi possível salvar a rotina de backup."
+msgstr ""
+
+#: routes/backup.py:94
+msgid "Não foi possível atualizar a rotina de backup. Revise os dados informados."
+msgstr ""
+
+#: routes/backup.py:100
+msgid "Rotina de backup atualizada com sucesso!"
+msgstr ""
+
+#: routes/budgets.py:39
+msgid "Categoria inválida. Selecione uma categoria permitida."
+msgstr ""
+
+#: routes/budgets.py:42 routes/budgets.py:103
 msgid "O limite do orçamento deve ser maior que zero."
 msgstr ""
 
-#: routes/budgets.py:37 routes/budgets.py:77
+#: routes/budgets.py:45 routes/budgets.py:106
 msgid "Período de orçamento inválido."
 msgstr ""
 
-#: routes/budgets.py:48
+#: routes/budgets.py:56
 msgid "Já existe um orçamento para esta categoria neste período."
 msgstr ""
 
-#: routes/budgets.py:58
+#: routes/budgets.py:79
 msgid "Orçamento definido com sucesso!"
 msgstr ""
 
-#: routes/budgets.py:62
+#: routes/budgets.py:91
 msgid "Erro ao definir orçamento."
 msgstr ""
 
-#: routes/budgets.py:83
+#: routes/budgets.py:125
 msgid "Orçamento atualizado!"
 msgstr ""
 
-#: routes/budgets.py:86
+#: routes/budgets.py:136
 msgid "Erro ao atualizar orçamento."
 msgstr ""
 
-#: routes/budgets.py:97
+#: routes/budgets.py:157
 msgid "Orçamento removido!"
 msgstr ""
 
-#: routes/budgets.py:100
+#: routes/budgets.py:168
 msgid "Erro ao remover orçamento."
 msgstr ""
 
-#: routes/dashboard.py:25
-#, python-format
-msgid "%(count)d lançamentos recorrentes foram gerados."
-msgstr ""
-
-#: routes/dashboard.py:53
+#: routes/dashboard.py:69
 msgid "Jan"
 msgstr ""
 
-#: routes/dashboard.py:53
+#: routes/dashboard.py:69
 msgid "Fev"
 msgstr ""
 
-#: routes/dashboard.py:53
+#: routes/dashboard.py:69
 msgid "Mar"
 msgstr ""
 
-#: routes/dashboard.py:53
+#: routes/dashboard.py:69
 msgid "Abr"
 msgstr ""
 
-#: routes/dashboard.py:53
+#: routes/dashboard.py:69
 msgid "Mai"
 msgstr ""
 
-#: routes/dashboard.py:53
+#: routes/dashboard.py:69
 msgid "Jun"
 msgstr ""
 
-#: routes/dashboard.py:54
+#: routes/dashboard.py:70
 msgid "Jul"
 msgstr ""
 
-#: routes/dashboard.py:54
+#: routes/dashboard.py:70
 msgid "Ago"
 msgstr ""
 
-#: routes/dashboard.py:54
+#: routes/dashboard.py:70
 msgid "Set"
 msgstr ""
 
-#: routes/dashboard.py:54
+#: routes/dashboard.py:70
 msgid "Out"
 msgstr ""
 
-#: routes/dashboard.py:54
+#: routes/dashboard.py:70
 msgid "Nov"
 msgstr ""
 
-#: routes/dashboard.py:54
+#: routes/dashboard.py:70
 msgid "Dez"
 msgstr ""
 
-#: routes/dashboard.py:84
+#: routes/dashboard.py:101
 msgid "Mês inválido selecionado."
 msgstr ""
 
-#: routes/entries.py:21
-msgid "Descrição é obrigatória."
-msgstr ""
-
-#: routes/entries.py:30 routes/entries.py:131
-msgid "Valor inválido. Insira um número válido e positivo."
-msgstr ""
-
-#: routes/entries.py:36 routes/entries.py:137
-msgid "Tipo de lançamento inválido."
-msgstr ""
-
-#: routes/entries.py:39 routes/entries.py:140
-msgid "Status de lançamento inválido."
-msgstr ""
-
-#: routes/entries.py:78
-msgid "Frequência de recorrência inválida."
-msgstr ""
-
-#: routes/entries.py:94
-msgid "Lançamento e recorrência adicionados com sucesso!"
-msgstr ""
-
-#: routes/entries.py:96
+#: routes/entries.py:49
 msgid "Lançamento adicionado com sucesso!"
 msgstr ""
 
-#: routes/entries.py:101
+#: routes/entries.py:69 routes/entries.py:74
+msgid "Frequência de recorrência inválida."
+msgstr ""
+
+#: routes/entries.py:96
+msgid "Lançamento e recorrência adicionados com sucesso!"
+msgstr ""
+
+#: routes/entries.py:129
 msgid "Erro ao adicionar lançamento. Verifique os dados e tente novamente."
 msgstr ""
 
-#: routes/entries.py:113
+#: routes/entries.py:155
 msgid "Lançamento excluído com sucesso!"
 msgstr ""
 
-#: routes/entries.py:116
+#: routes/entries.py:166
 msgid "Erro ao excluir lançamento."
 msgstr ""
 
-#: routes/entries.py:152
+#: routes/entries.py:210
 msgid "Lançamento atualizado com sucesso!"
 msgstr ""
 
-#: routes/entries.py:155
+#: routes/entries.py:221
 msgid "Erro ao atualizar lançamento."
 msgstr ""
 
-#: routes/export.py:87
+#: routes/export.py:29
+msgid "ID"
+msgstr ""
+
+#: routes/export.py:30 routes/export.py:76 services/reports.py:51
+#: templates/dashboard.html:145 templates/dashboard.html:308
+msgid "Descrição"
+msgstr ""
+
+#: routes/export.py:31 routes/export.py:76 services/reports.py:55
+#: templates/dashboard.html:148
+msgid "Valor"
+msgstr ""
+
+#: routes/export.py:32 routes/export.py:76 services/reports.py:52
+#: templates/budgets.html:94 templates/budgets.html:133
+#: templates/dashboard.html:147 templates/dashboard.html:326
+msgid "Categoria"
+msgstr ""
+
+#: routes/export.py:33 templates/dashboard.html:330
+msgid "Subcategoria"
+msgstr ""
+
+#: routes/export.py:34 services/reports.py:54 templates/dashboard.html:146
+#: templates/dashboard.html:317
+msgid "Tipo"
+msgstr ""
+
+#: routes/export.py:35 routes/export.py:76 services/reports.py:56
+#: templates/about.html:75 templates/dashboard.html:149
+#: templates/dashboard.html:338
+msgid "Status"
+msgstr ""
+
+#: routes/export.py:36 templates/dashboard.html:348
+msgid "Vencimento"
+msgstr ""
+
+#: routes/export.py:37 templates/dashboard.html:352
+msgid "Pagamento"
+msgstr ""
+
+#: routes/export.py:38 templates/dashboard.html:357
+msgid "Forma de pagamento/recebimento"
+msgstr ""
+
+#: routes/export.py:39 templates/about.html:96 templates/dashboard.html:389
+msgid "Observações"
+msgstr ""
+
+#: routes/export.py:73
+#, python-format
+msgid "Relatório FINORA - %(month)s/%(year)s"
+msgstr ""
+
+#: routes/export.py:76 services/reports.py:50
+msgid "Data"
+msgstr ""
+
+#: routes/export.py:76 services/reports.py:53
+msgid "Método"
+msgstr ""
+
+#: routes/export.py:126
 msgid "Tipo de exportação inválido."
 msgstr ""
 
-#: routes/goals.py:39
+#: routes/goals.py:25 routes/goals.py:122
+msgid "Nome da meta é obrigatório."
+msgstr ""
+
+#: routes/goals.py:32 routes/goals.py:36 routes/goals.py:160
 msgid "Os valores da meta devem ser válidos e maiores que zero."
 msgstr ""
 
-#: routes/goals.py:43
+#: routes/goals.py:44
+msgid "Data limite inválida."
+msgstr ""
+
+#: routes/goals.py:66
+msgid "Meta criada com sucesso."
+msgstr ""
+
+#: routes/goals.py:77
 msgid "Erro ao adicionar meta financeira."
 msgstr ""
 
-#: routes/goals.py:55
+#: routes/goals.py:99
 msgid "Meta removida com sucesso."
 msgstr ""
 
-#: routes/goals.py:58
+#: routes/goals.py:110
 msgid "Erro ao remover meta financeira."
 msgstr ""
 
-#: routes/goals.py:73
+#: routes/goals.py:158
 msgid "Meta atualizada com sucesso."
 msgstr ""
 
-#: routes/goals.py:76
-msgid "O valor atual não pode ser negativo."
-msgstr ""
-
-#: routes/goals.py:79
+#: routes/goals.py:171
 msgid "Erro ao atualizar meta financeira."
 msgstr ""
 
-#: routes/imports.py:17
+#: routes/imports.py:19
 msgid "Nenhum arquivo foi enviado para importação."
 msgstr ""
 
-#: routes/imports.py:22
+#: routes/imports.py:24
 msgid "Selecione um arquivo antes de importar."
 msgstr ""
 
-#: routes/imports.py:34
+#: routes/imports.py:36
 msgid "Nenhum lançamento válido foi encontrado no arquivo."
 msgstr ""
 
-#: routes/imports.py:40
+#: routes/imports.py:55
 #, python-format
 msgid "%(count)d lançamento(s) importado(s) com sucesso."
 msgstr ""
 
-#: routes/imports.py:49
+#: routes/imports.py:64
 #, python-format
 msgid " ... e mais %(count)d linha(s)."
 msgstr ""
 
-#: routes/imports.py:52
+#: routes/imports.py:67
 #, python-format
 msgid ""
 "%(count)d linha(s) foram ignoradas por inconsistência: "
 "%(preview)s%(suffix)s"
 msgstr ""
 
-#: routes/imports.py:65
+#: routes/imports.py:96
 msgid "Erro inesperado ao importar arquivo. Nenhuma alteração foi salva."
 msgstr ""
 
-#: templates/about.html:5
+#: routes/public.py:29
+#, python-format
+msgid "Não foi possível verificar atualizações: %(error)s"
+msgstr ""
+
+#: routes/public.py:39
+#, python-format
+msgid ""
+"Nova versão disponível: %(version)s. Revise os detalhes e escolha quando "
+"atualizar."
+msgstr ""
+
+#: routes/public.py:45
+msgid "Esta instalação já está atualizada."
+msgstr ""
+
+#: routes/public.py:56
+#, python-format
+msgid "Não foi possível aplicar a atualização: %(error)s"
+msgstr ""
+
+#: routes/public.py:62
+msgid "Nenhuma atualização aplicável foi encontrada no momento."
+msgstr ""
+
+#: routes/public.py:67
+#, python-format
+msgid ""
+"Atualização aplicada com sucesso. Versão instalada: %(version)s. Reinicie"
+" o Finora para carregar todos os componentes atualizados."
+msgstr ""
+
+#: services/auth_service.py:55
+msgid "Sua conta foi criada com sucesso."
+msgstr ""
+
+#: services/auth_service.py:56
+msgid "Conforme solicitado, reenviamos sua chave de recuperação."
+msgstr ""
+
+#: services/auth_service.py:57
+msgid "Uma nova chave de recuperação foi gerada para sua conta."
+msgstr ""
+
+#: services/auth_service.py:58
+msgid "Sua chave de recuperação está disponível abaixo."
+msgstr ""
+
+#: services/auth_service.py:61 services/auth_service.py:90
+msgid "Olá"
+msgstr ""
+
+#: services/auth_service.py:63
+msgid "Usuário"
+msgstr ""
+
+#: services/auth_service.py:64
+msgid "Chave de recuperação"
+msgstr ""
+
+#: services/auth_service.py:65 templates/auth/profile.html:221
+msgid "Versão da chave"
+msgstr ""
+
+#: services/auth_service.py:66
+msgid ""
+"Guarde esta chave em local seguro. Ela permite recuperar o acesso de "
+"forma offline."
+msgstr ""
+
+#: services/auth_service.py:67
+msgid ""
+"Se você acreditar que a chave foi comprometida, gere uma nova dentro do "
+"seu perfil."
+msgstr ""
+
+#: services/auth_service.py:72
+msgid "Finora - Sua chave de recuperação"
+msgstr ""
+
+#: services/auth_service.py:88
+msgid "Finora - Redefinição de senha"
+msgstr ""
+
+#: services/auth_service.py:91
+msgid "Recebemos uma solicitação para redefinir sua senha."
+msgstr ""
+
+#: services/auth_service.py:92
+msgid "Acesse o link abaixo para continuar:"
+msgstr ""
+
+#: services/auth_service.py:93
+#, python-format
+msgid "Este link expira em %(minutes)s minutos."
+msgstr ""
+
+#: services/profile_service.py:516 services/profile_service.py:524
+msgid "Não informado"
+msgstr ""
+
+#: services/profile_service.py:518 templates/auth/profile.html:510
+msgid "Sim"
+msgstr ""
+
+#: services/profile_service.py:518 templates/auth/profile.html:510
+msgid "Não"
+msgstr ""
+
+#: services/profile_service.py:544
+msgid "Item"
+msgstr ""
+
+#: services/profile_service.py:545
+msgid "Detalhe"
+msgstr ""
+
+#: services/reports.py:8
+msgid "FINORA - Relatório Financeiro"
+msgstr ""
+
+#: services/reports.py:14
+#, python-format
+msgid "Página %(page)s"
+msgstr ""
+
+#: services/reports.py:22
+#, python-format
+msgid "Referência: %(month)s/%(year)s"
+msgstr ""
+
+#: services/reports.py:27
+msgid "Resumo do Mês"
+msgstr ""
+
+#: services/reports.py:31
+#, python-format
+msgid "Receitas: R$ %(value).2f"
+msgstr ""
+
+#: services/reports.py:32
+#, python-format
+msgid "Despesas: R$ %(value).2f"
+msgstr ""
+
+#: services/reports.py:33
+#, python-format
+msgid "Saldo: R$ %(value).2f"
+msgstr ""
+
+#: services/reports.py:36
+#, python-format
+msgid "Pago: R$ %(value).2f"
+msgstr ""
+
+#: services/reports.py:37
+#, python-format
+msgid "Pendente: R$ %(value).2f"
+msgstr ""
+
+#: services/reports.py:38
+#, python-format
+msgid "Atrasado: R$ %(value).2f"
+msgstr ""
+
+#: services/reports.py:43
+msgid "Lançamentos"
+msgstr ""
+
+#: templates/about.html:3 templates/about.html:7
 msgid "Sobre o Finora"
 msgstr ""
 
-#: templates/about.html:6
-msgid ""
-"Um sistema financeiro pessoal com foco em clareza, desempenho e segurança"
-" local."
-msgstr ""
-
-#: templates/about.html:11
-msgid "Privacidade"
-msgstr ""
-
-#: templates/about.html:12
-msgid ""
-"Seus dados permanecem sob seu controle, com rotinas de backup e operação "
-"estável."
-msgstr ""
-
-#: templates/about.html:17
-msgid "Produtividade"
-msgstr ""
-
-#: templates/about.html:18
-msgid ""
-"Gestão de lançamentos, metas e orçamentos em uma interface simples e "
-"objetiva."
-msgstr ""
-
-#: templates/about.html:23
-msgid "Escalabilidade"
-msgstr ""
-
-#: templates/about.html:24
-msgid "Arquitetura organizada para evoluir com novas integrações e automações."
-msgstr ""
-
-#: templates/about.html:31
-msgid "Autores"
-msgstr ""
-
-#: templates/about.html:55
-msgid "Espaço para colaboradores"
-msgstr ""
-
-#: templates/about.html:56
-msgid ""
-"Contribuições futuras poderão ser destacadas aqui com créditos e "
-"histórico de participação."
-msgstr ""
-
-#: templates/about.html:57
-msgid "Ver repositório"
-msgstr ""
-
-#: templates/base.html:33
-msgid "Painel"
-msgstr ""
-
-#: templates/base.html:34
-msgid "Metas"
-msgstr ""
-
-#: templates/base.html:35 templates/budgets.html:6
-msgid "Orçamentos"
-msgstr ""
-
-#: templates/base.html:36 templates/base.html:53
-msgid "Sobre"
-msgstr ""
-
-#: templates/base.html:43
-msgid "Meu Perfil"
-msgstr ""
-
-#: templates/base.html:44
-msgid "Gerar Backup"
-msgstr ""
-
-#: templates/base.html:46
-msgid "Sair"
-msgstr ""
-
-#: templates/base.html:50
-msgid "Início"
-msgstr ""
-
-#: templates/auth/login.html:14 templates/auth/login.html:36
-#: templates/auth/register.html:70 templates/base.html:51
-#: templates/welcome.html:13
-msgid "Entrar"
-msgstr ""
-
-#: templates/auth/register.html:66 templates/base.html:52
-msgid "Cadastrar"
-msgstr ""
-
-#: templates/base.html:57
-msgid "Alterar idioma"
-msgstr ""
-
-#: templates/base.html:67
-msgid "Alternar tema"
-msgstr ""
-
-#: templates/base.html:84
-msgid "Notificação"
-msgstr ""
-
-#: templates/auth/profile.html:132 templates/base.html:85
-#: templates/budgets.html:78 templates/budgets.html:124
-#: templates/dashboard.html:204 templates/goals.html:67
-msgid "Fechar"
-msgstr ""
-
-#: templates/base.html:96
-msgid "Sua sessão está prestes a expirar."
-msgstr ""
-
-#: templates/base.html:97
-msgid "Tempo restante:"
-msgstr ""
-
-#: templates/base.html:98
-msgid "Renovar sessão"
-msgstr ""
-
-#: templates/base.html:106
-msgid "Simples, Poderoso, Local."
-msgstr ""
-
-#: templates/base.html:107
-msgid "Todos os Direitos Reservados."
-msgstr ""
-
-#: templates/base.html:108
-msgid "Projetado por"
-msgstr ""
-
-#: templates/budgets.html:10 templates/budgets.html:77
-msgid "Novo Orçamento"
-msgstr ""
-
-#: templates/budgets.html:23
-msgid "Opções"
-msgstr ""
-
-#: templates/budgets.html:27 templates/dashboard.html:134
-msgid "Editar"
-msgstr ""
-
-#: templates/budgets.html:29 templates/dashboard.html:137
-#: templates/goals.html:22
-msgid "Tem certeza?"
-msgstr ""
-
-#: templates/budgets.html:31 templates/dashboard.html:139
-#: templates/goals.html:24
-msgid "Excluir"
-msgstr ""
-
-#: templates/budgets.html:39 templates/budgets.html:100
-#: templates/budgets.html:136
-msgid "Período"
-msgstr ""
-
-#: templates/budgets.html:49
-msgid "Progresso do orçamento"
-msgstr ""
-
-#: templates/budgets.html:54
-msgid "Restante"
-msgstr ""
-
-#: templates/budgets.html:56
-msgid "Excedido"
-msgstr ""
-
-#: templates/budgets.html:64
-msgid "Nenhum orçamento definido."
-msgstr ""
-
-#: templates/budgets.html:65
-msgid "Defina limites de gastos para suas categorias."
-msgstr ""
-
-#: templates/budgets.html:82 templates/budgets.html:128
-#: templates/dashboard.html:103 templates/dashboard.html:226
-msgid "Categoria"
-msgstr ""
-
-#: templates/budgets.html:85 templates/dashboard.html:229
-msgid "Alimentação"
-msgstr ""
-
-#: templates/budgets.html:86 templates/dashboard.html:230
-msgid "Moradia"
-msgstr ""
-
-#: templates/budgets.html:87 templates/dashboard.html:231
-msgid "Transporte"
-msgstr ""
-
-#: templates/budgets.html:88 templates/dashboard.html:232
-msgid "Lazer"
-msgstr ""
-
-#: templates/budgets.html:89 templates/dashboard.html:233
-msgid "Saúde"
-msgstr ""
-
-#: templates/budgets.html:90 templates/dashboard.html:234
-msgid "Educação"
-msgstr ""
-
-#: templates/budgets.html:91 templates/dashboard.html:235
-msgid "Salário"
-msgstr ""
-
-#: templates/budgets.html:92 templates/dashboard.html:236
-msgid "Investimento"
-msgstr ""
-
-#: templates/budgets.html:96 templates/budgets.html:132
-msgid "Limite (R$)"
-msgstr ""
-
-#: templates/budgets.html:102 templates/budgets.html:138
-#: templates/dashboard.html:271
-msgid "Mensal"
-msgstr ""
-
-#: templates/budgets.html:103 templates/budgets.html:139
-#: templates/dashboard.html:274
-msgid "Anual"
-msgstr ""
-
-#: templates/auth/forgot_password.html:44 templates/auth/profile.html:142
-#: templates/auth/reset_password_offline.html:37 templates/budgets.html:108
-#: templates/budgets.html:144 templates/dashboard.html:290
-#: templates/goals.html:88
-msgid "Cancelar"
-msgstr ""
-
-#: templates/budgets.html:109 templates/dashboard.html:291
-#: templates/goals.html:89
-msgid "Salvar"
-msgstr ""
-
-#: templates/budgets.html:123
-msgid "Editar Orçamento"
-msgstr ""
-
-#: templates/budgets.html:145 templates/goals.html:46
-msgid "Atualizar"
-msgstr ""
-
-#: templates/dashboard.html:9 templates/year.html:65
-msgid "Mês"
-msgstr ""
-
-#: templates/dashboard.html:9
-msgid "Selecione o Mês"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Janeiro"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Fevereiro"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Março"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Abril"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Maio"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Junho"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Julho"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Agosto"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Setembro"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Outubro"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Novembro"
-msgstr ""
-
-#: templates/dashboard.html:10
-msgid "Dezembro"
-msgstr ""
-
-#: templates/dashboard.html:17
-msgid "Ano"
-msgstr ""
-
-#: templates/dashboard.html:17
-msgid "Selecione o Ano"
-msgstr ""
-
-#: templates/dashboard.html:22
-msgid "Ver Resumo Anual"
-msgstr ""
-
-#: templates/dashboard.html:23
-msgid "Resumo Anual"
-msgstr ""
-
-#: templates/dashboard.html:29 templates/dashboard.html:203
-#: templates/dashboard.html:354
-msgid "Novo Lançamento"
-msgstr ""
-
-#: templates/dashboard.html:40
-msgid "Saldo Geral"
-msgstr ""
-
-#: templates/dashboard.html:44
-msgid "* (Receitas - Despesas)"
-msgstr ""
-
-#: templates/dashboard.html:55
-msgid "Total Pago (Desp)"
-msgstr ""
-
-#: templates/dashboard.html:64
-msgid "Total Pendente"
-msgstr ""
-
-#: templates/dashboard.html:73
-msgid "Total Atrasado"
-msgstr ""
-
-#: templates/dashboard.html:88
-msgid "Lançamentos do Mês"
-msgstr ""
-
-#: templates/dashboard.html:89 templates/dashboard.html:427
-msgid "itens"
-msgstr ""
-
-#: templates/dashboard.html:93
-msgid "Buscar lançamentos..."
-msgstr ""
-
-#: templates/dashboard.html:101
-msgid "Dia"
-msgstr ""
-
-#: templates/dashboard.html:102 templates/dashboard.html:208
-msgid "Descrição"
-msgstr ""
-
-#: templates/dashboard.html:104
-msgid "Valor"
-msgstr ""
-
-#: templates/dashboard.html:105 templates/dashboard.html:240
-msgid "Status"
-msgstr ""
-
-#: templates/dashboard.html:106
-msgid "Ações"
-msgstr ""
-
-#: templates/dashboard.html:123 templates/dashboard.html:243
-msgid "Pago"
-msgstr ""
-
-#: templates/dashboard.html:125 templates/dashboard.html:242
-msgid "Pendente"
-msgstr ""
-
-#: templates/dashboard.html:127 templates/dashboard.html:244
-msgid "Atrasado"
-msgstr ""
-
-#: templates/dashboard.html:148
-msgid "Nenhum lançamento neste mês."
-msgstr ""
-
-#: templates/dashboard.html:162
-msgid "Despesas por Categoria"
-msgstr ""
-
-#: templates/dashboard.html:171
-msgid "Exportar & Importar"
-msgstr ""
-
-#: templates/dashboard.html:174
-msgid "Relatório PDF"
-msgstr ""
-
-#: templates/dashboard.html:177
-msgid "Planilha CSV"
-msgstr ""
-
-#: templates/dashboard.html:180
-msgid "Arquivo TXT"
-msgstr ""
-
-#: templates/dashboard.html:186
-msgid "Arquivo para importação"
-msgstr ""
-
-#: templates/dashboard.html:187
-msgid "Importar"
-msgstr ""
-
-#: templates/dashboard.html:189
-msgid "CSV ou XLSX (máx. 10 MB)"
-msgstr ""
-
-#: templates/dashboard.html:204
-msgid "Fechar modal"
-msgstr ""
-
-#: templates/dashboard.html:213
-msgid "Valor (R$)"
-msgstr ""
-
-#: templates/dashboard.html:217
-msgid "Tipo"
-msgstr ""
-
-#: templates/dashboard.html:219
-msgid "Despesa"
-msgstr ""
-
-#: templates/dashboard.html:220
-msgid "Receita"
-msgstr ""
-
-#: templates/dashboard.html:250
-msgid "Vencimento"
-msgstr ""
-
-#: templates/dashboard.html:254
-msgid "Pagamento"
-msgstr ""
-
-#: templates/dashboard.html:264
-msgid "Repetir (Recorrência)"
-msgstr ""
-
-#: templates/dashboard.html:269
-msgid "Frequência"
-msgstr ""
-
-#: templates/dashboard.html:272
-msgid "Semanal"
-msgstr ""
-
-#: templates/dashboard.html:273
-msgid "Diário"
-msgstr ""
-
-#: templates/dashboard.html:278
-msgid "Data Final (Opcional)"
-msgstr ""
-
-#: templates/dashboard.html:285
-msgid "Observações"
-msgstr ""
-
-#: templates/dashboard.html:372
-msgid "Editar Lançamento"
-msgstr ""
-
-#: templates/goals.html:6
-msgid "Metas Financeiras"
-msgstr ""
-
-#: templates/goals.html:10 templates/goals.html:66
-msgid "Nova Meta"
-msgstr ""
-
-#: templates/goals.html:29
-msgid "Alvo"
-msgstr ""
-
-#: templates/goals.html:31
-msgid "Prazo"
-msgstr ""
-
-#: templates/goals.html:39
-msgid "Progresso da meta"
-msgstr ""
-
-#: templates/goals.html:45
-msgid "Novo valor"
-msgstr ""
-
-#: templates/goals.html:53
-msgid "Nenhuma meta definida ainda."
-msgstr ""
-
-#: templates/goals.html:54
-msgid "Crie metas para realizar seus sonhos!"
-msgstr ""
-
-#: templates/goals.html:71
-msgid "Nome da Meta"
-msgstr ""
-
-#: templates/goals.html:75
-msgid "Valor Alvo (R$)"
-msgstr ""
-
-#: templates/goals.html:79
-msgid "Valor Atual (R$)"
-msgstr ""
-
-#: templates/goals.html:83
-msgid "Prazo (Opcional)"
-msgstr ""
-
-#: templates/welcome.html:7
-msgid "Finora"
-msgstr ""
-
-#: templates/welcome.html:8
-msgid "Bem-vindo ao seu centro financeiro pessoal"
-msgstr ""
-
-#: templates/welcome.html:10
+#: templates/about.html:8 templates/welcome.html:12
 msgid ""
 "Organize receitas, despesas, metas e orçamentos em um fluxo simples, "
 "rápido e seguro."
 msgstr ""
 
-#: templates/welcome.html:14
-msgid "Criar conta"
+#: templates/about.html:13
+msgid "Privacidade"
 msgstr ""
 
-#: templates/welcome.html:20
-msgid "Controle"
+#: templates/about.html:14
+msgid ""
+"Seus dados permanecem sob seu controle, com rotinas de backup e operação "
+"estável."
 msgstr ""
 
-#: templates/welcome.html:21
-msgid "Acompanhe cada lançamento com status e vencimento."
+#: templates/about.html:19
+msgid "Produtividade"
 msgstr ""
 
-#: templates/welcome.html:24
-msgid "Planejamento"
+#: templates/about.html:20
+msgid ""
+"Gestão de lançamentos, metas e orçamentos em uma interface simples e "
+"objetiva."
 msgstr ""
 
-#: templates/welcome.html:25
-msgid "Defina metas e limites para manter sua saúde financeira."
+#: templates/about.html:25
+msgid "Escalabilidade"
 msgstr ""
 
-#: templates/welcome.html:28
-msgid "Confiabilidade"
+#: templates/about.html:26
+msgid "Arquitetura organizada para evoluir com novas integrações e automações."
 msgstr ""
 
-#: templates/welcome.html:29
-msgid "Importe e exporte dados com consistência e previsibilidade."
+#: templates/about.html:35
+msgid "Atualizações do Sistema"
 msgstr ""
 
-#: templates/year.html:6
-msgid "Resumo anual"
+#: templates/about.html:36
+msgid ""
+"Verifique a versão instalada, acompanhe o canal atual e aplique "
+"atualizações com backup prévio e migração segura do banco de dados."
 msgstr ""
 
-#: templates/year.html:10
-msgid "Voltar para o mês atual"
+#: templates/about.html:39
+msgid "Verificando"
 msgstr ""
 
-#: templates/year.html:19
-msgid "Total de receitas"
+#: templates/about.html:41
+msgid "Verificar atualizações"
 msgstr ""
 
-#: templates/year.html:27
-msgid "Total de despesas"
+#: templates/about.html:44
+msgid "Aplicando atualização"
 msgstr ""
 
-#: templates/year.html:35
-msgid "Saldo anual"
+#: templates/about.html:44
+msgid ""
+"Deseja aplicar esta atualização agora? O sistema fará um backup prévio "
+"antes de substituir os arquivos."
 msgstr ""
 
-#: templates/year.html:46
-msgid "Evolução financeira"
+#: templates/about.html:46
+msgid "Atualizar agora"
 msgstr ""
 
-#: templates/year.html:59
-msgid "Detalhamento mensal"
+#: templates/about.html:49
+msgid "Entrar para atualizar"
 msgstr ""
 
-#: templates/year.html:66 templates/year.html:109
-msgid "Receitas"
+#: templates/about.html:57
+msgid "Versão instalada"
 msgstr ""
 
-#: templates/year.html:67 templates/year.html:117
-msgid "Despesas"
+#: templates/about.html:63
+msgid "Última versão conhecida"
 msgstr ""
 
-#: templates/year.html:68
-msgid "Saldo"
+#: templates/about.html:64
+msgid "Não verificada ainda"
 msgstr ""
 
-#: templates/year.html:69
-msgid "Ação"
+#: templates/about.html:69
+msgid "Canal"
 msgstr ""
 
-#: templates/year.html:83
-msgid "Ver"
+#: templates/about.html:84
+msgid "Última verificação"
 msgstr ""
 
-#: templates/auth/forgot_password.html:14
-msgid "Recuperar Senha"
+#: templates/about.html:89
+msgid "Ainda não realizada"
 msgstr ""
 
-#: templates/auth/forgot_password.html:18 templates/auth/login.html:18
-msgid "Usuário ou e-mail"
+#: templates/about.html:100
+msgid "Uma atualização está disponível e pode ser aplicada a partir desta tela."
 msgstr ""
 
-#: templates/auth/forgot_password.html:23
-msgid "Digite seu nome de usuário ou email para encontrar sua conta."
+#: templates/about.html:102
+msgid "Nenhuma atualização pendente foi encontrada na última verificação."
 msgstr ""
 
-#: templates/auth/forgot_password.html:27
-msgid "Método de Recuperação"
+#: templates/about.html:104
+msgid ""
+"O manifesto local padrão está ativo para status e testes seguros. "
+"Configure UPDATE_MANIFEST_URL para usar um canal remoto de atualização."
 msgstr ""
 
-#: templates/auth/forgot_password.html:31
-msgid "Enviar link por e-mail"
+#: templates/about.html:106
+msgid ""
+"Configure UPDATE_MANIFEST_URL para habilitar verificações automáticas de "
+"versão."
 msgstr ""
 
-#: templates/auth/forgot_password.html:37
-msgid "Usar Chave de Recuperação (Offline)"
+#: templates/about.html:114
+msgid "Autores"
 msgstr ""
 
-#: templates/auth/forgot_password.html:43
-msgid "Continuar"
+#: templates/about.html:138
+msgid "Espaço para colaboradores"
 msgstr ""
 
-#: templates/auth/login.html:25 templates/auth/register.html:54
-msgid "Senha"
+#: templates/about.html:139
+msgid ""
+"Contribuições futuras poderão ser destacadas aqui com créditos e "
+"histórico de participação."
 msgstr ""
 
-#: templates/auth/login.html:33
-msgid "Lembrar-me"
+#: templates/about.html:140
+msgid "Ver repositório"
 msgstr ""
 
-#: templates/auth/login.html:39
-msgid "Esqueceu sua senha?"
+#: templates/base.html:28
+msgid "Pular para o conteúdo principal"
 msgstr ""
 
-#: templates/auth/login.html:43
-msgid "Não tem uma conta?"
+#: templates/base.html:38
+msgid "Alternar navegação"
 msgstr ""
 
-#: templates/auth/login.html:43
-msgid "Cadastre-se"
+#: templates/base.html:57
+msgid "Painel"
 msgstr ""
 
-#: templates/auth/profile.html:9
+#: templates/base.html:58
+msgid "Metas"
+msgstr ""
+
+#: templates/base.html:59 templates/budgets.html:3 templates/budgets.html:8
+msgid "Orçamentos"
+msgstr ""
+
+#: templates/base.html:60 templates/base.html:65
+msgid "Sobre"
+msgstr ""
+
+#: templates/base.html:62
+msgid "Início"
+msgstr ""
+
+#: templates/auth/login.html:3 templates/auth/login.html:10
+#: templates/auth/login.html:32 templates/auth/register.html:58
+#: templates/base.html:63 templates/welcome.html:15
+msgid "Entrar"
+msgstr ""
+
+#: templates/auth/register.html:54 templates/base.html:64
+msgid "Cadastrar"
+msgstr ""
+
+#: templates/auth/profile.html:36 templates/base.html:77
 msgid "Foto de perfil"
 msgstr ""
 
-#: templates/auth/profile.html:25
-msgid "Editar Perfil"
+#: templates/auth/profile.html:3 templates/base.html:92
+msgid "Meu Perfil"
 msgstr ""
 
-#: templates/auth/profile.html:28
-msgid "Alterar Senha"
+#: templates/auth/profile.html:120 templates/auth/profile.html:283
+#: templates/base.html:93
+msgid "Meus Backups"
 msgstr ""
 
-#: templates/auth/profile.html:31
-msgid "Zona de Perigo"
+#: templates/base.html:95
+msgid "Sair"
 msgstr ""
 
-#: templates/auth/profile.html:42 templates/auth/register.html:34
-msgid "Nome de Usuário"
+#: templates/base.html:101
+msgid "Alterar idioma"
 msgstr ""
 
-#: templates/auth/profile.html:44
-msgid "O nome de usuário não pode ser alterado."
+#: templates/base.html:103
+msgid "Idioma"
 msgstr ""
 
-#: templates/auth/profile.html:48 templates/auth/register.html:26
-msgid "Nome Completo"
+#: templates/base.html:112
+msgid "Alternar tema"
 msgstr ""
 
-#: templates/auth/profile.html:53 templates/auth/register.html:44
-msgid "E-mail"
+#: templates/base.html:127
+msgid "Tema"
 msgstr ""
 
-#: templates/auth/profile.html:58
-msgid "Foto de Perfil"
+#: templates/base.html:145
+msgid "Notificação"
 msgstr ""
 
-#: templates/auth/profile.html:65
-msgid "Remover foto atual"
+#: templates/auth/profile.html:615 templates/base.html:146
+#: templates/base.html:168 templates/budgets.html:90 templates/budgets.html:129
+#: templates/dashboard.html:303 templates/goals.html:92
+#: templates/goals.html:129
+msgid "Fechar"
+msgstr ""
+
+#: templates/base.html:157
+msgid "Sua sessão está prestes a expirar."
+msgstr ""
+
+#: templates/base.html:158
+msgid "Tempo restante:"
+msgstr ""
+
+#: templates/base.html:159
+msgid "Renovar sessão"
+msgstr ""
+
+#: templates/base.html:167
+msgid "Confirmar ação"
+msgstr ""
+
+#: templates/base.html:171
+msgid "Deseja continuar?"
+msgstr ""
+
+#: templates/auth/forgot_password.html:39 templates/auth/profile.html:625
+#: templates/auth/reset_password_offline.html:40
+#: templates/auth/reset_password_token.html:29 templates/base.html:174
+#: templates/budgets.html:113 templates/budgets.html:149
+#: templates/dashboard.html:394 templates/goals.html:113
+#: templates/goals.html:150
+msgid "Cancelar"
+msgstr ""
+
+#: templates/base.html:175
+msgid "Confirmar"
+msgstr ""
+
+#: templates/base.html:185
+msgid "Simples, Poderoso, Local."
+msgstr ""
+
+#: templates/base.html:186
+msgid "Todos os Direitos Reservados."
+msgstr ""
+
+#: templates/base.html:187
+msgid "Projetado por"
+msgstr ""
+
+#: templates/budgets.html:12 templates/budgets.html:89
+msgid "Novo Orçamento"
+msgstr ""
+
+#: templates/budgets.html:25
+msgid "Opções"
+msgstr ""
+
+#: templates/budgets.html:29 templates/dashboard.html:189
+#: templates/goals.html:29 templates/goals.html:30
+msgid "Editar"
+msgstr ""
+
+#: templates/budgets.html:31
+msgid "Tem certeza que deseja excluir este orçamento?"
+msgstr ""
+
+#: templates/auth/profile.html:412 templates/budgets.html:33
+#: templates/dashboard.html:197 templates/goals.html:36
+msgid "Excluir"
+msgstr ""
+
+#: templates/budgets.html:41 templates/budgets.html:105
+#: templates/budgets.html:141
+msgid "Período"
+msgstr ""
+
+#: templates/budgets.html:53 templates/budgets.html:57
+msgid "Progresso do orçamento"
+msgstr ""
+
+#: templates/budgets.html:62
+msgid "Restante"
+msgstr ""
+
+#: templates/budgets.html:64
+msgid "Excedido"
+msgstr ""
+
+#: templates/budgets.html:67
+#, python-format
+msgid "Consumo: %(percentage)s%% do limite"
+msgstr ""
+
+#: templates/budgets.html:75
+msgid "Nenhum orçamento definido."
+msgstr ""
+
+#: templates/budgets.html:76
+msgid "Defina limites de gastos para suas categorias."
+msgstr ""
+
+#: templates/budgets.html:101 templates/budgets.html:137
+msgid "Limite (R$)"
+msgstr ""
+
+#: templates/budgets.html:107 templates/budgets.html:143
+#: templates/dashboard.html:375
+msgid "Mensal"
+msgstr ""
+
+#: templates/budgets.html:108 templates/budgets.html:144
+#: templates/dashboard.html:378
+msgid "Anual"
+msgstr ""
+
+#: templates/budgets.html:114 templates/dashboard.html:395
+#: templates/goals.html:114
+msgid "Salvar"
+msgstr ""
+
+#: templates/budgets.html:128
+msgid "Editar Orçamento"
+msgstr ""
+
+#: templates/budgets.html:150
+msgid "Atualizar"
+msgstr ""
+
+#: templates/dashboard.html:3
+msgid "Painel Financeiro"
+msgstr ""
+
+#: templates/dashboard.html:42 templates/year.html:74
+msgid "Mês"
+msgstr ""
+
+#: templates/dashboard.html:42
+msgid "Selecione o Mês"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Janeiro"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Fevereiro"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Março"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Abril"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Maio"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Junho"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Julho"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Agosto"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Setembro"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Outubro"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Novembro"
+msgstr ""
+
+#: templates/dashboard.html:43
+msgid "Dezembro"
+msgstr ""
+
+#: templates/dashboard.html:50
+msgid "Ano"
+msgstr ""
+
+#: templates/dashboard.html:50
+msgid "Selecione o Ano"
+msgstr ""
+
+#: templates/dashboard.html:55
+msgid "Aplicar período"
+msgstr ""
+
+#: templates/dashboard.html:56
+msgid "Aplicar"
+msgstr ""
+
+#: templates/dashboard.html:58
+msgid "Ver Resumo Anual"
+msgstr ""
+
+#: templates/dashboard.html:59 templates/year.html:3
+msgid "Resumo Anual"
+msgstr ""
+
+#: templates/dashboard.html:65 templates/dashboard.html:302
+#: templates/dashboard.html:571
+msgid "Novo Lançamento"
+msgstr ""
+
+#: templates/dashboard.html:76
+msgid "Saldo Geral"
+msgstr ""
+
+#: templates/dashboard.html:80
+msgid "* (Receitas - Despesas)"
+msgstr ""
+
+#: templates/dashboard.html:93
+msgid "Total Pago (Desp)"
+msgstr ""
+
+#: templates/dashboard.html:104
+msgid "Total Pendente"
+msgstr ""
+
+#: templates/dashboard.html:115
+msgid "Total Atrasado"
+msgstr ""
+
+#: templates/dashboard.html:130
+msgid "Lançamentos do Mês"
+msgstr ""
+
+#: templates/dashboard.html:131 templates/dashboard.html:687
+msgid "itens"
+msgstr ""
+
+#: templates/dashboard.html:135
+msgid "Buscar lançamentos..."
+msgstr ""
+
+#: templates/dashboard.html:135
+msgid "Buscar lançamentos"
+msgstr ""
+
+#: templates/dashboard.html:137
+msgid "A busca filtra apenas os lançamentos visíveis nesta página."
+msgstr ""
+
+#: templates/dashboard.html:144
+msgid "Dia"
+msgstr ""
+
+#: templates/auth/profile.html:388 templates/dashboard.html:150
+msgid "Ações"
+msgstr ""
+
+#: templates/dashboard.html:179 templates/dashboard.html:341
+msgid "Pago"
+msgstr ""
+
+#: templates/dashboard.html:181 templates/dashboard.html:340
+msgid "Pendente"
+msgstr ""
+
+#: templates/dashboard.html:183 templates/dashboard.html:342
+msgid "Atrasado"
+msgstr ""
+
+#: templates/dashboard.html:192
+msgid "Tem certeza que deseja excluir este lançamento?"
+msgstr ""
+
+#: templates/dashboard.html:206
+msgid "Nenhum lançamento neste mês."
+msgstr ""
+
+#: templates/dashboard.html:213
+msgid "Nenhum resultado encontrado para a busca."
+msgstr ""
+
+#: templates/dashboard.html:223
+msgid "Paginação dos lançamentos"
+msgstr ""
+
+#: templates/auth/profile.html:19 templates/dashboard.html:226
+msgid "Anterior"
+msgstr ""
+
+#: templates/auth/profile.html:26 templates/dashboard.html:238
+msgid "Próxima"
+msgstr ""
+
+#: templates/dashboard.html:250
+msgid "Despesas por Categoria"
+msgstr ""
+
+#: templates/dashboard.html:254
+msgid "Ainda não há despesas suficientes para montar o gráfico deste período."
+msgstr ""
+
+#: templates/dashboard.html:258
+msgid "Gráfico de despesas por categoria"
+msgstr ""
+
+#: templates/dashboard.html:265
+msgid "Exportar & Importar"
+msgstr ""
+
+#: templates/dashboard.html:267
+msgid "Gerando PDF..."
+msgstr ""
+
+#: templates/dashboard.html:268
+msgid "Relatório PDF"
+msgstr ""
+
+#: templates/dashboard.html:270
+msgid "Gerando CSV..."
+msgstr ""
+
+#: templates/dashboard.html:271
+msgid "Planilha CSV"
+msgstr ""
+
+#: templates/dashboard.html:273
+msgid "Gerando TXT..."
+msgstr ""
+
+#: templates/dashboard.html:274
+msgid "Arquivo TXT"
+msgstr ""
+
+#: templates/dashboard.html:277
+msgid "Importando..."
+msgstr ""
+
+#: templates/dashboard.html:280
+msgid "Arquivo para importação"
+msgstr ""
+
+#: templates/dashboard.html:281 templates/dashboard.html:282
+msgid "Importar"
+msgstr ""
+
+#: templates/dashboard.html:285
+msgid "CSV ou XLSX (máx. 10 MB)"
+msgstr ""
+
+#: templates/dashboard.html:303
+msgid "Fechar modal"
+msgstr ""
+
+#: templates/dashboard.html:306
+msgid "Use este formulário para criar ou editar um lançamento financeiro."
+msgstr ""
+
+#: templates/dashboard.html:313
+msgid "Valor (R$)"
+msgstr ""
+
+#: templates/dashboard.html:319
+msgid "Despesa"
+msgstr ""
+
+#: templates/dashboard.html:320
+msgid "Receita"
+msgstr ""
+
+#: templates/dashboard.html:332 templates/dashboard.html:409
+msgid "Selecione a subcategoria"
+msgstr ""
+
+#: templates/dashboard.html:359 templates/dashboard.html:410
+msgid "Selecione a forma"
+msgstr ""
+
+#: templates/dashboard.html:368
+msgid "Repetir (Recorrência)"
+msgstr ""
+
+#: templates/auth/profile.html:331 templates/dashboard.html:373
+msgid "Frequência"
+msgstr ""
+
+#: templates/dashboard.html:376
+msgid "Semanal"
+msgstr ""
+
+#: templates/dashboard.html:377
+msgid "Diário"
+msgstr ""
+
+#: templates/dashboard.html:382
+msgid "Data Final (Opcional)"
+msgstr ""
+
+#: templates/dashboard.html:408
+msgid "Selecione a categoria"
+msgstr ""
+
+#: templates/dashboard.html:603
+msgid "Editar Lançamento"
+msgstr ""
+
+#: templates/goals.html:3 templates/goals.html:8
+msgid "Metas Financeiras"
+msgstr ""
+
+#: templates/goals.html:12 templates/goals.html:91
+msgid "Nova Meta"
+msgstr ""
+
+#: templates/goals.html:34
+msgid "Tem certeza que deseja excluir esta meta?"
+msgstr ""
+
+#: templates/goals.html:42
+msgid "Alvo"
+msgstr ""
+
+#: templates/goals.html:44
+msgid "Prazo"
+msgstr ""
+
+#: templates/goals.html:56 templates/goals.html:60
+msgid "Progresso da meta"
+msgstr ""
+
+#: templates/goals.html:65
+msgid "Meta concluída. Continue acompanhando para manter o planejamento em dia."
+msgstr ""
+
+#: templates/goals.html:67
+#, python-format
+msgid "Faltam R$ %(remaining)s para atingir o objetivo."
+msgstr ""
+
+#: templates/goals.html:77
+msgid "Nenhuma meta definida ainda."
+msgstr ""
+
+#: templates/goals.html:78
+msgid "Crie metas para realizar seus sonhos!"
+msgstr ""
+
+#: templates/goals.html:96 templates/goals.html:133
+msgid "Nome da Meta"
+msgstr ""
+
+#: templates/goals.html:97
+msgid "Ex.: Viagem, carro novo..."
+msgstr ""
+
+#: templates/goals.html:100 templates/goals.html:137
+msgid "Valor Alvo (R$)"
+msgstr ""
+
+#: templates/goals.html:104 templates/goals.html:141
+msgid "Valor Atual (R$)"
+msgstr ""
+
+#: templates/goals.html:108 templates/goals.html:145
+msgid "Prazo (Opcional)"
+msgstr ""
+
+#: templates/goals.html:128
+msgid "Editar Meta"
+msgstr ""
+
+#: templates/goals.html:151
+msgid "Salvar alterações"
+msgstr ""
+
+#: templates/welcome.html:3
+msgid "Controle financeiro local e inteligente"
+msgstr ""
+
+#: templates/welcome.html:9
+msgid "Finora"
+msgstr ""
+
+#: templates/welcome.html:10
+msgid "Bem-vindo ao seu centro financeiro pessoal"
+msgstr ""
+
+#: templates/welcome.html:16
+msgid "Criar conta"
+msgstr ""
+
+#: templates/welcome.html:22
+msgid "Controle"
+msgstr ""
+
+#: templates/welcome.html:23
+msgid "Acompanhe cada lançamento com status e vencimento."
+msgstr ""
+
+#: templates/welcome.html:26
+msgid "Planejamento"
+msgstr ""
+
+#: templates/welcome.html:27
+msgid "Defina metas e limites para manter sua saúde financeira."
+msgstr ""
+
+#: templates/welcome.html:30
+msgid "Confiabilidade"
+msgstr ""
+
+#: templates/welcome.html:31
+msgid "Importe e exporte dados com consistência e previsibilidade."
+msgstr ""
+
+#: templates/year.html:8
+msgid "Resumo anual"
+msgstr ""
+
+#: templates/year.html:12
+msgid "Voltar para o mês atual"
+msgstr ""
+
+#: templates/year.html:21
+msgid "Total de receitas"
+msgstr ""
+
+#: templates/year.html:29
+msgid "Total de despesas"
+msgstr ""
+
+#: templates/year.html:37
+msgid "Saldo anual"
+msgstr ""
+
+#: templates/year.html:48
+msgid "Evolução financeira"
+msgstr ""
+
+#: templates/year.html:53
+msgid "Ainda não há movimentações suficientes neste ano."
+msgstr ""
+
+#: templates/year.html:54
+msgid "Assim que houver receitas ou despesas, a evolução anual aparecerá aqui."
+msgstr ""
+
+#: templates/year.html:59
+msgid "Gráfico de evolução financeira anual"
+msgstr ""
+
+#: templates/year.html:68
+msgid "Detalhamento mensal"
+msgstr ""
+
+#: templates/year.html:75 templates/year.html:143
+msgid "Receitas"
+msgstr ""
+
+#: templates/year.html:76 templates/year.html:151
+msgid "Despesas"
+msgstr ""
+
+#: templates/year.html:77
+msgid "Saldo"
+msgstr ""
+
+#: templates/year.html:78
+msgid "Ação"
+msgstr ""
+
+#: templates/year.html:92
+msgid "Ver"
+msgstr ""
+
+#: templates/auth/forgot_password.html:3 templates/auth/forgot_password.html:10
+msgid "Recuperar Senha"
+msgstr ""
+
+#: templates/auth/forgot_password.html:14 templates/auth/login.html:14
+#: templates/auth/reset_password_offline.html:16
+msgid "Usuário ou e-mail"
+msgstr ""
+
+#: templates/auth/forgot_password.html:19
+msgid "Digite seu nome de usuário ou email para encontrar sua conta."
+msgstr ""
+
+#: templates/auth/forgot_password.html:23
+msgid "Método de Recuperação"
+msgstr ""
+
+#: templates/auth/forgot_password.html:27
+msgid "Enviar link por e-mail"
+msgstr ""
+
+#: templates/auth/forgot_password.html:33
+msgid "Usar Chave de Recuperação (Offline)"
+msgstr ""
+
+#: templates/auth/forgot_password.html:38
+msgid "Continuar"
+msgstr ""
+
+#: templates/auth/login.html:21 templates/auth/register.html:42
+msgid "Senha"
+msgstr ""
+
+#: templates/auth/login.html:29
+msgid "Lembrar-me"
+msgstr ""
+
+#: templates/auth/login.html:35
+msgid "Esqueceu sua senha?"
+msgstr ""
+
+#: templates/auth/login.html:39
+msgid "Não tem uma conta?"
+msgstr ""
+
+#: templates/auth/login.html:39
+msgid "Cadastre-se"
+msgstr ""
+
+#: templates/auth/profile.html:10
+#, python-format
+msgid "Página %(page)s de %(pages)s"
+msgstr ""
+
+#: templates/auth/profile.html:11
+#, python-format
+msgid "Total: %(count)s"
+msgstr ""
+
+#: templates/auth/profile.html:13
+msgid "Paginação"
+msgstr ""
+
+#: templates/auth/profile.html:46
+#, python-format
+msgid "Conta criada em %(date)s"
+msgstr ""
+
+#: templates/auth/profile.html:49
+#, python-format
+msgid "Último login em %(date)s"
+msgstr ""
+
+#: templates/auth/profile.html:51
+msgid "Nenhum login anterior registrado."
+msgstr ""
+
+#: templates/auth/profile.html:57
+msgid "Enviar Sugestão"
+msgstr ""
+
+#: templates/auth/profile.html:61
+msgid "Comunicar Erro"
 msgstr ""
 
 #: templates/auth/profile.html:74
-msgid "Tempo máximo de inatividade da sessão"
-msgstr ""
-
-#: templates/auth/profile.html:79
-msgid "Sessão aberta"
-msgstr ""
-
-#: templates/auth/profile.html:81
-msgid "1 hora"
+msgid "Backups salvos"
 msgstr ""
 
 #: templates/auth/profile.html:83
+msgid "Sessões ativas"
+msgstr ""
+
+#: templates/auth/profile.html:92
+msgid "Atividades recentes"
+msgstr ""
+
+#: templates/auth/profile.html:101
+msgid "Alertas abertos"
+msgstr ""
+
+#: templates/auth/profile.html:111
+msgid "Perfil"
+msgstr ""
+
+#: templates/auth/profile.html:114
+msgid "Alterar Senha"
+msgstr ""
+
+#: templates/auth/profile.html:117
+msgid "Recuperação"
+msgstr ""
+
+#: templates/auth/profile.html:123
+msgid "Sessões"
+msgstr ""
+
+#: templates/auth/profile.html:126
+msgid "Atividades"
+msgstr ""
+
+#: templates/auth/profile.html:129
+msgid "Status do Sistema"
+msgstr ""
+
+#: templates/auth/profile.html:132
+msgid "Zona de Perigo"
+msgstr ""
+
+#: templates/auth/profile.html:144 templates/auth/register.html:22
+msgid "Nome de Usuário"
+msgstr ""
+
+#: templates/auth/profile.html:146
+msgid "O nome de usuário não pode ser alterado."
+msgstr ""
+
+#: templates/auth/profile.html:150 templates/auth/register.html:14
+msgid "Nome Completo"
+msgstr ""
+
+#: templates/auth/profile.html:155 templates/auth/register.html:32
+msgid "E-mail"
+msgstr ""
+
+#: templates/auth/profile.html:160
+msgid "Foto de Perfil"
+msgstr ""
+
+#: templates/auth/profile.html:167
+msgid "Remover foto atual"
+msgstr ""
+
+#: templates/auth/profile.html:176
+msgid "Tempo máximo de inatividade da sessão"
+msgstr ""
+
+#: templates/auth/profile.html:181
+msgid "Sessão aberta"
+msgstr ""
+
+#: templates/auth/profile.html:183
+msgid "1 hora"
+msgstr ""
+
+#: templates/auth/profile.html:185
 #, python-format
 msgid "%(minutes)d minuto(s)"
 msgstr ""
 
-#: templates/auth/profile.html:88
+#: templates/auth/profile.html:190
 msgid "Quando o tempo acabar por inatividade, você precisará entrar novamente."
 msgstr ""
 
-#: templates/auth/profile.html:91
+#: templates/auth/profile.html:193
 msgid "Salvar Alterações"
 msgstr ""
 
-#: templates/auth/profile.html:101
+#: templates/auth/profile.html:203
 msgid "Senha Atual"
 msgstr ""
 
-#: templates/auth/profile.html:106
-#: templates/auth/reset_password_offline.html:28
+#: templates/auth/profile.html:208
+#: templates/auth/reset_password_offline.html:31
+#: templates/auth/reset_password_token.html:18
 msgid "Nova Senha"
 msgstr ""
 
-#: templates/auth/profile.html:108
+#: templates/auth/profile.html:210 templates/auth/reset_password_token.html:23
 msgid "Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números."
 msgstr ""
 
-#: templates/auth/profile.html:111
+#: templates/auth/profile.html:213 templates/auth/reset_password_token.html:28
 msgid "Atualizar Senha"
 msgstr ""
 
-#: templates/auth/profile.html:116
+#: templates/auth/profile.html:227
+msgid "Última geração"
+msgstr ""
+
+#: templates/auth/profile.html:232
+msgid "Não registrada"
+msgstr ""
+
+#: templates/auth/profile.html:239
+msgid "Chave atual"
+msgstr ""
+
+#: templates/auth/profile.html:246
+msgid "Gere uma nova chave para disponibilizar a cópia nesta tela."
+msgstr ""
+
+#: templates/auth/profile.html:250 templates/auth/profile.html:678
+msgid "Copiar"
+msgstr ""
+
+#: templates/auth/profile.html:253
+msgid "Último envio por e-mail"
+msgstr ""
+
+#: templates/auth/profile.html:258
+msgid "Nenhum envio registrado até o momento."
+msgstr ""
+
+#: templates/auth/profile.html:261
+msgid ""
+"Mantenha esta chave em local seguro. Se você suspeitar de "
+"comprometimento, gere uma nova chave imediatamente."
+msgstr ""
+
+#: templates/auth/profile.html:266
+msgid "Enviar por e-mail"
+msgstr ""
+
+#: templates/auth/profile.html:268
+msgid ""
+"Deseja gerar uma nova chave de recuperação? A chave anterior deixará de "
+"valer imediatamente."
+msgstr ""
+
+#: templates/auth/profile.html:271
+msgid "Gerar nova chave"
+msgstr ""
+
+#: templates/auth/profile.html:273
+msgid "Abrir fluxo de recuperação"
+msgstr ""
+
+#: templates/auth/profile.html:284
+msgid ""
+"Centralize aqui os backups manuais, a rotina automática e o histórico "
+"salvo."
+msgstr ""
+
+#: templates/auth/profile.html:286
+msgid "Gerar Backup Manual"
+msgstr ""
+
+#: templates/auth/profile.html:292
+msgid "Rotina automática"
+msgstr ""
+
+#: templates/auth/profile.html:293
+msgid "Ativada"
+msgstr ""
+
+#: templates/auth/profile.html:293
+msgid "Desativada"
+msgstr ""
+
+#: templates/auth/profile.html:294
+#, python-format
+msgid "Frequência: %(frequency)s"
+msgstr ""
+
+#: templates/auth/profile.html:295
+#, python-format
+msgid "Retenção: %(count)s backup(s)"
+msgstr ""
+
+#: templates/auth/profile.html:296
+#, python-format
+msgid "Execuções por período: %(count)s"
+msgstr ""
+
+#: templates/auth/profile.html:301
+msgid "Próxima execução"
+msgstr ""
+
+#: templates/auth/profile.html:306
+msgid "Ainda não agendada"
+msgstr ""
+
+#: templates/auth/profile.html:311
+#, python-format
+msgid "Última execução em %(date)s"
+msgstr ""
+
+#: templates/auth/profile.html:313
+msgid "Nenhuma execução automática registrada."
+msgstr ""
+
+#: templates/auth/profile.html:321
+msgid "Configurar rotina automática"
+msgstr ""
+
+#: templates/auth/profile.html:326
+msgid "Ativar backups automáticos"
+msgstr ""
+
+#: templates/auth/profile.html:339
+msgid "Execuções por período"
+msgstr ""
+
+#: templates/auth/profile.html:347
+msgid "Dia da semana"
+msgstr ""
+
+#: templates/auth/profile.html:355
+msgid "Dia do mês"
+msgstr ""
+
+#: templates/auth/profile.html:359
+msgid "Hora inicial"
+msgstr ""
+
+#: templates/auth/profile.html:363
+msgid "Minuto"
+msgstr ""
+
+#: templates/auth/profile.html:367
+msgid "Retenção máxima"
+msgstr ""
+
+#: templates/auth/profile.html:369
+msgid "Backups mais antigos acima deste limite serão removidos automaticamente."
+msgstr ""
+
+#: templates/auth/profile.html:374
+msgid "Salvar rotina"
+msgstr ""
+
+#: templates/auth/profile.html:384
+msgid "Arquivo"
+msgstr ""
+
+#: templates/auth/profile.html:385
+msgid "Origem"
+msgstr ""
+
+#: templates/auth/profile.html:386
+msgid "Criado em"
+msgstr ""
+
+#: templates/auth/profile.html:387
+msgid "Tamanho"
+msgstr ""
+
+#: templates/auth/profile.html:409
+msgid "Baixar"
+msgstr ""
+
+#: templates/auth/profile.html:410
+msgid "Deseja excluir este backup salvo?"
+msgstr ""
+
+#: templates/auth/profile.html:424
+msgid "Nenhum backup manual registrado ainda."
+msgstr ""
+
+#: templates/auth/profile.html:440
+msgid "Ativa"
+msgstr ""
+
+#: templates/auth/profile.html:445
+msgid "IP indisponível"
+msgstr ""
+
+#: templates/auth/profile.html:448
+#, python-format
+msgid "Início: %(date)s"
+msgstr ""
+
+#: templates/auth/profile.html:449
+#, python-format
+msgid "Última atividade: %(date)s"
+msgstr ""
+
+#: templates/auth/profile.html:451
+#, python-format
+msgid "%(label)s em %(date)s"
+msgstr ""
+
+#: templates/auth/profile.html:461
+msgid "Nenhuma sessão registrada até o momento."
+msgstr ""
+
+#: templates/auth/profile.html:492
+msgid "Nenhuma atividade registrada ainda."
+msgstr ""
+
+#: templates/auth/profile.html:501
+msgid "Banco de dados"
+msgstr ""
+
+#: templates/auth/profile.html:503
+msgid "Conectividade em tempo real"
+msgstr ""
+
+#: templates/auth/profile.html:508
+msgid "Agendador de backups"
+msgstr ""
+
+#: templates/auth/profile.html:509 templates/auth/profile.html:516
+msgid "Ativo"
+msgstr ""
+
+#: templates/auth/profile.html:509 templates/auth/profile.html:516
+msgid "Desativado"
+msgstr ""
+
+#: templates/auth/profile.html:510
+#, python-format
+msgid "Storage pronto: %(state)s"
+msgstr ""
+
+#: templates/auth/profile.html:515
+msgid "Agendador de recorrências"
+msgstr ""
+
+#: templates/auth/profile.html:517
+msgid "Operação automática de lançamentos"
+msgstr ""
+
+#: templates/auth/profile.html:522
+msgid "Atualizações"
+msgstr ""
+
+#: templates/auth/profile.html:524
+#, python-format
+msgid "Status: %(status)s"
+msgstr ""
+
+#: templates/auth/profile.html:532
+msgid "Manifesto de atualização"
+msgstr ""
+
+#: templates/auth/profile.html:533
+msgid "Configurado"
+msgstr ""
+
+#: templates/auth/profile.html:533
+msgid "Não configurado"
+msgstr ""
+
+#: templates/auth/profile.html:536
+#, python-format
+msgid "Última verificação em %(date)s"
+msgstr ""
+
+#: templates/auth/profile.html:538
+msgid "Nenhuma verificação de atualização registrada."
+msgstr ""
+
+#: templates/auth/profile.html:545
+msgid "Último backup salvo"
+msgstr ""
+
+#: templates/auth/profile.html:550
+msgid "Nenhum backup salvo ainda"
+msgstr ""
+
+#: templates/auth/profile.html:557
+msgid "Gere um backup manual ou automático para começar o histórico."
+msgstr ""
+
+#: templates/auth/profile.html:584
+#, python-format
+msgid "Resolvido em %(date)s"
+msgstr ""
+
+#: templates/auth/profile.html:594
+msgid "Nenhum evento de sistema registrado no momento."
+msgstr ""
+
+#: templates/auth/profile.html:600
 msgid ""
 "A exclusão da sua conta é irreversível. Todos os seus dados financeiros e"
 " metas serão apagados permanentemente."
 msgstr ""
 
-#: templates/auth/profile.html:118
+#: templates/auth/profile.html:602
 msgid "Excluir Minha Conta"
 msgstr ""
 
-#: templates/auth/profile.html:131
+#: templates/auth/profile.html:614
 msgid "Confirmar Exclusão"
 msgstr ""
 
-#: templates/auth/profile.html:135
+#: templates/auth/profile.html:618
 msgid "Tem certeza absoluta? Esta ação não pode ser desfeita."
 msgstr ""
 
-#: templates/auth/profile.html:136
+#: templates/auth/profile.html:619
 #, python-format
 msgid "Para confirmar, digite \"%(token)s\" na caixa abaixo:"
 msgstr ""
 
-#: templates/auth/profile.html:143
+#: templates/auth/profile.html:626
 msgid "Excluir Permanentemente"
 msgstr ""
 
-#: templates/auth/register.html:22
+#: templates/auth/profile.html:676
+msgid "Copiado!"
+msgstr ""
+
+#: templates/auth/register.html:3 templates/auth/register.html:10
 msgid "Criar Conta"
 msgstr ""
 
-#: templates/auth/register.html:60
+#: templates/auth/register.html:48
 msgid "Força da senha"
 msgstr ""
 
-#: templates/auth/register.html:62
+#: templates/auth/register.html:50
 msgid "Recomendamos uma senha forte."
 msgstr ""
 
-#: templates/auth/register.html:70
+#: templates/auth/register.html:58
 msgid "Já tem uma conta?"
 msgstr ""
 
-#: templates/auth/register.html:119
+#: templates/auth/register.html:107
 msgid "Nome de usuário disponível"
 msgstr ""
 
-#: templates/auth/register.html:120
+#: templates/auth/register.html:108
 msgid "Nome de usuário já está em uso"
 msgstr ""
 
-#: templates/auth/register.html:140 templates/auth/register.html:161
+#: templates/auth/register.html:128 templates/auth/register.html:149
 msgid "E-mail disponível"
 msgstr ""
 
-#: templates/auth/register.html:141
+#: templates/auth/register.html:129
 msgid "Formato de email inválido"
 msgstr ""
 
-#: templates/auth/register.html:162
+#: templates/auth/register.html:150
 msgid "E-mail já está em uso"
 msgstr ""
 
-#: templates/auth/register.html:200
+#: templates/auth/register.html:188
 msgid "Fraca"
 msgstr ""
 
-#: templates/auth/register.html:203
+#: templates/auth/register.html:191
 msgid "Média"
 msgstr ""
 
-#: templates/auth/register.html:206
+#: templates/auth/register.html:194
 msgid "Forte"
 msgstr ""
 
-#: templates/auth/reset_password_offline.html:14
-#: templates/auth/reset_password_offline.html:36
+#: templates/auth/reset_password_offline.html:3
+msgid "Redefinir Senha Offline"
+msgstr ""
+
+#: templates/auth/reset_password_offline.html:10
+#: templates/auth/reset_password_offline.html:39
+#: templates/auth/reset_password_token.html:3
+#: templates/auth/reset_password_token.html:10
 msgid "Redefinir Senha"
 msgstr ""
 
-#: templates/auth/reset_password_offline.html:15
-msgid "Usuário: "
+#: templates/auth/reset_password_offline.html:11
+msgid ""
+"Use seu identificador e a chave de recuperação para redefinir a senha com"
+" segurança."
 msgstr ""
 
-#: templates/auth/reset_password_offline.html:20
+#: templates/auth/reset_password_offline.html:23
 msgid "Chave de Recuperação"
+msgstr ""
+
+#: templates/auth/reset_password_token.html:12
+msgid "Conta:"
+msgstr ""
+
+#: templates/auth/reset_password_token.html:25
+msgid "Este link expira em 1 hora por segurança."
 msgstr ""
 

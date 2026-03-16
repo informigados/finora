@@ -1,12 +1,16 @@
 from datetime import date, timedelta
 
+import pytest
+
 from app import create_app
 from database.db import db
+from models.backup import BackupRecord
 from models.budget import Budget
 from models.finance import Finance
 from models.goal import Goal
 from models.recurring import RecurringEntry
 from models.user import User
+from routes import dashboard as dashboard_module
 from services import maintenance_service
 from services.maintenance_service import run_recurring_maintenance, start_recurring_scheduler
 from services.reports import generate_pdf_report
@@ -93,7 +97,12 @@ def test_goal_update_and_delete_flow(client, app):
 
     update_response = client.post(
         f'/goals/update/{goal_id}',
-        data={'current_amount': '450.0'},
+        data={
+            'name': 'Reserva Ajustada',
+            'target_amount': '1500.0',
+            'current_amount': '450.0',
+            'deadline': '2026-12-31',
+        },
         follow_redirects=True,
     )
     assert update_response.status_code == 200
@@ -101,7 +110,10 @@ def test_goal_update_and_delete_flow(client, app):
 
     with app.app_context():
         updated_goal = db.session.get(Goal, goal_id)
+        assert updated_goal.name == 'Reserva Ajustada'
+        assert updated_goal.target_amount == 1500.0
         assert updated_goal.current_amount == 450.0
+        assert str(updated_goal.deadline) == '2026-12-31'
 
     delete_response = client.post(f'/goals/delete/{goal_id}', follow_redirects=True)
     assert delete_response.status_code == 200
@@ -126,12 +138,47 @@ def test_goal_update_rejects_negative_amount(client, app):
     _login_user(client, 'goalnegative')
     response = client.post(
         f'/goals/update/{goal_id}',
-        data={'current_amount': '-10'},
+        data={
+            'name': 'Viagem',
+            'target_amount': '1000',
+            'current_amount': '-10',
+        },
         follow_redirects=True,
     )
 
     assert response.status_code == 200
-    assert b'n\xc3\xa3o pode ser negativo' in response.data
+    assert b'maiores que zero' in response.data
+
+
+def test_goal_update_allows_zero_current_amount(client, app):
+    with app.app_context():
+        user = User(username='goalzero', email='goalzero@example.com', name='Goal Zero')
+        user.set_password('Pass1234')
+        db.session.add(user)
+        db.session.commit()
+
+        goal = Goal(name='Emergencia', target_amount=1000.0, current_amount=100.0, user_id=user.id)
+        db.session.add(goal)
+        db.session.commit()
+        goal_id = goal.id
+
+    _login_user(client, 'goalzero')
+    response = client.post(
+        f'/goals/update/{goal_id}',
+        data={
+            'name': 'Emergencia',
+            'target_amount': '1000',
+            'current_amount': '0',
+        },
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b'Meta atualizada com sucesso' in response.data
+
+    with app.app_context():
+        updated_goal = db.session.get(Goal, goal_id)
+        assert updated_goal.current_amount == 0.0
 
 
 def test_export_txt_and_pdf(client, app):
@@ -145,9 +192,11 @@ def test_export_txt_and_pdf(client, app):
             description='Aluguel',
             value=1200.0,
             category='Moradia',
+            subcategory='Aluguel',
             type='Despesa',
             status='Pago',
             due_date=date(2026, 3, 5),
+            payment_method='Transferência / PIX',
             user_id=user.id,
         )
         db.session.add(entry)
@@ -158,12 +207,183 @@ def test_export_txt_and_pdf(client, app):
     txt_response = client.get('/export/txt/2026/3')
     assert txt_response.status_code == 200
     assert txt_response.mimetype == 'text/plain'
-    assert 'Relatório FINORA' in txt_response.get_data(as_text=True)
+    txt_body = txt_response.get_data(as_text=True)
+    assert 'Relatório FINORA' in txt_body
+    assert 'Moradia / Aluguel' in txt_body
+    assert 'Transferência / PIX' in txt_body
 
     pdf_response = client.get('/export/pdf/2026/3')
     assert pdf_response.status_code == 200
     assert pdf_response.mimetype == 'application/pdf'
     assert pdf_response.data.startswith(b'%PDF')
+
+
+def test_export_pdf_redirects_when_row_limit_is_exceeded(client, app):
+    app.config['PDF_EXPORT_MAX_ROWS'] = 1
+
+    with app.app_context():
+        user = User(username='pdfcap', email='pdfcap@example.com', name='PDF Cap')
+        user.set_password('Pass1234')
+        db.session.add(user)
+        db.session.commit()
+
+        db.session.add_all(
+            [
+                Finance(
+                    description='Conta 1',
+                    value=10.0,
+                    category='Utilidades',
+                    subcategory='Água',
+                    type='Despesa',
+                    status='Pago',
+                    due_date=date(2026, 3, 5),
+                    user_id=user.id,
+                ),
+                Finance(
+                    description='Conta 2',
+                    value=20.0,
+                    category='Utilidades',
+                    subcategory='Energia elétrica',
+                    type='Despesa',
+                    status='Pago',
+                    due_date=date(2026, 3, 6),
+                    user_id=user.id,
+                ),
+            ]
+        )
+        db.session.commit()
+
+    _login_user(client, 'pdfcap')
+
+    response = client.get('/export/pdf/2026/3', follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b'PDF est\xc3\xa1 limitado a 1 lan\xc3\xa7amentos' in response.data
+
+
+def test_export_invalid_type_returns_bad_request(client, app):
+    with app.app_context():
+        user = User(username='invalidexport', email='invalidexport@example.com', name='Invalid Export')
+        user.set_password('Pass1234')
+        db.session.add(user)
+        db.session.commit()
+
+    _login_user(client, 'invalidexport')
+    response = client.get('/export/xml/2026/3')
+
+    assert response.status_code == 400
+    assert 'Tipo de exportação inválido.' in response.get_data(as_text=True)
+
+
+def test_dashboard_period_form_requires_explicit_submit_and_has_safe_value_input(client, app):
+    with app.app_context():
+        user = User(username='dashboardperiod', email='dashboardperiod@example.com', name='Dashboard Period')
+        user.set_password('Pass1234')
+        db.session.add(user)
+        db.session.commit()
+
+    _login_user(client, 'dashboardperiod')
+    response = client.get('/dashboard/2026/3')
+    html = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'Aplicar' in html
+    assert 'selectElement.form?.requestSubmit()' not in html
+    assert 'onkeyup=' not in html
+    assert 'id="valInput"' in html
+    assert 'min="0.01"' in html
+
+
+def test_goals_and_budgets_use_premium_modals(client, app):
+    with app.app_context():
+        user = User(username='modalpremium', email='modalpremium@example.com', name='Modal Premium')
+        user.set_password('Pass1234')
+        db.session.add(user)
+        db.session.commit()
+
+    _login_user(client, 'modalpremium')
+
+    goals_response = client.get('/goals')
+    budgets_response = client.get('/budgets')
+
+    assert goals_response.status_code == 200
+    assert budgets_response.status_code == 200
+    assert goals_response.get_data(as_text=True).count('modal-content-premium') >= 2
+    assert budgets_response.get_data(as_text=True).count('modal-content-premium') >= 2
+
+
+def test_year_dashboard_uses_yearly_aggregation(client, app, monkeypatch):
+    with app.app_context():
+        user = User(username='yearview', email='yearview@example.com', name='Year View')
+        user.set_password('Pass1234')
+        db.session.add(user)
+        db.session.commit()
+
+    calls = {'yearly': 0}
+
+    def fake_yearly_stats(year, user_id):
+        calls['yearly'] += 1
+        assert year == 2026
+        assert user_id is not None
+        return {
+            'year': 2026,
+            'total_receitas': 1500.0,
+            'total_despesas': 500.0,
+            'saldo': 1000.0,
+            'by_month': {
+                1: {'receitas': 1000.0, 'despesas': 300.0, 'saldo': 700.0},
+                2: {'receitas': 500.0, 'despesas': 200.0, 'saldo': 300.0},
+            },
+        }
+
+    monkeypatch.setattr(dashboard_module, 'get_yearly_stats', fake_yearly_stats)
+    monkeypatch.setattr(
+        dashboard_module,
+        'get_monthly_stats',
+        lambda *_args, **_kwargs: pytest.fail('get_monthly_stats should not be used in yearly view'),
+    )
+
+    client.post(
+        '/login',
+        data={'identifier': 'yearview', 'password': 'Pass1234'},
+        follow_redirects=False,
+    )
+    response = client.get('/dashboard/2026')
+
+    assert response.status_code == 200
+    assert calls['yearly'] == 1
+    assert '1000.0' in response.get_data(as_text=True) or '1.000' in response.get_data(as_text=True)
+
+
+def test_year_dashboard_chart_reacts_to_theme_changes(client, app):
+    with app.app_context():
+        user = User(username='yearchart', email='yearchart@example.com', name='Year Chart')
+        user.set_password('Pass1234')
+        db.session.add(user)
+        db.session.commit()
+
+        db.session.add(
+            Finance(
+                description='Receita anual',
+                value=2500.0,
+                category='Trabalho',
+                subcategory='Salário',
+                type='Receita',
+                status='Pago',
+                due_date=date(2026, 3, 5),
+                user_id=user.id,
+            )
+        )
+        db.session.commit()
+
+    _login_user(client, 'yearchart')
+    response = client.get('/dashboard/2026')
+    html = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'resolveYearChartTheme' in html
+    assert "document.addEventListener('finora:theme-change', renderYearChart);" in html
+    assert "getComputedStyle(themeRoot)" in html
 
 
 def test_generate_pdf_report_returns_pdf_bytes():
@@ -256,6 +476,7 @@ def test_backup_download_works_for_file_sqlite(tmp_path):
         user.set_password('Pass1234')
         db.session.add(user)
         db.session.commit()
+        user_id = user.id
 
     client = app.test_client()
     _login_user(client, 'backupuser')
@@ -264,6 +485,19 @@ def test_backup_download_works_for_file_sqlite(tmp_path):
     assert response.status_code == 200
     assert response.mimetype == 'application/zip'
     assert response.data[:2] == b'PK'
+
+    with app.app_context():
+        backup_record = BackupRecord.query.filter_by(user_id=user_id).first()
+        assert backup_record is not None
+        assert backup_record.file_name.endswith('.zip')
+        assert backup_record.file_size_bytes is not None
+        assert backup_record.checksum
+        backup_record_id = backup_record.id
+
+    saved_download = client.get(f'/backup/history/{backup_record_id}/download')
+    assert saved_download.status_code == 200
+    assert saved_download.mimetype == 'application/zip'
+    assert saved_download.data[:2] == b'PK'
 
     with app.app_context():
         db.session.remove()

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="{% block meta_description %}{{ _('Finora é um sistema local de controle financeiro pessoal com foco em privacidade, clareza e operação segura.') }}{% endblock %}" />
     <title>{% block title %}FINORA - Organizador Financeiro{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}?v=20260302e" />
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.svg') }}?v=20260302e" />
@@ -12,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
+    <script nonce="{{ csp_nonce }}">
       const savedTheme = localStorage.getItem("theme") || "light";
       document.documentElement.setAttribute("data-theme", savedTheme);
     </script>
@@ -76,7 +77,7 @@
                     src="{{ url_for('static', filename='profile_pics/' + current_user.profile_image) }}"
                     alt="{{ _('Foto de perfil') }}"
                     class="navbar-user-avatar"
-                    onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');"
+                    data-avatar-fallback="true"
                   />
                   <span class="navbar-user-fallback d-none" aria-hidden="true">
                     <i data-lucide="user" class="icon-xs"></i>
@@ -90,7 +91,7 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
                   <li><a class="dropdown-item d-flex align-items-center" href="{{ url_for('auth.profile') }}"><i data-lucide="user" class="me-2 text-muted icon-xs"></i>{{ _('Meu Perfil') }}</a></li>
-                  <li><a class="dropdown-item text-success d-flex align-items-center" href="{{ url_for('backup.download_backup') }}"><i data-lucide="database" class="me-2 icon-xs"></i>{{ _('Gerar Backup') }}</a></li>
+                  <li><a class="dropdown-item d-flex align-items-center" href="{{ url_for('auth.profile') }}#backups-pane"><i data-lucide="database" class="me-2 text-muted icon-xs"></i>{{ _('Meus Backups') }}</a></li>
                   <li><hr class="dropdown-divider" /></li>
                   <li><a class="dropdown-item text-danger d-flex align-items-center" href="{{ url_for('auth.logout') }}"><i data-lucide="log-out" class="me-2 icon-xs"></i>{{ _('Sair') }}</a></li>
                 </ul>
@@ -191,8 +192,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/toasts.js') }}"></script>
-    <script>
-      lucide.createIcons();
+    <script nonce="{{ csp_nonce }}">
+      function refreshLucideIcons(rootElement = document.body) {
+        if (!window.lucide || !rootElement) return;
+        lucide.createIcons();
+      }
+
+      refreshLucideIcons();
 
       const root = document.documentElement;
       const themeToggle = document.getElementById("themeToggle");
@@ -248,6 +254,7 @@
           root.setAttribute("data-theme", next);
           localStorage.setItem("theme", next);
           updateThemeIcons(next);
+          document.dispatchEvent(new CustomEvent("finora:theme-change", { detail: { theme: next } }));
         });
       }
 
@@ -261,12 +268,70 @@
         });
       });
 
-      document.querySelectorAll("a[data-loading-link]").forEach((link) => {
-        link.addEventListener("click", () => {
+      document.querySelectorAll("[data-progress-width]").forEach((element) => {
+        const rawValue = Number(element.getAttribute("data-progress-width") || 0);
+        const clampedValue = Math.max(0, Math.min(rawValue, 100));
+        element.style.width = `${clampedValue}%`;
+      });
+
+      document.querySelectorAll("img[data-avatar-fallback='true']").forEach((imageElement) => {
+        imageElement.addEventListener("error", () => {
+          imageElement.classList.add("d-none");
+          imageElement.nextElementSibling?.classList.remove("d-none");
+        }, { once: true });
+      });
+
+      document.querySelectorAll("img[data-fallback-src]").forEach((imageElement) => {
+        imageElement.addEventListener("error", () => {
+          const fallbackSrc = imageElement.dataset.fallbackSrc;
+          if (!fallbackSrc || imageElement.dataset.fallbackApplied === "true") return;
+          imageElement.dataset.fallbackApplied = "true";
+          imageElement.src = fallbackSrc;
+        }, { once: true });
+      });
+
+      function setLoadingLinkState(link, isLoading) {
+        if (!link) return;
+        if (isLoading) {
+          if (!link.dataset.originalHtml) {
+            link.dataset.originalHtml = link.innerHTML;
+          }
           link.classList.add("disabled");
           link.setAttribute("aria-disabled", "true");
           link.innerHTML = `<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span><span>${link.dataset.loadingLink}</span>`;
-        }, { once: true });
+          return;
+        }
+
+        if (link.dataset.originalHtml) {
+          link.innerHTML = link.dataset.originalHtml;
+        }
+        link.classList.remove("disabled");
+        link.removeAttribute("aria-disabled");
+      }
+
+      function restoreLoadingLinks() {
+        document.querySelectorAll("a[data-loading-link]").forEach((link) => {
+          setLoadingLinkState(link, false);
+        });
+      }
+
+      document.querySelectorAll("a[data-loading-link]").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          if (link.classList.contains("disabled")) {
+            event.preventDefault();
+            return;
+          }
+          setLoadingLinkState(link, true);
+          window.setTimeout(() => setLoadingLinkState(link, false), 4500);
+        });
+      });
+
+      window.addEventListener("focus", restoreLoadingLinks);
+      window.addEventListener("pageshow", restoreLoadingLinks);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          restoreLoadingLinks();
+        }
       });
 
       const confirmModalElement = document.getElementById("confirmActionModal");
@@ -298,6 +363,31 @@
         });
       }
 
+      let iconRefreshFrame = null;
+      function scheduleLucideRefresh() {
+        if (iconRefreshFrame !== null) return;
+        iconRefreshFrame = window.requestAnimationFrame(() => {
+          iconRefreshFrame = null;
+          refreshLucideIcons();
+        });
+      }
+
+      const iconObserver = new MutationObserver((mutations) => {
+        const shouldRefresh = mutations.some((mutation) =>
+          [...mutation.addedNodes].some((node) =>
+            node instanceof Element && (
+              node.hasAttribute?.("data-lucide") ||
+              node.querySelector?.("[data-lucide]")
+            )
+          )
+        );
+        if (shouldRefresh) {
+          scheduleLucideRefresh();
+        }
+      });
+
+      iconObserver.observe(document.body, { childList: true, subtree: true });
+
       if (confirmModalElement) {
         confirmModalElement.addEventListener("hidden.bs.modal", () => {
           pendingConfirmForm = null;
@@ -306,7 +396,7 @@
     </script>
 
     {% if current_user.is_authenticated and session_timeout_minutes and session_timeout_minutes > 0 %}
-    <script>
+    <script nonce="{{ csp_nonce }}">
       (function () {
         const body = document.body;
         const timeoutMinutes = Number(body.dataset.sessionTimeoutMinutes || 0);

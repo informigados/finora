@@ -22,6 +22,7 @@ def test_add_recurring_entry(client, app):
         'type': 'Despesa',
         'status': 'Pendente',
         'due_date': today,
+        'payment_method': 'Dinheiro',
         'is_recurring': 'on',
         'frequency': 'Mensal'
     }, follow_redirects=True)
@@ -35,6 +36,7 @@ def test_add_recurring_entry(client, app):
         rec = RecurringEntry.query.first()
         assert rec is not None
         assert rec.frequency == 'Mensal'
+        assert rec.payment_method == 'Dinheiro'
         # Next run date should be next month (roughly)
         assert rec.next_run_date > datetime.now().date()
 
@@ -52,6 +54,7 @@ def test_process_recurring(app):
             value=50.0,
             category='Lazer',
             type='Despesa',
+            payment_method='Transferência / PIX',
             frequency='Diário',
             start_date=today - timedelta(days=1),
             next_run_date=today, # DUE TODAY
@@ -67,6 +70,7 @@ def test_process_recurring(app):
         # Check if Finance entry created
         finance = Finance.query.filter_by(description='Due Entry').first()
         assert finance is not None
+        assert finance.payment_method == 'Transferência / PIX'
         
         # Check if next_run_date updated
         db.session.refresh(rec)

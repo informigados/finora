@@ -75,12 +75,17 @@ def test_register_rejects_invalid_email_short_username_weak_password_and_duplica
 
 def test_logout_redirects_to_login(client, app):
     _create_user(app, 'logoutuser', 'logoutuser@example.com')
-    _login(client, 'logoutuser')
+    client.post(
+        '/login',
+        data={'identifier': 'logoutuser', 'password': 'Password123', 'remember': 'on'},
+        follow_redirects=True,
+    )
 
     response = client.get('/logout', follow_redirects=False)
 
     assert response.status_code == 302
     assert response.headers['Location'].endswith('/login')
+    assert 'remember_token=;' in response.headers.get('Set-Cookie', '')
 
 
 def test_reset_password_offline_handles_commit_failure_without_invalid_data_flash(client, app, monkeypatch):

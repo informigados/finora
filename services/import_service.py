@@ -13,7 +13,7 @@ from openpyxl import load_workbook
 from werkzeug.datastructures import FileStorage
 
 from models.finance import Finance
-from services.catalogs import normalize_finance_category
+from services.catalogs import normalize_payment_method, resolve_finance_category_selection
 
 MAX_IMPORT_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_IMPORT_ROWS = 20000
@@ -43,18 +43,28 @@ COLUMN_ALIASES = {
     "valor": "value",
     "category": "category",
     "categoria": "category",
+    "subcategory": "subcategory",
+    "sub category": "subcategory",
+    "subcategoria": "subcategory",
     "type": "type",
     "tipo": "type",
     "status": "status",
     "situacao": "status",
     "due_date": "due_date",
     "due date": "due_date",
+    "date": "due_date",
     "datavencimento": "due_date",
     "vencimento": "due_date",
     "data": "due_date",
     "payment_date": "payment_date",
     "payment date": "payment_date",
     "pagamento": "payment_date",
+    "payment_method": "payment_method",
+    "payment method": "payment_method",
+    "formapagamento": "payment_method",
+    "forma de pagamento": "payment_method",
+    "formarecebimento": "payment_method",
+    "forma de recebimento": "payment_method",
     "observations": "observations",
     "observacoes": "observations",
 }
@@ -215,7 +225,11 @@ def _build_entry_from_row(raw_row: dict[str, Any], user_id: int) -> Finance:
     canonical = _to_canonical_fields(raw_row)
 
     description = str(canonical.get("description") or "Lançamento importado").strip()
-    category = normalize_finance_category(canonical.get("category"))
+    category, subcategory = resolve_finance_category_selection(
+        entry_type=_normalize_type(canonical.get("type")),
+        category_value=canonical.get("category"),
+        subcategory_value=canonical.get("subcategory"),
+    )
     if not category:
         raise ImportValidationError("Categoria inválida. Use uma categoria permitida.")
 
@@ -225,19 +239,26 @@ def _build_entry_from_row(raw_row: dict[str, Any], user_id: int) -> Finance:
 
     entry_type = _normalize_type(canonical.get("type"))
     status = _normalize_status(canonical.get("status"))
-    due_date = _parse_date(canonical.get("due_date"), required=False) or date.today()
+    due_date = _parse_date(
+        canonical.get("due_date"),
+        required=True,
+        missing_message="Data de vencimento obrigatória ausente.",
+    )
     payment_date = _parse_date(canonical.get("payment_date"), required=False)
     observations = canonical.get("observations")
     observations_str = str(observations).strip() if observations is not None else None
+    payment_method = normalize_payment_method(canonical.get("payment_method"))
 
     return Finance(
         description=description[:100],
         value=float(amount),
         category=category[:50],
+        subcategory=subcategory[:80] if subcategory else None,
         type=entry_type,
         status=status,
         due_date=due_date,
         payment_date=payment_date,
+        payment_method=payment_method,
         observations=observations_str,
         user_id=user_id,
     )
@@ -296,10 +317,14 @@ def _parse_money(raw_value: Any) -> Decimal:
         raise ImportValidationError("Valor inválido.") from exc
 
 
-def _parse_date(raw_value: Any, required: bool) -> date | None:
+def _parse_date(
+    raw_value: Any,
+    required: bool,
+    missing_message: str = "Data obrigatória ausente.",
+) -> date | None:
     if raw_value is None or str(raw_value).strip() == "":
         if required:
-            raise ImportValidationError("Data obrigatória ausente.")
+            raise ImportValidationError(missing_message)
         return None
 
     if isinstance(raw_value, datetime):

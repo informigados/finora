@@ -16,7 +16,7 @@
 
 <div class="row g-3">
     {% for item in budget_status %}
-    <div class="col-md-4">
+    <div class="col-12 col-md-4">
         <div class="card card-premium h-100 border-top border-4 {% if item.over_budget %}border-danger{% elif item.percentage > 80 %}border-warning{% else %}border-success{% endif %}">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
@@ -26,7 +26,7 @@
                             <i data-lucide="more-vertical" class="icon-sm"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#" data-budget='{{ item.budget.to_dict()|tojson }}' onclick='prepareEdit(JSON.parse(this.getAttribute("data-budget")))' data-bs-toggle="modal" data-bs-target="#editBudgetModal">{{ _('Editar') }}</a></li>
+                            <li><a class="dropdown-item budget-edit-trigger" href="#" data-budget='{{ item.budget.to_dict()|tojson }}'>{{ _('Editar') }}</a></li>
                             <li>
                                 <form action="{{ url_for('budgets.delete_budget', id=item.budget.id) }}" method="POST" data-confirm="{{ _('Tem certeza que deseja excluir este orçamento?') }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -48,7 +48,7 @@
                 
                 <div class="progress mb-3 progress-sm">
                     <div class="progress-bar {% if item.over_budget %}bg-danger{% elif item.percentage > 80 %}bg-warning{% else %}bg-success{% endif %}"
-                         style="width: {{ [item.percentage, 100]|min }}%;"
+                         data-progress-width="{{ [item.percentage, 100]|min }}"
                          role="progressbar"
                          aria-label="{{ _('Progresso do orçamento') }}"
                          aria-valuemin="0"
@@ -64,6 +64,7 @@
                     {{ _('Excedido') }}: R$ {{ "%.2f"|format(item.remaining * -1) }}
                     {% endif %}
                 </small>
+                <div class="text-muted small mt-2">{{ _('Consumo: %(percentage)s%% do limite', percentage="%.1f"|format(item.display_percentage)) }}</div>
             </div>
         </div>
     </div>
@@ -79,13 +80,13 @@
 </div>
 
 <!-- Add Modal -->
-<div class="modal fade" id="budgetModal" tabindex="-1">
+<div class="modal fade" id="budgetModal" tabindex="-1" aria-labelledby="budgetModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content modal-content-premium">
             <form action="{{ url_for('budgets.add_budget') }}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ _('Novo Orçamento') }}</h5>
+                <div class="modal-header modal-header-premium">
+                    <h5 class="modal-title" id="budgetModalLabel">{{ _('Novo Orçamento') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar') }}" title="{{ _('Fechar') }}"></button>
                 </div>
                 <div class="modal-body">
@@ -98,7 +99,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="budgetLimit" class="form-label">{{ _('Limite (R$)') }}</label>
-                        <input type="number" step="0.01" name="limit_amount" class="form-control" id="budgetLimit" required>
+                        <input type="number" step="0.01" min="0.01" name="limit_amount" class="form-control" id="budgetLimit" required>
                     </div>
                     <div class="mb-3">
                         <label for="budgetPeriod" class="form-label">{{ _('Período') }}</label>
@@ -118,13 +119,13 @@
 </div>
 
 <!-- Edit Modal -->
-<div class="modal fade" id="editBudgetModal" tabindex="-1">
+<div class="modal fade" id="editBudgetModal" tabindex="-1" aria-labelledby="editBudgetModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <form action="" method="POST" id="editBudgetForm">
+        <div class="modal-content modal-content-premium">
+            <form action="" method="POST" id="editBudgetForm" data-edit-action-template="{{ url_for('budgets.edit_budget', id=0) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ _('Editar Orçamento') }}</h5>
+                <div class="modal-header modal-header-premium">
+                    <h5 class="modal-title" id="editBudgetModalLabel">{{ _('Editar Orçamento') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar') }}" title="{{ _('Fechar') }}"></button>
                 </div>
                 <div class="modal-body">
@@ -134,7 +135,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="editLimit" class="form-label">{{ _('Limite (R$)') }}</label>
-                        <input type="number" step="0.01" name="limit_amount" class="form-control" id="editLimit" required>
+                        <input type="number" step="0.01" min="0.01" name="limit_amount" class="form-control" id="editLimit" required>
                     </div>
                     <div class="mb-3">
                         <label for="editPeriod" class="form-label">{{ _('Período') }}</label>
@@ -156,14 +157,25 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ csp_nonce }}">
 function prepareEdit(budget) {
     const form = document.getElementById('editBudgetForm');
-    form.action = "/budgets/edit/" + budget.id;
+    if (!form || !budget) return;
+    form.action = form.dataset.editActionTemplate.replace('/0', `/${budget.id}`);
     
     document.getElementById('editCategory').value = budget.category;
     document.getElementById('editLimit').value = budget.limit_amount;
     document.getElementById('editPeriod').value = budget.period;
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('editBudgetModal')).show();
 }
+
+document.querySelectorAll('.budget-edit-trigger').forEach((trigger) => {
+    trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        prepareEdit(JSON.parse(trigger.dataset.budget));
+    });
+});
+
+window.prepareEdit = prepareEdit;
 </script>
 {% endblock %}

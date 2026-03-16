@@ -7,6 +7,7 @@ from models.budget import Budget
 from services.catalogs import normalize_finance_category
 from services.ownership import get_owned_or_none
 from services.budget_service import get_budget_status
+from services.profile_service import record_activity, record_system_event
 from datetime import date
 
 budgets_bp = Blueprint('budgets', __name__)
@@ -32,7 +33,7 @@ def index() -> ResponseReturnValue:
 def add_budget() -> ResponseReturnValue:
     data = request.form
     try:
-        category = normalize_finance_category(data.get('category'))
+        category = normalize_finance_category(data.get('category'), entry_type='Despesa')
         limit_amount = float(data['limit_amount'])
         if not category:
             flash(_('Categoria inválida. Selecione uma categoria permitida.'), 'error')
@@ -61,11 +62,32 @@ def add_budget() -> ResponseReturnValue:
                 user_id=current_user.id
             )
             db.session.add(new_budget)
+            record_activity(
+                current_user,
+                'budgets',
+                'budget_created',
+                'Orçamento definido com sucesso.',
+                details={
+                    'category': new_budget.category,
+                    'period': new_budget.period,
+                    'limit_amount': new_budget.limit_amount,
+                },
+                ip_address=request.remote_addr,
+                commit=False,
+            )
             db.session.commit()
             flash(_('Orçamento definido com sucesso!'), 'success')
              
     except Exception:
         db.session.rollback()
+        record_system_event(
+            'error',
+            'budgets',
+            'Falha ao definir orçamento.',
+            user=current_user,
+            event_code='budget_create_failed',
+            details={'category': data.get('category') or ''},
+        )
         flash(_('Erro ao definir orçamento.'), 'error')
          
     return redirect(url_for('budgets.index'))
@@ -86,10 +108,31 @@ def edit_budget(id: int) -> ResponseReturnValue:
 
             budget.limit_amount = limit_amount
             budget.period = request.form['period']
+            record_activity(
+                current_user,
+                'budgets',
+                'budget_updated',
+                'Orçamento atualizado com sucesso.',
+                details={
+                    'category': budget.category,
+                    'period': budget.period,
+                    'limit_amount': budget.limit_amount,
+                },
+                ip_address=request.remote_addr,
+                commit=False,
+            )
             db.session.commit()
             flash(_('Orçamento atualizado!'), 'success')
         except Exception:
             db.session.rollback()
+            record_system_event(
+                'error',
+                'budgets',
+                'Falha ao atualizar orçamento.',
+                user=current_user,
+                event_code='budget_update_failed',
+                details={'budget_id': id},
+            )
             flash(_('Erro ao atualizar orçamento.'), 'error')
     return redirect(url_for('budgets.index'))
 
@@ -98,11 +141,29 @@ def edit_budget(id: int) -> ResponseReturnValue:
 def delete_budget(id: int) -> ResponseReturnValue:
     budget = get_owned_or_none(Budget, id, current_user.id)
     if budget:
+        budget_category = budget.category
         try:
+            record_activity(
+                current_user,
+                'budgets',
+                'budget_deleted',
+                'Orçamento removido com sucesso.',
+                details={'category': budget_category},
+                ip_address=request.remote_addr,
+                commit=False,
+            )
             db.session.delete(budget)
             db.session.commit()
             flash(_('Orçamento removido!'), 'success')
         except Exception:
             db.session.rollback()
+            record_system_event(
+                'error',
+                'budgets',
+                'Falha ao remover orçamento.',
+                user=current_user,
+                event_code='budget_delete_failed',
+                details={'budget_id': id},
+            )
             flash(_('Erro ao remover orçamento.'), 'error')
     return redirect(url_for('budgets.index'))

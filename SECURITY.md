@@ -6,9 +6,9 @@ Finora is a local-first personal finance application. Security issues can affect
 
 | Version | Supported |
 | --- | --- |
-| `1.1.x` | ✅ Yes |
-| `1.0.x` | ❌ No |
-| `< 1.0` | ❌ No |
+| `1.3.x` | ✅ Yes |
+| `1.2.x` | ❌ No |
+| `< 1.2` | ❌ No |
 
 Only the latest stable release line receives security fixes.
 
@@ -43,13 +43,16 @@ Please include as much of the following as possible:
 Finora already includes several baseline protections:
 
 - 🧩 CSRF protection for form and JSON flows.
+- 🧱 Content Security Policy with per-request script nonce for inline application scripts.
 - 🍪 Hardened cookie settings, including `HttpOnly` and `SameSite=Lax`, with `Secure` cookies in production.
 - 🔑 `SECRET_KEY` is required in production mode.
 - 🕒 Password reset tokens expire after **1 hour**.
+- 🗝️ Recovery keys can be regenerated, resent by e-mail, and copied from the profile hub.
 - 🔐 Password strength validation is enforced in authentication flows.
 - 📏 Import limits are enforced for file size and row count.
 - 🖼️ Profile image uploads are size-limited and validated as image files.
-- 🗃️ Backup export is restricted to supported local database scenarios and warns when file backup is not appropriate.
+- 🗃️ Backup management supports retention, automatic routines, persisted history, and warnings for unsupported database file backup scenarios.
+- 🔄 Guided update flow creates a pre-update backup and runs database migrations after package application.
 - 🌐 The built-in server flow binds to `127.0.0.1`, reducing accidental LAN exposure in default usage.
 
 ## ✅ Deployment and Hardening Notes
@@ -60,7 +63,7 @@ If you deploy or distribute Finora, please also follow these practices:
 - Prefer a managed production database instead of local SQLite for shared or long-lived deployments.
 - Never commit `.env`, database files, exports, backups, generated profile images, or credentials.
 - Keep dependencies updated and review security-sensitive changes before release.
-- Review changes to authentication, imports, exports, backup, and profile upload flows with extra care.
+- Review changes to authentication, recovery keys, imports, exports, backups, updates, and profile upload flows with extra care.
 
 ## 🙏 Scope Notes
 

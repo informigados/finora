@@ -1,9 +1,11 @@
 from datetime import UTC, datetime, timedelta
 
+import pytest
+
 from database.db import db
 from models.finance import Finance
 from models.user import User
-from services.calculations import get_yearly_stats
+from services.calculations import get_monthly_stats, get_yearly_stats
 
 
 def test_health_endpoint_reports_ok(client):
@@ -19,7 +21,35 @@ def test_security_headers_are_present(client):
     assert response.status_code == 200
     assert response.headers['X-Content-Type-Options'] == 'nosniff'
     assert response.headers['X-Frame-Options'] == 'DENY'
-    assert "default-src 'self'" in response.headers['Content-Security-Policy']
+    csp = response.headers['Content-Security-Policy']
+    assert "default-src 'self'" in csp
+    assert "script-src 'self' 'nonce-" in csp
+    assert "style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com" in csp
+    assert "'unsafe-inline'" not in csp.split('script-src', 1)[1].split(';', 1)[0]
+    assert "'unsafe-inline'" not in csp.split('style-src', 1)[1].split(';', 1)[0]
+    assert b'<script nonce="' in response.data
+
+
+def test_goal_and_budget_pages_render_without_inline_style_attributes(client, app):
+    with app.app_context():
+        user = User(username='stylecheck', email='stylecheck@example.com')
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.commit()
+
+    client.post(
+        '/login',
+        data={'identifier': 'stylecheck', 'password': 'Password123'},
+        follow_redirects=True,
+    )
+
+    goals_response = client.get('/goals')
+    budgets_response = client.get('/budgets')
+
+    assert goals_response.status_code == 200
+    assert budgets_response.status_code == 200
+    assert b'style=' not in goals_response.data
+    assert b'style=' not in budgets_response.data
 
 
 def test_yearly_stats_are_scoped_by_user(app):
@@ -59,6 +89,11 @@ def test_yearly_stats_are_scoped_by_user(app):
         assert stats['total_despesas'] == 0
         assert stats['saldo'] == 5000
         assert stats['by_month'][3]['receitas'] == 5000
+
+
+def test_monthly_stats_requires_user_scope():
+    with pytest.raises(ValueError, match='user_id is required'):
+        get_monthly_stats(3, 2026, user_id=None)
 
 
 def test_forgot_password_uses_generic_response_for_missing_user(client):
@@ -147,14 +182,20 @@ def test_check_username_and_email_validation_endpoints(client, app):
 
     username_response = client.post('/check_username', json={'username': 'lookupuser'})
     assert username_response.status_code == 200
-    assert username_response.get_json()['available'] is False
+    username_payload = username_response.get_json()
+    assert username_payload['available'] is True
+    assert username_payload['verified'] is False
+    assert 'cadastro' in username_payload['message']
 
     invalid_username_response = client.post('/check_username', json={'username': ''})
     assert invalid_username_response.status_code == 400
 
     email_response = client.post('/check_email', json={'email': 'lookup@example.com'})
     assert email_response.status_code == 200
-    assert email_response.get_json()['available'] is False
+    email_payload = email_response.get_json()
+    assert email_payload['available'] is True
+    assert email_payload['verified'] is False
+    assert 'cadastro' in email_payload['message']
 
     invalid_email_response = client.post('/check_email', json={'email': 'invalid'})
     assert invalid_email_response.status_code == 400

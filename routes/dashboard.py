@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
 from datetime import date
-from services.calculations import get_monthly_stats
+from services.calculations import get_monthly_stats, get_yearly_stats
 from models.finance import Finance
 from sqlalchemy import extract
 from database.db import db
@@ -63,30 +63,30 @@ def view_month(year: int, month: int) -> ResponseReturnValue:
 @dashboard_bp.route('/dashboard/<int:year>')
 @login_required
 def view_year(year: int) -> ResponseReturnValue:
+    yearly_stats = get_yearly_stats(year, user_id=current_user.id)
     monthly_data = []
-    total_year_receita = 0
-    total_year_despesa = 0
-    
+
     month_names = [_('Jan'), _('Fev'), _('Mar'), _('Abr'), _('Mai'), _('Jun'), 
                    _('Jul'), _('Ago'), _('Set'), _('Out'), _('Nov'), _('Dez')]
-    
+
     for m in range(1, 13):
-        stats = get_monthly_stats(m, year, user_id=current_user.id)
+        month_stats = yearly_stats['by_month'].get(
+            m,
+            {'receitas': 0.0, 'despesas': 0.0, 'saldo': 0.0},
+        )
         monthly_data.append({
             'month': m,
             'name': month_names[m-1],
-            'receita': stats['total_receitas'],
-            'despesa': stats['total_despesas'],
-            'saldo': stats['total_geral']
+            'receita': month_stats['receitas'],
+            'despesa': month_stats['despesas'],
+            'saldo': month_stats['saldo'],
         })
-        total_year_receita += stats['total_receitas']
-        total_year_despesa += stats['total_despesas']
-        
+
     return render_template('year.html', 
                            year=year, 
                            monthly_data=monthly_data,
-                           total_receita=total_year_receita,
-                           total_despesa=total_year_despesa,
+                           total_receita=yearly_stats['total_receitas'],
+                           total_despesa=yearly_stats['total_despesas'],
                            today=date.today())
 
 @dashboard_bp.route('/dashboard/change_period', methods=['POST'])

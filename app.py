@@ -1,5 +1,6 @@
 from datetime import datetime
 from urllib.parse import urlparse
+import secrets
 
 import click
 import shutil
@@ -11,10 +12,12 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import inspect, text
 from alembic.config import Config as AlembicConfig
+from alembic import command as alembic_command
 from alembic.script import ScriptDirectory
 from database.db import db
-from config import config
+from config import config, get_or_create_local_secret_key
 from extensions import limiter
+from models.time_utils import format_app_date, format_app_datetime
 from routes.dashboard import dashboard_bp
 from routes.entries import entries_bp
 from routes.export import export_bp
@@ -24,12 +27,24 @@ from routes.budgets import budgets_bp
 from routes.auth import auth_bp
 from routes.backup import backup_bp
 from routes.public import public_bp
-from services.catalogs import DEFAULT_FINANCE_CATEGORIES
+from services.catalogs import (
+    build_finance_catalog_payload,
+    build_payment_method_payload,
+    get_expense_budget_categories,
+)
+from services.backup_service import run_backup_maintenance, start_backup_scheduler
 from services.db_resilience import run_idempotent_db_operation
 from services.logging_utils import configure_application_logging, request_id_context
 from services.maintenance_service import run_recurring_maintenance, start_recurring_scheduler
+from services.profile_service import (
+    end_user_session,
+    ensure_user_session,
+    record_activity,
+    touch_user_session,
+)
 import os
 from threading import Timer
+from threading import Lock
 
 import uuid
 import time
@@ -46,26 +61,30 @@ RUNTIME_SQLITE_COLUMN_PATCHES = {
 REQUIRED_APPLICATION_TABLES = frozenset(
     {'user', 'finances', 'goals', 'budgets', 'recurring_entries'}
 )
+UI_PAYLOAD_CACHE_REFRESH_INTERVAL_SECONDS = 5.0
+UI_PAYLOAD_CACHE_LOCK = Lock()
 
 
-CONTENT_SECURITY_POLICY = "; ".join([
-    "default-src 'self'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'none'",
-    "object-src 'none'",
-    "img-src 'self' data:",
-    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
-    "font-src 'self' data: https://fonts.gstatic.com",
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com",
-    "connect-src 'self'",
-])
+def _build_content_security_policy(nonce):
+    return "; ".join([
+        "default-src 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-ancestors 'none'",
+        "object-src 'none'",
+        "img-src 'self' data:",
+        "style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com",
+        "font-src 'self' data: https://fonts.gstatic.com",
+        f"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net https://unpkg.com",
+        "connect-src 'self'",
+    ])
 
 
 def ensure_runtime_schema_compatibility(app):
     """
-    Applies safe runtime patches for legacy SQLite databases that were not
-    migrated yet. This prevents runtime 500s on startup/login for known fields.
+    Applies safe runtime patches only for legacy SQLite databases that predate
+    Alembic versioning. Databases already under migration control must use
+    `flask db upgrade` instead of runtime column mutation.
     """
     if app.config.get('TESTING'):
         return
@@ -78,6 +97,14 @@ def ensure_runtime_schema_compatibility(app):
         try:
             inspector = inspect(db.engine)
             table_names = set(inspector.get_table_names())
+
+            # Once Alembic versioning exists, schema drift must be handled by
+            # migrations rather than hidden runtime patches.
+            if 'alembic_version' in table_names:
+                app.logger.info(
+                    'Compatibilidade runtime de SQLite ignorada: schema sob controle do Alembic.'
+                )
+                return
 
             for table_name, required_columns in RUNTIME_SQLITE_COLUMN_PATCHES.items():
                 if table_name not in table_names:
@@ -155,6 +182,59 @@ def _stamp_alembic_head(app):
         )
 
 
+def ensure_sqlite_schema_up_to_date(app):
+    if app.config.get('TESTING'):
+        return
+
+    db_path = _resolve_sqlite_database_path(app)
+    if not db_path:
+        return
+
+    with app.app_context():
+        try:
+            inspector = inspect(db.engine)
+            table_names = set(inspector.get_table_names())
+        except Exception:
+            app.logger.exception('Falha ao inspecionar revisao Alembic do SQLite local.')
+            return
+
+        if 'alembic_version' not in table_names:
+            return
+
+        try:
+            current_revision = db.session.execute(
+                text('SELECT version_num FROM alembic_version LIMIT 1')
+            ).scalar()
+            head_revision = _get_alembic_head_revision(app)
+        except Exception:
+            db.session.rollback()
+            app.logger.exception('Falha ao ler revisao Alembic do SQLite local.')
+            return
+
+        if not current_revision or current_revision == head_revision:
+            return
+
+        try:
+            app.logger.warning(
+                'Schema SQLite desatualizado detectado (%s -> %s). Aplicando migracoes automaticamente.',
+                current_revision,
+                head_revision,
+            )
+            alembic_command.upgrade(_build_alembic_config(app), 'head')
+            db.session.remove()
+            db.engine.dispose()
+            app.logger.info(
+                'Schema SQLite atualizado com sucesso para a revisao %s.',
+                head_revision,
+            )
+        except Exception:
+            db.session.rollback()
+            app.logger.exception(
+                'Falha ao aplicar migracoes pendentes no SQLite local. Execute "flask db upgrade".'
+            )
+            raise
+
+
 def ensure_sqlite_schema_bootstrapped(app):
     if app.config.get('TESTING'):
         return
@@ -190,20 +270,19 @@ def ensure_sqlite_schema_bootstrapped(app):
             )
             return
 
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        repair_backup_path = f'{db_path}.bootstrap_repair_{timestamp}.bak'
-
         try:
             db.session.remove()
             db.engine.dispose()
-
-            if os.path.exists(db_path):
-                shutil.copy2(db_path, repair_backup_path)
-                os.remove(db_path)
-                app.logger.warning(
-                    'Banco SQLite inconsistente detectado. Backup criado em %s antes do reparo.',
-                    repair_backup_path,
-                )
+            if table_names == {'alembic_version'}:
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                repair_backup_path = f'{db_path}.bootstrap_repair_{timestamp}.bak'
+                if os.path.exists(db_path):
+                    shutil.copy2(db_path, repair_backup_path)
+                    os.remove(db_path)
+                    app.logger.warning(
+                        'Banco SQLite inconsistente detectado. Backup criado em %s antes do reparo.',
+                        repair_backup_path,
+                    )
 
             db.create_all()
             _stamp_alembic_head(app)
@@ -246,7 +325,9 @@ def seed_default_user(app):
                 )
                 return
 
-            user = User.query.filter_by(username=username).first()
+            user = User.query.filter(
+                (User.username == username) | (User.email == email)
+            ).first()
             if not user:
                 app.logger.info("Criando usuário padrão de desenvolvimento.")
                 default_user = User(
@@ -267,8 +348,9 @@ def seed_default_user(app):
                 )
             else:
                 app.logger.info(
-                    "Usuário padrão já existente; seed ignorado. username=%s",
-                    username,
+                    "Usuário padrão já existente; seed ignorado. username=%s email=%s",
+                    user.username,
+                    user.email,
                 )
         except OperationalError:
             app.logger.debug(
@@ -285,17 +367,91 @@ def get_locale():
     # Otherwise try to match best language from request
     return request.accept_languages.best_match(['pt', 'en', 'es'])
 
+
+def _get_cached_ui_payloads(app):
+    cache_store = app.extensions.setdefault('finora_ui_payload_cache', {})
+    now_monotonic = time.monotonic()
+    with UI_PAYLOAD_CACHE_LOCK:
+        last_signature_check = float(cache_store.get('signature_checked_at', 0.0) or 0.0)
+        cached_signature = cache_store.get('signature')
+
+        if now_monotonic - last_signature_check >= UI_PAYLOAD_CACHE_REFRESH_INTERVAL_SECONDS:
+            current_signature = _build_ui_payload_cache_signature(app)
+            cache_store['signature_checked_at'] = now_monotonic
+            if current_signature != cached_signature:
+                cache_store.pop('canonical_payload', None)
+                cache_store['signature'] = current_signature
+
+        cached_payload = cache_store.get('canonical_payload')
+        if cached_payload is None:
+            budget_categories = get_expense_budget_categories()
+            cached_payload = {
+                'default_finance_categories': budget_categories,
+                'expense_budget_categories': budget_categories,
+                'finance_catalog_payload': build_finance_catalog_payload(),
+                'payment_method_options': build_payment_method_payload(),
+            }
+            cache_store['canonical_payload'] = cached_payload
+
+    def _translate_value(value):
+        if isinstance(value, str):
+            return _(value)
+        if isinstance(value, list):
+            return [_translate_value(item) for item in value]
+        if isinstance(value, tuple):
+            return tuple(_translate_value(item) for item in value)
+        if isinstance(value, dict):
+            return {key: _translate_value(item) for key, item in value.items()}
+        return value
+
+    return {
+        'default_finance_categories': cached_payload['default_finance_categories'],
+        'expense_budget_categories': cached_payload['expense_budget_categories'],
+        'finance_catalog_payload': _translate_value(cached_payload['finance_catalog_payload']),
+        'payment_method_options': _translate_value(cached_payload['payment_method_options']),
+    }
+
+
+def _build_ui_payload_cache_signature(app):
+    max_mtime = 0.0
+    watched_paths = [
+        os.path.join(app.root_path, 'services', 'catalogs.py'),
+    ]
+    translations_root = os.path.join(
+        app.root_path,
+        app.config.get('BABEL_TRANSLATION_DIRECTORIES', 'translations'),
+    )
+
+    for candidate_path in watched_paths:
+        if os.path.exists(candidate_path):
+            max_mtime = max(max_mtime, os.path.getmtime(candidate_path))
+
+    if os.path.isdir(translations_root):
+        for root_dir, _, file_names in os.walk(translations_root):
+            for file_name in file_names:
+                if not file_name.endswith(('.po', '.mo')):
+                    continue
+                candidate_path = os.path.join(root_dir, file_name)
+                max_mtime = max(max_mtime, os.path.getmtime(candidate_path))
+
+    return (
+        app.config.get('APP_VERSION', ''),
+        round(max_mtime, 6),
+    )
+
 def create_app(config_name='default'):
     app = Flask(__name__)
     
     # Load configuration
     app.config.from_object(config[config_name])
+    if not app.config.get('SECRET_KEY'):
+        if config_name in {'development', 'default'}:
+            app.config['SECRET_KEY'] = get_or_create_local_secret_key()
+        else:
+            raise RuntimeError(
+                'SECRET_KEY não configurada. Defina SECRET_KEY para iniciar em produção.'
+            )
     configure_application_logging(app)
-
-    if config_name == 'production' and not app.config.get('SECRET_KEY'):
-        raise RuntimeError(
-            'SECRET_KEY não configurada. Defina SECRET_KEY para iniciar em produção.'
-        )
     
     # Babel configuration
     Babel(app, locale_selector=get_locale)
@@ -309,10 +465,13 @@ def create_app(config_name='default'):
     
     # Import models so Alembic can detect them
     from models.user import User
+    import models.audit  # noqa: F401
+    import models.backup  # noqa: F401
     import models.budget  # noqa: F401
     import models.finance  # noqa: F401
     import models.goal  # noqa: F401
     import models.recurring  # noqa: F401
+    import models.system  # noqa: F401
     
     Migrate(app, db)
     
@@ -329,6 +488,14 @@ def create_app(config_name='default'):
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
+    @app.template_filter('app_datetime')
+    def app_datetime_filter(value, fmt='%d/%m/%Y %H:%M'):
+        return format_app_datetime(value, fmt)
+
+    @app.template_filter('app_date')
+    def app_date_filter(value, fmt='%d/%m/%Y'):
+        return format_app_date(value, fmt)
+
     @app.before_request
     def enforce_session_timeout():
         request_id = (
@@ -338,6 +505,7 @@ def create_app(config_name='default'):
         )
         g.request_id = request_id
         g.request_id_token = request_id_context.set(request_id)
+        g.csp_nonce = secrets.token_urlsafe(16)
         g.session_timeout_minutes = 0
         g.session_expires_at = None
 
@@ -351,9 +519,13 @@ def create_app(config_name='default'):
         if not current_user.is_authenticated:
             return None
 
+        if not session.get('audit_session_token') and not session.get('audit_session_id'):
+            ensure_user_session(current_user._get_current_object(), request, session)
+
         timeout_minutes = int(getattr(current_user, 'session_timeout_minutes', 0) or 0)
         if timeout_minutes <= 0:
             session.pop('last_activity_ts', None)
+            touch_user_session(current_user, session)
             return None
 
         now_ts = int(time.time())
@@ -361,11 +533,21 @@ def create_app(config_name='default'):
         timeout_seconds = timeout_minutes * 60
 
         if now_ts - last_activity_ts >= timeout_seconds:
+            user = current_user._get_current_object()
+            record_activity(
+                user,
+                'auth',
+                'session_timeout',
+                'Sessao encerrada por inatividade.',
+                ip_address=request.remote_addr,
+            )
+            end_user_session(user, session, 'timeout')
             logout_user()
             session.clear()
             flash(_('Sessão expirada por inatividade. Faça login novamente.'), 'warning')
             return redirect(url_for('auth.login'))
 
+        touch_user_session(current_user, session)
         session['last_activity_ts'] = now_ts
         session.modified = True
         g.session_timeout_minutes = timeout_minutes
@@ -374,11 +556,13 @@ def create_app(config_name='default'):
 
     @app.context_processor
     def inject_globals():
+        payloads = _get_cached_ui_payloads(app)
         return {
             'current_year': datetime.now().year,
             'session_timeout_minutes': getattr(g, 'session_timeout_minutes', 0),
             'session_expires_at': getattr(g, 'session_expires_at', None),
-            'default_finance_categories': DEFAULT_FINANCE_CATEGORIES,
+            'csp_nonce': getattr(g, 'csp_nonce', ''),
+            **payloads,
         }
 
     @app.after_request
@@ -396,7 +580,10 @@ def create_app(config_name='default'):
         )
         response.headers.setdefault('Cross-Origin-Opener-Policy', 'same-origin')
         response.headers.setdefault('Cross-Origin-Resource-Policy', 'same-origin')
-        response.headers.setdefault('Content-Security-Policy', CONTENT_SECURITY_POLICY)
+        response.headers.setdefault(
+            'Content-Security-Policy',
+            _build_content_security_policy(getattr(g, 'csp_nonce', '')),
+        )
 
         if (
             app.config.get('SESSION_COOKIE_SECURE')
@@ -487,6 +674,7 @@ def create_app(config_name='default'):
             )
         
     ensure_sqlite_schema_bootstrapped(app)
+    ensure_sqlite_schema_up_to_date(app)
     ensure_runtime_schema_compatibility(app)
     seed_default_user(app)
 
@@ -557,6 +745,8 @@ if __name__ == '__main__':
     if env_config == 'production':
         run_recurring_maintenance(app)
         start_recurring_scheduler(app)
+        run_backup_maintenance(app)
+        start_backup_scheduler(app)
         print(f"Starting FINORA in PRODUCTION mode on port {port}...")
         print(f"Access at http://127.0.0.1:{port}")
         schedule_browser_open(port)
@@ -565,6 +755,8 @@ if __name__ == '__main__':
         if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
             run_recurring_maintenance(app)
             start_recurring_scheduler(app)
+            run_backup_maintenance(app)
+            start_backup_scheduler(app)
         else:
             schedule_browser_open(port)
         app.run(host='127.0.0.1', port=port, debug=app.config.get('DEBUG', False))

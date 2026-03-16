@@ -7,1258 +7,28 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-02 12:17-0300\n"
+"POT-Creation-Date: 2026-03-16 00:58-0300\n"
 "PO-Revision-Date: 2026-02-10 04:09-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: pt <LL@li.org>\n"
 "Language: pt\n"
+"Language-Team: pt <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app.py:161
-msgid "Por favor, faça login para acessar esta página."
-msgstr "Por favor, faça login para acessar esta página."
+msgid "A disponibilidade definitiva será confirmada ao concluir o cadastro."
+msgstr "A disponibilidade definitiva será confirmada ao concluir o cadastro."
 
-#: app.py:191
-msgid "Sessão expirada por inatividade. Faça login novamente."
-msgstr "Sessão expirada por inatividade. Faça login novamente."
+msgid "Aplicando..."
+msgstr "Aplicando..."
 
-#: app.py:239
-msgid "Idioma alterado com sucesso!"
-msgstr "Idioma alterado com sucesso!"
+msgid "Entrando..."
+msgstr "Entrando..."
 
-#: routes/auth.py:83
-msgid "Nome de usuário inválido."
-msgstr "Nome de usuário inválido."
-
-#: routes/auth.py:94
-msgid "E-mail inválido."
-msgstr "E-mail inválido."
-
-#: routes/auth.py:111
-msgid "Informe usuário/e-mail e senha para continuar."
-msgstr "Informe usuário/e-mail e senha para continuar."
-
-#: routes/auth.py:119
-msgid "Por favor verifique seus dados de login e tente novamente."
-msgstr "Por favor verifique seus dados de login e tente novamente."
-
-#: routes/auth.py:141 routes/auth.py:290
-msgid "Por favor, insira um endereço de e-mail válido."
-msgstr "Por favor, insira um endereço de e-mail válido."
-
-#: routes/auth.py:145
-msgid "Nome de usuário deve ter pelo menos 3 caracteres."
-msgstr "Nome de usuário deve ter pelo menos 3 caracteres."
-
-#: routes/auth.py:151
-#, python-format
-msgid ""
-"A senha deve ter ao menos %(length)d caracteres, incluindo letras "
-"maiúsculas, minúsculas e números."
-msgstr ""
-"A senha deve ter ao menos %(length)d caracteres, incluindo letras "
-"maiúsculas, minúsculas e números."
-
-#: routes/auth.py:160
-msgid "Endereço de e-mail ou nome de usuário já existe."
-msgstr "Endereço de e-mail ou nome de usuário já existe."
-
-#: routes/auth.py:173
-msgid "Não foi possível concluir o cadastro. Verifique os dados informados."
-msgstr "Não foi possível concluir o cadastro. Verifique os dados informados."
-
-#: routes/auth.py:178
-#, python-format
-msgid ""
-"Conta criada com sucesso! Sua chave de recuperação é: %(key)s. Guarde-a em "
-"local seguro!"
-msgstr ""
-"Conta criada com sucesso! Sua chave de recuperação é: %(key)s. Guarde-a em "
-"local seguro!"
-
-#: routes/auth.py:202
-msgid "Método de recuperação inválido."
-msgstr "Método de recuperação inválido."
-
-#: routes/auth.py:210
-msgid "Usuário não encontrado."
-msgstr "Usuário não encontrado."
-
-#: routes/auth.py:216
-msgid ""
-"Um link de recuperação foi enviado para seu e-mail (Simulação: verifique o "
-"console)."
-msgstr ""
-"Um link de recuperação foi enviado para seu e-mail (Simulação: verifique o "
-"console)."
-
-#: routes/auth.py:243 routes/auth.py:351
-#, python-format
-msgid ""
-"A nova senha deve ter ao menos %(length)d caracteres, incluindo letras "
-"maiúsculas, minúsculas e números."
-msgstr ""
-"A nova senha deve ter ao menos %(length)d caracteres, incluindo letras "
-"maiúsculas, minúsculas e números."
-
-#: routes/auth.py:254
-msgid "Sua senha foi atualizada com sucesso!"
-msgstr "Sua senha foi atualizada com sucesso!"
-
-#: routes/auth.py:258
-msgid "Não foi possível atualizar a senha. Tente novamente."
-msgstr "Não foi possível atualizar a senha. Tente novamente."
-
-#: routes/auth.py:260
-msgid "Chave de recuperação inválida."
-msgstr "Chave de recuperação inválida."
-
-#: routes/auth.py:267
-msgid ""
-"Funcionalidade de token ainda não implementada (use a chave de recuperação)."
-msgstr ""
-"Funcionalidade de token ainda não implementada (use a chave de recuperação)."
-
-#: routes/auth.py:285
-msgid "Tempo de sessão inválido."
-msgstr "Tempo de sessão inválido."
-
-#: routes/auth.py:297
-msgid "Este endereço de e-mail já está em uso."
-msgstr "Este endereço de e-mail já está em uso."
-
-#: routes/auth.py:311
-msgid "A imagem excede o tamanho máximo permitido de 2 MB."
-msgstr "A imagem excede o tamanho máximo permitido de 2 MB."
-
-#: routes/auth.py:317
-msgid "Nome de arquivo inválido para upload de imagem."
-msgstr "Nome de arquivo inválido para upload de imagem."
-
-#: routes/auth.py:328
-msgid "Arquivo de imagem inválido. Formatos permitidos: JPG, PNG e GIF."
-msgstr "Arquivo de imagem inválido. Formatos permitidos: JPG, PNG e GIF."
-
-#: routes/auth.py:337
-msgid "Perfil atualizado com sucesso!"
-msgstr "Perfil atualizado com sucesso!"
-
-#: routes/auth.py:340
-msgid ""
-"Não foi possível atualizar o perfil. Revise os dados e tente novamente."
-msgstr ""
-"Não foi possível atualizar o perfil. Revise os dados e tente novamente."
-
-#: routes/auth.py:347
-msgid "Senha atual incorreta."
-msgstr "Senha atual incorreta."
-
-#: routes/auth.py:360
-msgid "Senha alterada com sucesso!"
-msgstr "Senha alterada com sucesso!"
-
-#: routes/auth.py:363
-msgid "Não foi possível alterar a senha. Tente novamente."
-msgstr "Não foi possível alterar a senha. Tente novamente."
-
-#: routes/auth.py:374
-msgid "Sua conta foi excluída permanentemente."
-msgstr "Sua conta foi excluída permanentemente."
-
-#: routes/auth.py:378
-msgid "Não foi possível excluir a conta neste momento."
-msgstr "Não foi possível excluir a conta neste momento."
-
-#: routes/auth.py:382
-#, python-format
-msgid ""
-"Confirmação incorreta para exclusão de conta. Digite %(token)s para "
-"confirmar."
-msgstr ""
-"Confirmação incorreta para exclusão de conta. Digite %(token)s para "
-"confirmar."
-
-#: routes/backup.py:17
-msgid "Banco de dados não encontrado para backup."
-msgstr "Banco de dados não encontrado para backup."
-
-#: routes/backup.py:37
-msgid "Erro ao gerar backup. Tente novamente."
-msgstr "Erro ao gerar backup. Tente novamente."
-
-#: routes/budgets.py:34 routes/budgets.py:74
-msgid "O limite do orçamento deve ser maior que zero."
-msgstr "O limite do orçamento deve ser maior que zero."
-
-#: routes/budgets.py:37 routes/budgets.py:77
-msgid "Período de orçamento inválido."
-msgstr "Período de orçamento inválido."
-
-#: routes/budgets.py:48
-msgid "Já existe um orçamento para esta categoria neste período."
-msgstr "Já existe um orçamento para esta categoria neste período."
-
-#: routes/budgets.py:58
-msgid "Orçamento definido com sucesso!"
-msgstr "Orçamento definido com sucesso!"
-
-#: routes/budgets.py:62
-msgid "Erro ao definir orçamento."
-msgstr "Erro ao definir orçamento."
-
-#: routes/budgets.py:83
-msgid "Orçamento atualizado!"
-msgstr "Orçamento atualizado!"
-
-#: routes/budgets.py:86
-msgid "Erro ao atualizar orçamento."
-msgstr "Erro ao atualizar orçamento."
-
-#: routes/budgets.py:97
-msgid "Orçamento removido!"
-msgstr "Orçamento removido!"
-
-#: routes/budgets.py:100
-msgid "Erro ao remover orçamento."
-msgstr "Erro ao remover orçamento."
-
-#: routes/dashboard.py:25
-#, python-format
-msgid "%(count)d lançamentos recorrentes foram gerados."
-msgstr "%(count)d lançamentos recorrentes foram gerados."
-
-#: routes/dashboard.py:53
-msgid "Jan"
-msgstr "Jan"
-
-#: routes/dashboard.py:53
-msgid "Fev"
-msgstr "Fev"
-
-#: routes/dashboard.py:53
-msgid "Mar"
-msgstr "Mar"
-
-#: routes/dashboard.py:53
-msgid "Abr"
-msgstr "Abr"
-
-#: routes/dashboard.py:53
-msgid "Mai"
-msgstr "Mai"
-
-#: routes/dashboard.py:53
-msgid "Jun"
-msgstr "Jun"
-
-#: routes/dashboard.py:54
-msgid "Jul"
-msgstr "Jul"
-
-#: routes/dashboard.py:54
-msgid "Ago"
-msgstr "Ago"
-
-#: routes/dashboard.py:54
-msgid "Set"
-msgstr "Set"
-
-#: routes/dashboard.py:54
-msgid "Out"
-msgstr "Out"
-
-#: routes/dashboard.py:54
-msgid "Nov"
-msgstr "Nov"
-
-#: routes/dashboard.py:54
-msgid "Dez"
-msgstr "Dez"
-
-#: routes/dashboard.py:84
-msgid "Mês inválido selecionado."
-msgstr "Mês inválido selecionado."
-
-#: routes/entries.py:21
-msgid "Descrição é obrigatória."
-msgstr "Descrição é obrigatória."
-
-#: routes/entries.py:30 routes/entries.py:131
-msgid "Valor inválido. Insira um número válido e positivo."
-msgstr "Valor inválido. Insira um número válido e positivo."
-
-#: routes/entries.py:36 routes/entries.py:137
-msgid "Tipo de lançamento inválido."
-msgstr "Tipo de lançamento inválido."
-
-#: routes/entries.py:39 routes/entries.py:140
-msgid "Status de lançamento inválido."
-msgstr "Status de lançamento inválido."
-
-#: routes/entries.py:78
-msgid "Frequência de recorrência inválida."
-msgstr "Frequência de recorrência inválida."
-
-#: routes/entries.py:94
-msgid "Lançamento e recorrência adicionados com sucesso!"
-msgstr "Lançamento e recorrência adicionados com sucesso!"
-
-#: routes/entries.py:96
-msgid "Lançamento adicionado com sucesso!"
-msgstr "Lançamento adicionado com sucesso!"
-
-#: routes/entries.py:101
-msgid "Erro ao adicionar lançamento. Verifique os dados e tente novamente."
-msgstr "Erro ao adicionar lançamento. Verifique os dados e tente novamente."
-
-#: routes/entries.py:113
-msgid "Lançamento excluído com sucesso!"
-msgstr "Lançamento excluído com sucesso!"
-
-#: routes/entries.py:116
-msgid "Erro ao excluir lançamento."
-msgstr "Erro ao excluir lançamento."
-
-#: routes/entries.py:152
-msgid "Lançamento atualizado com sucesso!"
-msgstr "Lançamento atualizado com sucesso!"
-
-#: routes/entries.py:155
-msgid "Erro ao atualizar lançamento."
-msgstr "Erro ao atualizar lançamento."
-
-#: routes/export.py:87
-msgid "Tipo de exportação inválido."
-msgstr "Tipo de exportação inválido."
-
-#: routes/goals.py:39
-msgid "Os valores da meta devem ser válidos e maiores que zero."
-msgstr "Os valores da meta devem ser válidos e maiores que zero."
-
-#: routes/goals.py:43
-msgid "Erro ao adicionar meta financeira."
-msgstr "Erro ao adicionar meta financeira."
-
-#: routes/goals.py:55
-msgid "Meta removida com sucesso."
-msgstr "Meta removida com sucesso."
-
-#: routes/goals.py:58
-msgid "Erro ao remover meta financeira."
-msgstr "Erro ao remover meta financeira."
-
-#: routes/goals.py:73
-msgid "Meta atualizada com sucesso."
-msgstr "Meta atualizada com sucesso."
-
-#: routes/goals.py:76
-msgid "O valor atual não pode ser negativo."
-msgstr "O valor atual não pode ser negativo."
-
-#: routes/goals.py:79
-msgid "Erro ao atualizar meta financeira."
-msgstr "Erro ao atualizar meta financeira."
-
-#: routes/imports.py:17
-msgid "Nenhum arquivo foi enviado para importação."
-msgstr "Nenhum arquivo foi enviado para importação."
-
-#: routes/imports.py:22
-msgid "Selecione um arquivo antes de importar."
-msgstr "Selecione um arquivo antes de importar."
-
-#: routes/imports.py:34
-msgid "Nenhum lançamento válido foi encontrado no arquivo."
-msgstr "Nenhum lançamento válido foi encontrado no arquivo."
-
-#: routes/imports.py:40
-#, python-format
-msgid "%(count)d lançamento(s) importado(s) com sucesso."
-msgstr "%(count)d lançamento(s) importado(s) com sucesso."
-
-#: routes/imports.py:49
-#, python-format
-msgid " ... e mais %(count)d linha(s)."
-msgstr " ... e mais %(count)d linha(s)."
-
-#: routes/imports.py:52
-#, python-format
-msgid ""
-"%(count)d linha(s) foram ignoradas por inconsistência: %(preview)s%(suffix)s"
-msgstr ""
-"%(count)d linha(s) foram ignoradas por inconsistência: %(preview)s%(suffix)s"
-
-#: routes/imports.py:65
-msgid "Erro inesperado ao importar arquivo. Nenhuma alteração foi salva."
-msgstr "Erro inesperado ao importar arquivo. Nenhuma alteração foi salva."
-
-#: templates/about.html:5
-msgid "Sobre o Finora"
-msgstr "Sobre o Finora"
-
-#: templates/about.html:6
-msgid ""
-"Um sistema financeiro pessoal com foco em clareza, desempenho e segurança "
-"local."
-msgstr ""
-"Um sistema financeiro pessoal com foco em clareza, desempenho e segurança "
-"local."
-
-#: templates/about.html:11
-msgid "Privacidade"
-msgstr "Privacidade"
-
-#: templates/about.html:12
-msgid ""
-"Seus dados permanecem sob seu controle, com rotinas de backup e operação "
-"estável."
-msgstr ""
-"Seus dados permanecem sob seu controle, com rotinas de backup e operação "
-"estável."
-
-#: templates/about.html:17
-msgid "Produtividade"
-msgstr "Produtividade"
-
-#: templates/about.html:18
-msgid ""
-"Gestão de lançamentos, metas e orçamentos em uma interface simples e "
-"objetiva."
-msgstr ""
-"Gestão de lançamentos, metas e orçamentos em uma interface simples e "
-"objetiva."
-
-#: templates/about.html:23
-msgid "Escalabilidade"
-msgstr "Escalabilidade"
-
-#: templates/about.html:24
-msgid ""
-"Arquitetura organizada para evoluir com novas integrações e automações."
-msgstr ""
-"Arquitetura organizada para evoluir com novas integrações e automações."
-
-#: templates/about.html:31
-msgid "Autores"
-msgstr "Autores"
-
-#: templates/about.html:55
-msgid "Espaço para colaboradores"
-msgstr "Espaço para colaboradores"
-
-#: templates/about.html:56
-msgid ""
-"Contribuições futuras poderão ser destacadas aqui com créditos e histórico "
-"de participação."
-msgstr ""
-"Contribuições futuras poderão ser destacadas aqui com créditos e histórico "
-"de participação."
-
-#: templates/about.html:57
-msgid "Ver repositório"
-msgstr "Ver repositório"
-
-#: templates/base.html:33
-msgid "Painel"
-msgstr "Painel"
-
-#: templates/base.html:34
-msgid "Metas"
-msgstr "Metas"
-
-#: templates/base.html:35 templates/budgets.html:6
-msgid "Orçamentos"
-msgstr "Orçamentos"
-
-#: templates/base.html:36 templates/base.html:53
-msgid "Sobre"
-msgstr "Sobre"
-
-#: templates/base.html:43
-msgid "Meu Perfil"
-msgstr "Meu Perfil"
-
-#: templates/base.html:44
-msgid "Gerar Backup"
-msgstr "Gerar Backup"
-
-#: templates/base.html:46
-msgid "Sair"
-msgstr "Sair"
-
-#: templates/base.html:50
-msgid "Início"
-msgstr "Início"
-
-#: templates/auth/login.html:14 templates/auth/login.html:36
-#: templates/auth/register.html:70 templates/base.html:51
-#: templates/welcome.html:13
-msgid "Entrar"
-msgstr "Entrar"
-
-#: templates/auth/register.html:66 templates/base.html:52
-msgid "Cadastrar"
-msgstr "Cadastrar"
-
-#: templates/base.html:57
-msgid "Alterar idioma"
-msgstr "Alterar idioma"
-
-#: templates/base.html:67
-msgid "Alternar tema"
-msgstr "Alternar tema"
-
-#: templates/base.html:84
-msgid "Notificação"
-msgstr "Notificação"
-
-#: templates/auth/profile.html:132 templates/base.html:85
-#: templates/budgets.html:78 templates/budgets.html:124
-#: templates/dashboard.html:204 templates/goals.html:67
-msgid "Fechar"
-msgstr "Fechar"
-
-#: templates/base.html:96
-msgid "Sua sessão está prestes a expirar."
-msgstr "Sua sessão está prestes a expirar."
-
-#: templates/base.html:97
-msgid "Tempo restante:"
-msgstr "Tempo restante:"
-
-#: templates/base.html:98
-msgid "Renovar sessão"
-msgstr "Renovar sessão"
-
-#: templates/base.html:106
-msgid "Simples, Poderoso, Local."
-msgstr "Simples, Poderoso, Local."
-
-#: templates/base.html:107
-msgid "Todos os Direitos Reservados."
-msgstr "Todos os Direitos Reservados."
-
-#: templates/base.html:108
-msgid "Projetado por"
-msgstr "Projetado por"
-
-#: templates/budgets.html:10 templates/budgets.html:77
-msgid "Novo Orçamento"
-msgstr "Novo Orçamento"
-
-#: templates/budgets.html:23
-msgid "Opções"
-msgstr "Opções"
-
-#: templates/budgets.html:27 templates/dashboard.html:134
-msgid "Editar"
-msgstr "Editar"
-
-#: templates/budgets.html:29 templates/dashboard.html:137
-#: templates/goals.html:22
-msgid "Tem certeza?"
-msgstr "Tem certeza?"
-
-#: templates/budgets.html:31 templates/dashboard.html:139
-#: templates/goals.html:24
-msgid "Excluir"
-msgstr "Excluir"
-
-#: templates/budgets.html:39 templates/budgets.html:100
-#: templates/budgets.html:136
-msgid "Período"
-msgstr "Período"
-
-#: templates/budgets.html:49
-msgid "Progresso do orçamento"
-msgstr "Progresso do orçamento"
-
-#: templates/budgets.html:54
-msgid "Restante"
-msgstr "Restante"
-
-#: templates/budgets.html:56
-msgid "Excedido"
-msgstr "Excedido"
-
-#: templates/budgets.html:64
-msgid "Nenhum orçamento definido."
-msgstr "Nenhum orçamento definido."
-
-#: templates/budgets.html:65
-msgid "Defina limites de gastos para suas categorias."
-msgstr "Defina limites de gastos para suas categorias."
-
-#: templates/budgets.html:82 templates/budgets.html:128
-#: templates/dashboard.html:103 templates/dashboard.html:226
-msgid "Categoria"
-msgstr "Categoria"
-
-#: templates/budgets.html:85 templates/dashboard.html:229
-msgid "Alimentação"
-msgstr "Alimentação"
-
-#: templates/budgets.html:86 templates/dashboard.html:230
-msgid "Moradia"
-msgstr "Moradia"
-
-#: templates/budgets.html:87 templates/dashboard.html:231
-msgid "Transporte"
-msgstr "Transporte"
-
-#: templates/budgets.html:88 templates/dashboard.html:232
-msgid "Lazer"
-msgstr "Lazer"
-
-#: templates/budgets.html:89 templates/dashboard.html:233
-msgid "Saúde"
-msgstr "Saúde"
-
-#: templates/budgets.html:90 templates/dashboard.html:234
-msgid "Educação"
-msgstr "Educação"
-
-#: templates/budgets.html:91 templates/dashboard.html:235
-msgid "Salário"
-msgstr "Salário"
-
-#: templates/budgets.html:92 templates/dashboard.html:236
-msgid "Investimento"
-msgstr "Investimento"
-
-#: templates/budgets.html:96 templates/budgets.html:132
-msgid "Limite (R$)"
-msgstr "Limite (R$)"
-
-#: templates/budgets.html:102 templates/budgets.html:138
-#: templates/dashboard.html:271
-msgid "Mensal"
-msgstr "Mensal"
-
-#: templates/budgets.html:103 templates/budgets.html:139
-#: templates/dashboard.html:274
-msgid "Anual"
-msgstr "Anual"
-
-#: templates/auth/forgot_password.html:44 templates/auth/profile.html:142
-#: templates/auth/reset_password_offline.html:37 templates/budgets.html:108
-#: templates/budgets.html:144 templates/dashboard.html:290
-#: templates/goals.html:88
-msgid "Cancelar"
-msgstr "Cancelar"
-
-#: templates/budgets.html:109 templates/dashboard.html:291
-#: templates/goals.html:89
-msgid "Salvar"
-msgstr "Salvar"
-
-#: templates/budgets.html:123
-msgid "Editar Orçamento"
-msgstr "Editar Orçamento"
-
-#: templates/budgets.html:145 templates/goals.html:46
-msgid "Atualizar"
-msgstr "Atualizar"
-
-#: templates/dashboard.html:9 templates/year.html:65
-msgid "Mês"
-msgstr "Mês"
-
-#: templates/dashboard.html:9
-msgid "Selecione o Mês"
-msgstr "Selecione o Mês"
-
-#: templates/dashboard.html:10
-msgid "Janeiro"
-msgstr "Janeiro"
-
-#: templates/dashboard.html:10
-msgid "Fevereiro"
-msgstr "Fevereiro"
-
-#: templates/dashboard.html:10
-msgid "Março"
-msgstr "Março"
-
-#: templates/dashboard.html:10
-msgid "Abril"
-msgstr "Abril"
-
-#: templates/dashboard.html:10
-msgid "Maio"
-msgstr "Maio"
-
-#: templates/dashboard.html:10
-msgid "Junho"
-msgstr "Junho"
-
-#: templates/dashboard.html:10
-msgid "Julho"
-msgstr "Julho"
-
-#: templates/dashboard.html:10
-msgid "Agosto"
-msgstr "Agosto"
-
-#: templates/dashboard.html:10
-msgid "Setembro"
-msgstr "Setembro"
-
-#: templates/dashboard.html:10
-msgid "Outubro"
-msgstr "Outubro"
-
-#: templates/dashboard.html:10
-msgid "Novembro"
-msgstr "Novembro"
-
-#: templates/dashboard.html:10
-msgid "Dezembro"
-msgstr "Dezembro"
-
-#: templates/dashboard.html:17
-msgid "Ano"
-msgstr "Ano"
-
-#: templates/dashboard.html:17
-msgid "Selecione o Ano"
-msgstr "Selecione o Ano"
-
-#: templates/dashboard.html:22
-msgid "Ver Resumo Anual"
-msgstr "Ver Resumo Anual"
-
-#: templates/dashboard.html:23
-msgid "Resumo Anual"
-msgstr "Resumo Anual"
-
-#: templates/dashboard.html:29 templates/dashboard.html:203
-#: templates/dashboard.html:354
-msgid "Novo Lançamento"
-msgstr "Novo Lançamento"
-
-#: templates/dashboard.html:40
-msgid "Saldo Geral"
-msgstr "Saldo Geral"
-
-#: templates/dashboard.html:44
-msgid "* (Receitas - Despesas)"
-msgstr "* (Receitas - Despesas)"
-
-#: templates/dashboard.html:55
-msgid "Total Pago (Desp)"
-msgstr "Total Pago (Desp)"
-
-#: templates/dashboard.html:64
-msgid "Total Pendente"
-msgstr "Total Pendente"
-
-#: templates/dashboard.html:73
-msgid "Total Atrasado"
-msgstr "Total Atrasado"
-
-#: templates/dashboard.html:88
-msgid "Lançamentos do Mês"
-msgstr "Lançamentos do Mês"
-
-#: templates/dashboard.html:89 templates/dashboard.html:427
-msgid "itens"
-msgstr "itens"
-
-#: templates/dashboard.html:93
-msgid "Buscar lançamentos..."
-msgstr "Buscar lançamentos..."
-
-#: templates/dashboard.html:101
-msgid "Dia"
-msgstr "Dia"
-
-#: templates/dashboard.html:102 templates/dashboard.html:208
-msgid "Descrição"
-msgstr "Descrição"
-
-#: templates/dashboard.html:104
-msgid "Valor"
-msgstr "Valor"
-
-#: templates/dashboard.html:105 templates/dashboard.html:240
-msgid "Status"
-msgstr "Status"
-
-#: templates/dashboard.html:106
-msgid "Ações"
-msgstr "Ações"
-
-#: templates/dashboard.html:123 templates/dashboard.html:243
-msgid "Pago"
-msgstr "Pago"
-
-#: templates/dashboard.html:125 templates/dashboard.html:242
-msgid "Pendente"
-msgstr "Pendente"
-
-#: templates/dashboard.html:127 templates/dashboard.html:244
-msgid "Atrasado"
-msgstr "Atrasado"
-
-#: templates/dashboard.html:148
-msgid "Nenhum lançamento neste mês."
-msgstr "Nenhum lançamento neste mês."
-
-#: templates/dashboard.html:162
-msgid "Despesas por Categoria"
-msgstr "Despesas por Categoria"
-
-#: templates/dashboard.html:171
-msgid "Exportar & Importar"
-msgstr "Exportar & Importar"
-
-#: templates/dashboard.html:174
-msgid "Relatório PDF"
-msgstr "Relatório PDF"
-
-#: templates/dashboard.html:177
-msgid "Planilha CSV"
-msgstr "Planilha CSV"
-
-#: templates/dashboard.html:180
-msgid "Arquivo TXT"
-msgstr "Arquivo TXT"
-
-#: templates/dashboard.html:186
-msgid "Arquivo para importação"
-msgstr "Arquivo para importação"
-
-#: templates/dashboard.html:187
-msgid "Importar"
-msgstr "Importar"
-
-#: templates/dashboard.html:189
-msgid "CSV ou XLSX (máx. 10 MB)"
-msgstr "CSV ou XLSX (máx. 10 MB)"
-
-#: templates/dashboard.html:204
-msgid "Fechar modal"
-msgstr "Fechar modal"
-
-#: templates/dashboard.html:213
-msgid "Valor (R$)"
-msgstr "Valor (R$)"
-
-#: templates/dashboard.html:217
-msgid "Tipo"
-msgstr "Tipo"
-
-#: templates/dashboard.html:219
-msgid "Despesa"
-msgstr "Despesa"
-
-#: templates/dashboard.html:220
-msgid "Receita"
-msgstr "Receita"
-
-#: templates/dashboard.html:250
-msgid "Vencimento"
-msgstr "Vencimento"
-
-#: templates/dashboard.html:254
-msgid "Pagamento"
-msgstr "Pagamento"
-
-#: templates/dashboard.html:264
-msgid "Repetir (Recorrência)"
-msgstr "Repetir (Recorrência)"
-
-#: templates/dashboard.html:269
-msgid "Frequência"
-msgstr "Frequência"
-
-#: templates/dashboard.html:272
-msgid "Semanal"
-msgstr "Semanal"
-
-#: templates/dashboard.html:273
-msgid "Diário"
-msgstr "Diário"
-
-#: templates/dashboard.html:278
-msgid "Data Final (Opcional)"
-msgstr "Data Final (Opcional)"
-
-#: templates/dashboard.html:285
-msgid "Observações"
-msgstr "Observações"
-
-#: templates/dashboard.html:372
-msgid "Editar Lançamento"
-msgstr "Editar Lançamento"
-
-#: templates/goals.html:6
-msgid "Metas Financeiras"
-msgstr "Metas Financeiras"
-
-#: templates/goals.html:10 templates/goals.html:66
-msgid "Nova Meta"
-msgstr "Nova Meta"
-
-#: templates/goals.html:29
-msgid "Alvo"
-msgstr "Alvo"
-
-#: templates/goals.html:31
-msgid "Prazo"
-msgstr "Prazo"
-
-#: templates/goals.html:39
-msgid "Progresso da meta"
-msgstr "Progresso da meta"
-
-#: templates/goals.html:45
-msgid "Novo valor"
-msgstr "Novo valor"
-
-#: templates/goals.html:53
-msgid "Nenhuma meta definida ainda."
-msgstr "Nenhuma meta definida ainda."
-
-#: templates/goals.html:54
-msgid "Crie metas para realizar seus sonhos!"
-msgstr "Crie metas para realizar seus sonhos!"
-
-#: templates/goals.html:71
-msgid "Nome da Meta"
-msgstr "Nome da Meta"
-
-#: templates/goals.html:75
-msgid "Valor Alvo (R$)"
-msgstr "Valor Alvo (R$)"
-
-#: templates/goals.html:79
-msgid "Valor Atual (R$)"
-msgstr "Valor Atual (R$)"
-
-#: templates/goals.html:83
-msgid "Prazo (Opcional)"
-msgstr "Prazo (Opcional)"
-
-#: templates/welcome.html:7
-msgid "Finora"
-msgstr "Finora"
-
-#: templates/welcome.html:8
-msgid "Bem-vindo ao seu centro financeiro pessoal"
-msgstr "Bem-vindo ao seu centro financeiro pessoal"
-
-#: templates/welcome.html:10
-msgid ""
-"Organize receitas, despesas, metas e orçamentos em um fluxo simples, rápido "
-"e seguro."
-msgstr ""
-"Organize receitas, despesas, metas e orçamentos em um fluxo simples, rápido "
-"e seguro."
-
-#: templates/welcome.html:14
-msgid "Criar conta"
-msgstr "Criar conta"
-
-#: templates/welcome.html:20
-msgid "Controle"
-msgstr "Controle"
-
-#: templates/welcome.html:21
-msgid "Acompanhe cada lançamento com status e vencimento."
-msgstr "Acompanhe cada lançamento com status e vencimento."
-
-#: templates/welcome.html:24
-msgid "Planejamento"
-msgstr "Planejamento"
-
-#: templates/welcome.html:25
-msgid "Defina metas e limites para manter sua saúde financeira."
-msgstr "Defina metas e limites para manter sua saúde financeira."
-
-#: templates/welcome.html:28
-msgid "Confiabilidade"
-msgstr "Confiabilidade"
-
-#: templates/welcome.html:29
-msgid "Importe e exporte dados com consistência e previsibilidade."
-msgstr "Importe e exporte dados com consistência e previsibilidade."
-
-#: templates/year.html:6
-msgid "Resumo anual"
-msgstr "Resumo anual"
-
-#: templates/year.html:10
-msgid "Voltar para o mês atual"
-msgstr "Voltar para o mês atual"
-
-#: templates/year.html:19
-msgid "Total de receitas"
-msgstr "Total de receitas"
-
-#: templates/year.html:27
-msgid "Total de despesas"
-msgstr "Total de despesas"
-
-#: templates/year.html:35
-msgid "Saldo anual"
-msgstr "Saldo anual"
-
-#: templates/year.html:46
-msgid "Evolução financeira"
-msgstr "Evolução financeira"
-
-#: templates/year.html:59
-msgid "Detalhamento mensal"
-msgstr "Detalhamento mensal"
-
-#: templates/year.html:66 templates/year.html:109
-msgid "Receitas"
-msgstr "Receitas"
-
-#: templates/year.html:67 templates/year.html:117
-msgid "Despesas"
-msgstr "Despesas"
-
-#: templates/year.html:68
-msgid "Saldo"
-msgstr "Saldo"
-
-#: templates/year.html:69
-msgid "Ação"
-msgstr "Ação"
-
-#: templates/year.html:83
-msgid "Ver"
-msgstr "Ver"
-
-#: templates/auth/forgot_password.html:14
-msgid "Recuperar Senha"
-msgstr "Recuperar Senha"
-
-#: templates/auth/forgot_password.html:18 templates/auth/login.html:18
-msgid "Usuário ou e-mail"
-msgstr "Usuário ou e-mail"
-
-#: templates/auth/forgot_password.html:23
-msgid "Digite seu nome de usuário ou email para encontrar sua conta."
-msgstr "Digite seu nome de usuário ou email para encontrar sua conta."
-
-#: templates/auth/forgot_password.html:27
-msgid "Método de Recuperação"
-msgstr "Método de Recuperação"
-
-#: templates/auth/forgot_password.html:31
-msgid "Enviar link por e-mail"
-msgstr "Enviar link por e-mail"
-
-#: templates/auth/forgot_password.html:37
-msgid "Usar Chave de Recuperação (Offline)"
-msgstr "Usar Chave de Recuperação (Offline)"
-
-#: templates/auth/forgot_password.html:43
-msgid "Continuar"
-msgstr "Continuar"
-
-#: templates/auth/login.html:25 templates/auth/register.html:54
-msgid "Senha"
-msgstr "Senha"
-
-#: templates/auth/login.html:33
-msgid "Lembrar-me"
-msgstr "Lembrar-me"
-
-#: templates/auth/login.html:39
-msgid "Esqueceu sua senha?"
-msgstr "Esqueceu sua senha?"
-
-#: templates/auth/login.html:43
-msgid "Não tem uma conta?"
-msgstr "Não tem uma conta?"
-
-#: templates/auth/login.html:43
-msgid "Cadastre-se"
-msgstr "Cadastre-se"
-
-#: templates/auth/profile.html:9
-msgid "Foto de perfil"
-msgstr "Foto de perfil"
-
-#: templates/auth/profile.html:25
-msgid "Editar Perfil"
-msgstr "Editar Perfil"
-
-#: templates/auth/profile.html:28
-msgid "Alterar Senha"
-msgstr "Alterar Senha"
-
-#: templates/auth/profile.html:31
-msgid "Zona de Perigo"
-msgstr "Zona de Perigo"
-
-#: templates/auth/profile.html:42 templates/auth/register.html:34
-msgid "Nome de Usuário"
-msgstr "Nome de Usuário"
-
-#: templates/auth/profile.html:44
-msgid "O nome de usuário não pode ser alterado."
-msgstr "O nome de usuário não pode ser alterado."
-
-#: templates/auth/profile.html:48 templates/auth/register.html:26
-msgid "Nome Completo"
-msgstr "Nome Completo"
-
-#: templates/auth/profile.html:53 templates/auth/register.html:44
-msgid "E-mail"
-msgstr "E-mail"
-
-#: templates/auth/profile.html:58
-msgid "Foto de Perfil"
-msgstr "Foto de Perfil"
-
-#: templates/auth/profile.html:65
-msgid "Remover foto atual"
-msgstr "Remover foto atual"
-
-#: templates/auth/profile.html:74
-msgid "Tempo máximo de inatividade da sessão"
-msgstr "Tempo máximo de inatividade da sessão"
-
-#: templates/auth/profile.html:79
-msgid "Sessão aberta"
-msgstr "Sessão aberta"
-
-#: templates/auth/profile.html:81
-msgid "1 hora"
-msgstr "1 hora"
-
-#: templates/auth/profile.html:83
-#, python-format
-msgid "%(minutes)d minuto(s)"
-msgstr "%(minutes)d minuto(s)"
-
-#: templates/auth/profile.html:88
-msgid ""
-"Quando o tempo acabar por inatividade, você precisará entrar novamente."
-msgstr ""
-"Quando o tempo acabar por inatividade, você precisará entrar novamente."
-
-#: templates/auth/profile.html:91
-msgid "Salvar Alterações"
-msgstr "Salvar Alterações"
-
-#: templates/auth/profile.html:101
-msgid "Senha Atual"
-msgstr "Senha Atual"
-
-#: templates/auth/profile.html:106
-#: templates/auth/reset_password_offline.html:28
-msgid "Nova Senha"
-msgstr "Nova Senha"
-
-#: templates/auth/profile.html:108
-msgid "Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números."
-msgstr ""
-"Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números."
-
-#: templates/auth/profile.html:111
-msgid "Atualizar Senha"
-msgstr "Atualizar Senha"
-
-#: templates/auth/profile.html:116
-msgid ""
-"A exclusão da sua conta é irreversível. Todos os seus dados financeiros e "
-"metas serão apagados permanentemente."
-msgstr ""
-"A exclusão da sua conta é irreversível. Todos os seus dados financeiros e "
-"metas serão apagados permanentemente."
-
-#: templates/auth/profile.html:118
-msgid "Excluir Minha Conta"
-msgstr "Excluir Minha Conta"
-
-#: templates/auth/profile.html:131
-msgid "Confirmar Exclusão"
-msgstr "Confirmar Exclusão"
-
-#: templates/auth/profile.html:135
-msgid "Tem certeza absoluta? Esta ação não pode ser desfeita."
-msgstr "Tem certeza absoluta? Esta ação não pode ser desfeita."
-
-#: templates/auth/profile.html:136
-#, python-format
-msgid "Para confirmar, digite \"%(token)s\" na caixa abaixo:"
-msgstr "Para confirmar, digite \"%(token)s\" na caixa abaixo:"
-
-#: templates/auth/profile.html:143
-msgid "Excluir Permanentemente"
-msgstr "Excluir Permanentemente"
-
-#: templates/auth/register.html:22
-msgid "Criar Conta"
-msgstr "Criar Conta"
-
-#: templates/auth/register.html:60
-msgid "Força da senha"
-msgstr "Força da senha"
-
-#: templates/auth/register.html:62
-msgid "Recomendamos uma senha forte."
-msgstr "Recomendamos uma senha forte."
-
-#: templates/auth/register.html:70
-msgid "Já tem uma conta?"
-msgstr "Já tem uma conta?"
-
-#: templates/auth/register.html:119
-msgid "Nome de usuário disponível"
-msgstr "Nome de usuário disponível"
-
-#: templates/auth/register.html:120
-msgid "Nome de usuário já está em uso"
-msgstr "Nome de usuário já está em uso"
-
-#: templates/auth/register.html:140 templates/auth/register.html:161
-msgid "E-mail disponível"
-msgstr "E-mail disponível"
-
-#: templates/auth/register.html:141
-msgid "Formato de email inválido"
-msgstr "Formato de email inválido"
-
-#: templates/auth/register.html:162
-msgid "E-mail já está em uso"
-msgstr "E-mail já está em uso"
-
-#: templates/auth/register.html:200
-msgid "Fraca"
-msgstr "Fraca"
-
-#: templates/auth/register.html:203
-msgid "Média"
-msgstr "Média"
-
-#: templates/auth/register.html:206
-msgid "Forte"
-msgstr "Forte"
-
-#: templates/auth/reset_password_offline.html:14
-#: templates/auth/reset_password_offline.html:36
-msgid "Redefinir Senha"
-msgstr "Redefinir Senha"
-
-#: templates/auth/reset_password_offline.html:15
-msgid "Usuário: "
-msgstr "Usuário: "
-
-#: templates/auth/reset_password_offline.html:20
-msgid "Chave de Recuperação"
-msgstr "Chave de Recuperação"
+msgid "Cadastrando..."
+msgstr "Cadastrando..."
 
 #~ msgid "Por favor, insira um endereço de email válido."
 #~ msgstr ""
@@ -1274,3 +44,964 @@ msgstr "Chave de Recuperação"
 
 #~ msgid "Email"
 #~ msgstr "Email"
+
+#~ msgid "Por favor, faça login para acessar esta página."
+#~ msgstr "Por favor, faça login para acessar esta página."
+
+#~ msgid "Sessão expirada por inatividade. Faça login novamente."
+#~ msgstr "Sessão expirada por inatividade. Faça login novamente."
+
+#~ msgid "Idioma alterado com sucesso!"
+#~ msgstr "Idioma alterado com sucesso!"
+
+#~ msgid "Nome de usuário inválido."
+#~ msgstr "Nome de usuário inválido."
+
+#~ msgid "E-mail inválido."
+#~ msgstr "E-mail inválido."
+
+#~ msgid "Informe usuário/e-mail e senha para continuar."
+#~ msgstr "Informe usuário/e-mail e senha para continuar."
+
+#~ msgid "Por favor verifique seus dados de login e tente novamente."
+#~ msgstr "Por favor verifique seus dados de login e tente novamente."
+
+#~ msgid "Por favor, insira um endereço de e-mail válido."
+#~ msgstr "Por favor, insira um endereço de e-mail válido."
+
+#~ msgid "Nome de usuário deve ter pelo menos 3 caracteres."
+#~ msgstr "Nome de usuário deve ter pelo menos 3 caracteres."
+
+#~ msgid ""
+#~ "A senha deve ter ao menos "
+#~ "%(length)d caracteres, incluindo letras "
+#~ "maiúsculas, minúsculas e números."
+#~ msgstr ""
+#~ "A senha deve ter ao menos "
+#~ "%(length)d caracteres, incluindo letras "
+#~ "maiúsculas, minúsculas e números."
+
+#~ msgid "Endereço de e-mail ou nome de usuário já existe."
+#~ msgstr "Endereço de e-mail ou nome de usuário já existe."
+
+#~ msgid "Não foi possível concluir o cadastro. Verifique os dados informados."
+#~ msgstr "Não foi possível concluir o cadastro. Verifique os dados informados."
+
+#~ msgid ""
+#~ "Conta criada com sucesso! Sua chave "
+#~ "de recuperação é: %(key)s. Guarde-a em"
+#~ " local seguro!"
+#~ msgstr ""
+#~ "Conta criada com sucesso! Sua chave "
+#~ "de recuperação é: %(key)s. Guarde-a em"
+#~ " local seguro!"
+
+#~ msgid "Método de recuperação inválido."
+#~ msgstr "Método de recuperação inválido."
+
+#~ msgid "Usuário não encontrado."
+#~ msgstr "Usuário não encontrado."
+
+#~ msgid ""
+#~ "Um link de recuperação foi enviado "
+#~ "para seu e-mail (Simulação: verifique o"
+#~ " console)."
+#~ msgstr ""
+#~ "Um link de recuperação foi enviado "
+#~ "para seu e-mail (Simulação: verifique o"
+#~ " console)."
+
+#~ msgid ""
+#~ "A nova senha deve ter ao menos "
+#~ "%(length)d caracteres, incluindo letras "
+#~ "maiúsculas, minúsculas e números."
+#~ msgstr ""
+#~ "A nova senha deve ter ao menos "
+#~ "%(length)d caracteres, incluindo letras "
+#~ "maiúsculas, minúsculas e números."
+
+#~ msgid "Sua senha foi atualizada com sucesso!"
+#~ msgstr "Sua senha foi atualizada com sucesso!"
+
+#~ msgid "Não foi possível atualizar a senha. Tente novamente."
+#~ msgstr "Não foi possível atualizar a senha. Tente novamente."
+
+#~ msgid "Chave de recuperação inválida."
+#~ msgstr "Chave de recuperação inválida."
+
+#~ msgid ""
+#~ "Funcionalidade de token ainda não "
+#~ "implementada (use a chave de "
+#~ "recuperação)."
+#~ msgstr ""
+#~ "Funcionalidade de token ainda não "
+#~ "implementada (use a chave de "
+#~ "recuperação)."
+
+#~ msgid "Tempo de sessão inválido."
+#~ msgstr "Tempo de sessão inválido."
+
+#~ msgid "Este endereço de e-mail já está em uso."
+#~ msgstr "Este endereço de e-mail já está em uso."
+
+#~ msgid "A imagem excede o tamanho máximo permitido de 2 MB."
+#~ msgstr "A imagem excede o tamanho máximo permitido de 2 MB."
+
+#~ msgid "Nome de arquivo inválido para upload de imagem."
+#~ msgstr "Nome de arquivo inválido para upload de imagem."
+
+#~ msgid "Arquivo de imagem inválido. Formatos permitidos: JPG, PNG e GIF."
+#~ msgstr "Arquivo de imagem inválido. Formatos permitidos: JPG, PNG e GIF."
+
+#~ msgid "Perfil atualizado com sucesso!"
+#~ msgstr "Perfil atualizado com sucesso!"
+
+#~ msgid "Não foi possível atualizar o perfil. Revise os dados e tente novamente."
+#~ msgstr "Não foi possível atualizar o perfil. Revise os dados e tente novamente."
+
+#~ msgid "Senha atual incorreta."
+#~ msgstr "Senha atual incorreta."
+
+#~ msgid "Senha alterada com sucesso!"
+#~ msgstr "Senha alterada com sucesso!"
+
+#~ msgid "Não foi possível alterar a senha. Tente novamente."
+#~ msgstr "Não foi possível alterar a senha. Tente novamente."
+
+#~ msgid "Sua conta foi excluída permanentemente."
+#~ msgstr "Sua conta foi excluída permanentemente."
+
+#~ msgid "Não foi possível excluir a conta neste momento."
+#~ msgstr "Não foi possível excluir a conta neste momento."
+
+#~ msgid ""
+#~ "Confirmação incorreta para exclusão de "
+#~ "conta. Digite %(token)s para confirmar."
+#~ msgstr ""
+#~ "Confirmação incorreta para exclusão de "
+#~ "conta. Digite %(token)s para confirmar."
+
+#~ msgid "Banco de dados não encontrado para backup."
+#~ msgstr "Banco de dados não encontrado para backup."
+
+#~ msgid "Erro ao gerar backup. Tente novamente."
+#~ msgstr "Erro ao gerar backup. Tente novamente."
+
+#~ msgid "O limite do orçamento deve ser maior que zero."
+#~ msgstr "O limite do orçamento deve ser maior que zero."
+
+#~ msgid "Período de orçamento inválido."
+#~ msgstr "Período de orçamento inválido."
+
+#~ msgid "Já existe um orçamento para esta categoria neste período."
+#~ msgstr "Já existe um orçamento para esta categoria neste período."
+
+#~ msgid "Orçamento definido com sucesso!"
+#~ msgstr "Orçamento definido com sucesso!"
+
+#~ msgid "Erro ao definir orçamento."
+#~ msgstr "Erro ao definir orçamento."
+
+#~ msgid "Orçamento atualizado!"
+#~ msgstr "Orçamento atualizado!"
+
+#~ msgid "Erro ao atualizar orçamento."
+#~ msgstr "Erro ao atualizar orçamento."
+
+#~ msgid "Orçamento removido!"
+#~ msgstr "Orçamento removido!"
+
+#~ msgid "Erro ao remover orçamento."
+#~ msgstr "Erro ao remover orçamento."
+
+#~ msgid "%(count)d lançamentos recorrentes foram gerados."
+#~ msgstr "%(count)d lançamentos recorrentes foram gerados."
+
+#~ msgid "Jan"
+#~ msgstr "Jan"
+
+#~ msgid "Fev"
+#~ msgstr "Fev"
+
+#~ msgid "Mar"
+#~ msgstr "Mar"
+
+#~ msgid "Abr"
+#~ msgstr "Abr"
+
+#~ msgid "Mai"
+#~ msgstr "Mai"
+
+#~ msgid "Jun"
+#~ msgstr "Jun"
+
+#~ msgid "Jul"
+#~ msgstr "Jul"
+
+#~ msgid "Ago"
+#~ msgstr "Ago"
+
+#~ msgid "Set"
+#~ msgstr "Set"
+
+#~ msgid "Out"
+#~ msgstr "Out"
+
+#~ msgid "Nov"
+#~ msgstr "Nov"
+
+#~ msgid "Dez"
+#~ msgstr "Dez"
+
+#~ msgid "Mês inválido selecionado."
+#~ msgstr "Mês inválido selecionado."
+
+#~ msgid "Descrição é obrigatória."
+#~ msgstr "Descrição é obrigatória."
+
+#~ msgid "Valor inválido. Insira um número válido e positivo."
+#~ msgstr "Valor inválido. Insira um número válido e positivo."
+
+#~ msgid "Tipo de lançamento inválido."
+#~ msgstr "Tipo de lançamento inválido."
+
+#~ msgid "Status de lançamento inválido."
+#~ msgstr "Status de lançamento inválido."
+
+#~ msgid "Frequência de recorrência inválida."
+#~ msgstr "Frequência de recorrência inválida."
+
+#~ msgid "Lançamento e recorrência adicionados com sucesso!"
+#~ msgstr "Lançamento e recorrência adicionados com sucesso!"
+
+#~ msgid "Lançamento adicionado com sucesso!"
+#~ msgstr "Lançamento adicionado com sucesso!"
+
+#~ msgid "Erro ao adicionar lançamento. Verifique os dados e tente novamente."
+#~ msgstr "Erro ao adicionar lançamento. Verifique os dados e tente novamente."
+
+#~ msgid "Lançamento excluído com sucesso!"
+#~ msgstr "Lançamento excluído com sucesso!"
+
+#~ msgid "Erro ao excluir lançamento."
+#~ msgstr "Erro ao excluir lançamento."
+
+#~ msgid "Lançamento atualizado com sucesso!"
+#~ msgstr "Lançamento atualizado com sucesso!"
+
+#~ msgid "Erro ao atualizar lançamento."
+#~ msgstr "Erro ao atualizar lançamento."
+
+#~ msgid "Tipo de exportação inválido."
+#~ msgstr "Tipo de exportação inválido."
+
+#~ msgid "Os valores da meta devem ser válidos e maiores que zero."
+#~ msgstr "Os valores da meta devem ser válidos e maiores que zero."
+
+#~ msgid "Erro ao adicionar meta financeira."
+#~ msgstr "Erro ao adicionar meta financeira."
+
+#~ msgid "Meta removida com sucesso."
+#~ msgstr "Meta removida com sucesso."
+
+#~ msgid "Erro ao remover meta financeira."
+#~ msgstr "Erro ao remover meta financeira."
+
+#~ msgid "Meta atualizada com sucesso."
+#~ msgstr "Meta atualizada com sucesso."
+
+#~ msgid "O valor atual não pode ser negativo."
+#~ msgstr "O valor atual não pode ser negativo."
+
+#~ msgid "Erro ao atualizar meta financeira."
+#~ msgstr "Erro ao atualizar meta financeira."
+
+#~ msgid "Nenhum arquivo foi enviado para importação."
+#~ msgstr "Nenhum arquivo foi enviado para importação."
+
+#~ msgid "Selecione um arquivo antes de importar."
+#~ msgstr "Selecione um arquivo antes de importar."
+
+#~ msgid "Nenhum lançamento válido foi encontrado no arquivo."
+#~ msgstr "Nenhum lançamento válido foi encontrado no arquivo."
+
+#~ msgid "%(count)d lançamento(s) importado(s) com sucesso."
+#~ msgstr "%(count)d lançamento(s) importado(s) com sucesso."
+
+#~ msgid " ... e mais %(count)d linha(s)."
+#~ msgstr " ... e mais %(count)d linha(s)."
+
+#~ msgid ""
+#~ "%(count)d linha(s) foram ignoradas por "
+#~ "inconsistência: %(preview)s%(suffix)s"
+#~ msgstr ""
+#~ "%(count)d linha(s) foram ignoradas por "
+#~ "inconsistência: %(preview)s%(suffix)s"
+
+#~ msgid "Erro inesperado ao importar arquivo. Nenhuma alteração foi salva."
+#~ msgstr "Erro inesperado ao importar arquivo. Nenhuma alteração foi salva."
+
+#~ msgid "Sobre o Finora"
+#~ msgstr "Sobre o Finora"
+
+#~ msgid ""
+#~ "Um sistema financeiro pessoal com foco"
+#~ " em clareza, desempenho e segurança "
+#~ "local."
+#~ msgstr ""
+#~ "Um sistema financeiro pessoal com foco"
+#~ " em clareza, desempenho e segurança "
+#~ "local."
+
+#~ msgid "Privacidade"
+#~ msgstr "Privacidade"
+
+#~ msgid ""
+#~ "Seus dados permanecem sob seu controle,"
+#~ " com rotinas de backup e operação "
+#~ "estável."
+#~ msgstr ""
+#~ "Seus dados permanecem sob seu controle,"
+#~ " com rotinas de backup e operação "
+#~ "estável."
+
+#~ msgid "Produtividade"
+#~ msgstr "Produtividade"
+
+#~ msgid ""
+#~ "Gestão de lançamentos, metas e "
+#~ "orçamentos em uma interface simples e"
+#~ " objetiva."
+#~ msgstr ""
+#~ "Gestão de lançamentos, metas e "
+#~ "orçamentos em uma interface simples e"
+#~ " objetiva."
+
+#~ msgid "Escalabilidade"
+#~ msgstr "Escalabilidade"
+
+#~ msgid "Arquitetura organizada para evoluir com novas integrações e automações."
+#~ msgstr "Arquitetura organizada para evoluir com novas integrações e automações."
+
+#~ msgid "Autores"
+#~ msgstr "Autores"
+
+#~ msgid "Espaço para colaboradores"
+#~ msgstr "Espaço para colaboradores"
+
+#~ msgid ""
+#~ "Contribuições futuras poderão ser destacadas"
+#~ " aqui com créditos e histórico de "
+#~ "participação."
+#~ msgstr ""
+#~ "Contribuições futuras poderão ser destacadas"
+#~ " aqui com créditos e histórico de "
+#~ "participação."
+
+#~ msgid "Ver repositório"
+#~ msgstr "Ver repositório"
+
+#~ msgid "Painel"
+#~ msgstr "Painel"
+
+#~ msgid "Metas"
+#~ msgstr "Metas"
+
+#~ msgid "Orçamentos"
+#~ msgstr "Orçamentos"
+
+#~ msgid "Sobre"
+#~ msgstr "Sobre"
+
+#~ msgid "Meu Perfil"
+#~ msgstr "Meu Perfil"
+
+#~ msgid "Gerar Backup"
+#~ msgstr "Gerar Backup"
+
+#~ msgid "Sair"
+#~ msgstr "Sair"
+
+#~ msgid "Início"
+#~ msgstr "Início"
+
+#~ msgid "Entrar"
+#~ msgstr "Entrar"
+
+#~ msgid "Cadastrar"
+#~ msgstr "Cadastrar"
+
+#~ msgid "Alterar idioma"
+#~ msgstr "Alterar idioma"
+
+#~ msgid "Alternar tema"
+#~ msgstr "Alternar tema"
+
+#~ msgid "Notificação"
+#~ msgstr "Notificação"
+
+#~ msgid "Fechar"
+#~ msgstr "Fechar"
+
+#~ msgid "Sua sessão está prestes a expirar."
+#~ msgstr "Sua sessão está prestes a expirar."
+
+#~ msgid "Tempo restante:"
+#~ msgstr "Tempo restante:"
+
+#~ msgid "Renovar sessão"
+#~ msgstr "Renovar sessão"
+
+#~ msgid "Simples, Poderoso, Local."
+#~ msgstr "Simples, Poderoso, Local."
+
+#~ msgid "Todos os Direitos Reservados."
+#~ msgstr "Todos os Direitos Reservados."
+
+#~ msgid "Projetado por"
+#~ msgstr "Projetado por"
+
+#~ msgid "Novo Orçamento"
+#~ msgstr "Novo Orçamento"
+
+#~ msgid "Opções"
+#~ msgstr "Opções"
+
+#~ msgid "Editar"
+#~ msgstr "Editar"
+
+#~ msgid "Tem certeza?"
+#~ msgstr "Tem certeza?"
+
+#~ msgid "Excluir"
+#~ msgstr "Excluir"
+
+#~ msgid "Período"
+#~ msgstr "Período"
+
+#~ msgid "Progresso do orçamento"
+#~ msgstr "Progresso do orçamento"
+
+#~ msgid "Restante"
+#~ msgstr "Restante"
+
+#~ msgid "Excedido"
+#~ msgstr "Excedido"
+
+#~ msgid "Nenhum orçamento definido."
+#~ msgstr "Nenhum orçamento definido."
+
+#~ msgid "Defina limites de gastos para suas categorias."
+#~ msgstr "Defina limites de gastos para suas categorias."
+
+#~ msgid "Categoria"
+#~ msgstr "Categoria"
+
+#~ msgid "Alimentação"
+#~ msgstr "Alimentação"
+
+#~ msgid "Moradia"
+#~ msgstr "Moradia"
+
+#~ msgid "Transporte"
+#~ msgstr "Transporte"
+
+#~ msgid "Lazer"
+#~ msgstr "Lazer"
+
+#~ msgid "Saúde"
+#~ msgstr "Saúde"
+
+#~ msgid "Educação"
+#~ msgstr "Educação"
+
+#~ msgid "Salário"
+#~ msgstr "Salário"
+
+#~ msgid "Investimento"
+#~ msgstr "Investimento"
+
+#~ msgid "Limite (R$)"
+#~ msgstr "Limite (R$)"
+
+#~ msgid "Mensal"
+#~ msgstr "Mensal"
+
+#~ msgid "Anual"
+#~ msgstr "Anual"
+
+#~ msgid "Cancelar"
+#~ msgstr "Cancelar"
+
+#~ msgid "Salvar"
+#~ msgstr "Salvar"
+
+#~ msgid "Editar Orçamento"
+#~ msgstr "Editar Orçamento"
+
+#~ msgid "Atualizar"
+#~ msgstr "Atualizar"
+
+#~ msgid "Mês"
+#~ msgstr "Mês"
+
+#~ msgid "Selecione o Mês"
+#~ msgstr "Selecione o Mês"
+
+#~ msgid "Janeiro"
+#~ msgstr "Janeiro"
+
+#~ msgid "Fevereiro"
+#~ msgstr "Fevereiro"
+
+#~ msgid "Março"
+#~ msgstr "Março"
+
+#~ msgid "Abril"
+#~ msgstr "Abril"
+
+#~ msgid "Maio"
+#~ msgstr "Maio"
+
+#~ msgid "Junho"
+#~ msgstr "Junho"
+
+#~ msgid "Julho"
+#~ msgstr "Julho"
+
+#~ msgid "Agosto"
+#~ msgstr "Agosto"
+
+#~ msgid "Setembro"
+#~ msgstr "Setembro"
+
+#~ msgid "Outubro"
+#~ msgstr "Outubro"
+
+#~ msgid "Novembro"
+#~ msgstr "Novembro"
+
+#~ msgid "Dezembro"
+#~ msgstr "Dezembro"
+
+#~ msgid "Ano"
+#~ msgstr "Ano"
+
+#~ msgid "Selecione o Ano"
+#~ msgstr "Selecione o Ano"
+
+#~ msgid "Ver Resumo Anual"
+#~ msgstr "Ver Resumo Anual"
+
+#~ msgid "Resumo Anual"
+#~ msgstr "Resumo Anual"
+
+#~ msgid "Novo Lançamento"
+#~ msgstr "Novo Lançamento"
+
+#~ msgid "Saldo Geral"
+#~ msgstr "Saldo Geral"
+
+#~ msgid "* (Receitas - Despesas)"
+#~ msgstr "* (Receitas - Despesas)"
+
+#~ msgid "Total Pago (Desp)"
+#~ msgstr "Total Pago (Desp)"
+
+#~ msgid "Total Pendente"
+#~ msgstr "Total Pendente"
+
+#~ msgid "Total Atrasado"
+#~ msgstr "Total Atrasado"
+
+#~ msgid "Lançamentos do Mês"
+#~ msgstr "Lançamentos do Mês"
+
+#~ msgid "itens"
+#~ msgstr "itens"
+
+#~ msgid "Buscar lançamentos..."
+#~ msgstr "Buscar lançamentos..."
+
+#~ msgid "Dia"
+#~ msgstr "Dia"
+
+#~ msgid "Descrição"
+#~ msgstr "Descrição"
+
+#~ msgid "Valor"
+#~ msgstr "Valor"
+
+#~ msgid "Status"
+#~ msgstr "Status"
+
+#~ msgid "Ações"
+#~ msgstr "Ações"
+
+#~ msgid "Pago"
+#~ msgstr "Pago"
+
+#~ msgid "Pendente"
+#~ msgstr "Pendente"
+
+#~ msgid "Atrasado"
+#~ msgstr "Atrasado"
+
+#~ msgid "Nenhum lançamento neste mês."
+#~ msgstr "Nenhum lançamento neste mês."
+
+#~ msgid "Despesas por Categoria"
+#~ msgstr "Despesas por Categoria"
+
+#~ msgid "Exportar & Importar"
+#~ msgstr "Exportar & Importar"
+
+#~ msgid "Relatório PDF"
+#~ msgstr "Relatório PDF"
+
+#~ msgid "Planilha CSV"
+#~ msgstr "Planilha CSV"
+
+#~ msgid "Arquivo TXT"
+#~ msgstr "Arquivo TXT"
+
+#~ msgid "Arquivo para importação"
+#~ msgstr "Arquivo para importação"
+
+#~ msgid "Importar"
+#~ msgstr "Importar"
+
+#~ msgid "CSV ou XLSX (máx. 10 MB)"
+#~ msgstr "CSV ou XLSX (máx. 10 MB)"
+
+#~ msgid "Fechar modal"
+#~ msgstr "Fechar modal"
+
+#~ msgid "Valor (R$)"
+#~ msgstr "Valor (R$)"
+
+#~ msgid "Tipo"
+#~ msgstr "Tipo"
+
+#~ msgid "Despesa"
+#~ msgstr "Despesa"
+
+#~ msgid "Receita"
+#~ msgstr "Receita"
+
+#~ msgid "Vencimento"
+#~ msgstr "Vencimento"
+
+#~ msgid "Pagamento"
+#~ msgstr "Pagamento"
+
+#~ msgid "Repetir (Recorrência)"
+#~ msgstr "Repetir (Recorrência)"
+
+#~ msgid "Frequência"
+#~ msgstr "Frequência"
+
+#~ msgid "Semanal"
+#~ msgstr "Semanal"
+
+#~ msgid "Diário"
+#~ msgstr "Diário"
+
+#~ msgid "Data Final (Opcional)"
+#~ msgstr "Data Final (Opcional)"
+
+#~ msgid "Observações"
+#~ msgstr "Observações"
+
+#~ msgid "Editar Lançamento"
+#~ msgstr "Editar Lançamento"
+
+#~ msgid "Metas Financeiras"
+#~ msgstr "Metas Financeiras"
+
+#~ msgid "Nova Meta"
+#~ msgstr "Nova Meta"
+
+#~ msgid "Alvo"
+#~ msgstr "Alvo"
+
+#~ msgid "Prazo"
+#~ msgstr "Prazo"
+
+#~ msgid "Progresso da meta"
+#~ msgstr "Progresso da meta"
+
+#~ msgid "Novo valor"
+#~ msgstr "Novo valor"
+
+#~ msgid "Nenhuma meta definida ainda."
+#~ msgstr "Nenhuma meta definida ainda."
+
+#~ msgid "Crie metas para realizar seus sonhos!"
+#~ msgstr "Crie metas para realizar seus sonhos!"
+
+#~ msgid "Nome da Meta"
+#~ msgstr "Nome da Meta"
+
+#~ msgid "Valor Alvo (R$)"
+#~ msgstr "Valor Alvo (R$)"
+
+#~ msgid "Valor Atual (R$)"
+#~ msgstr "Valor Atual (R$)"
+
+#~ msgid "Prazo (Opcional)"
+#~ msgstr "Prazo (Opcional)"
+
+#~ msgid "Finora"
+#~ msgstr "Finora"
+
+#~ msgid "Bem-vindo ao seu centro financeiro pessoal"
+#~ msgstr "Bem-vindo ao seu centro financeiro pessoal"
+
+#~ msgid ""
+#~ "Organize receitas, despesas, metas e "
+#~ "orçamentos em um fluxo simples, rápido"
+#~ " e seguro."
+#~ msgstr ""
+#~ "Organize receitas, despesas, metas e "
+#~ "orçamentos em um fluxo simples, rápido"
+#~ " e seguro."
+
+#~ msgid "Criar conta"
+#~ msgstr "Criar conta"
+
+#~ msgid "Controle"
+#~ msgstr "Controle"
+
+#~ msgid "Acompanhe cada lançamento com status e vencimento."
+#~ msgstr "Acompanhe cada lançamento com status e vencimento."
+
+#~ msgid "Planejamento"
+#~ msgstr "Planejamento"
+
+#~ msgid "Defina metas e limites para manter sua saúde financeira."
+#~ msgstr "Defina metas e limites para manter sua saúde financeira."
+
+#~ msgid "Confiabilidade"
+#~ msgstr "Confiabilidade"
+
+#~ msgid "Importe e exporte dados com consistência e previsibilidade."
+#~ msgstr "Importe e exporte dados com consistência e previsibilidade."
+
+#~ msgid "Resumo anual"
+#~ msgstr "Resumo anual"
+
+#~ msgid "Voltar para o mês atual"
+#~ msgstr "Voltar para o mês atual"
+
+#~ msgid "Total de receitas"
+#~ msgstr "Total de receitas"
+
+#~ msgid "Total de despesas"
+#~ msgstr "Total de despesas"
+
+#~ msgid "Saldo anual"
+#~ msgstr "Saldo anual"
+
+#~ msgid "Evolução financeira"
+#~ msgstr "Evolução financeira"
+
+#~ msgid "Detalhamento mensal"
+#~ msgstr "Detalhamento mensal"
+
+#~ msgid "Receitas"
+#~ msgstr "Receitas"
+
+#~ msgid "Despesas"
+#~ msgstr "Despesas"
+
+#~ msgid "Saldo"
+#~ msgstr "Saldo"
+
+#~ msgid "Ação"
+#~ msgstr "Ação"
+
+#~ msgid "Ver"
+#~ msgstr "Ver"
+
+#~ msgid "Recuperar Senha"
+#~ msgstr "Recuperar Senha"
+
+#~ msgid "Usuário ou e-mail"
+#~ msgstr "Usuário ou e-mail"
+
+#~ msgid "Digite seu nome de usuário ou email para encontrar sua conta."
+#~ msgstr "Digite seu nome de usuário ou email para encontrar sua conta."
+
+#~ msgid "Método de Recuperação"
+#~ msgstr "Método de Recuperação"
+
+#~ msgid "Enviar link por e-mail"
+#~ msgstr "Enviar link por e-mail"
+
+#~ msgid "Usar Chave de Recuperação (Offline)"
+#~ msgstr "Usar Chave de Recuperação (Offline)"
+
+#~ msgid "Continuar"
+#~ msgstr "Continuar"
+
+#~ msgid "Senha"
+#~ msgstr "Senha"
+
+#~ msgid "Lembrar-me"
+#~ msgstr "Lembrar-me"
+
+#~ msgid "Esqueceu sua senha?"
+#~ msgstr "Esqueceu sua senha?"
+
+#~ msgid "Não tem uma conta?"
+#~ msgstr "Não tem uma conta?"
+
+#~ msgid "Cadastre-se"
+#~ msgstr "Cadastre-se"
+
+#~ msgid "Foto de perfil"
+#~ msgstr "Foto de perfil"
+
+#~ msgid "Editar Perfil"
+#~ msgstr "Editar Perfil"
+
+#~ msgid "Alterar Senha"
+#~ msgstr "Alterar Senha"
+
+#~ msgid "Zona de Perigo"
+#~ msgstr "Zona de Perigo"
+
+#~ msgid "Nome de Usuário"
+#~ msgstr "Nome de Usuário"
+
+#~ msgid "O nome de usuário não pode ser alterado."
+#~ msgstr "O nome de usuário não pode ser alterado."
+
+#~ msgid "Nome Completo"
+#~ msgstr "Nome Completo"
+
+#~ msgid "E-mail"
+#~ msgstr "E-mail"
+
+#~ msgid "Foto de Perfil"
+#~ msgstr "Foto de Perfil"
+
+#~ msgid "Remover foto atual"
+#~ msgstr "Remover foto atual"
+
+#~ msgid "Tempo máximo de inatividade da sessão"
+#~ msgstr "Tempo máximo de inatividade da sessão"
+
+#~ msgid "Sessão aberta"
+#~ msgstr "Sessão aberta"
+
+#~ msgid "1 hora"
+#~ msgstr "1 hora"
+
+#~ msgid "%(minutes)d minuto(s)"
+#~ msgstr "%(minutes)d minuto(s)"
+
+#~ msgid "Quando o tempo acabar por inatividade, você precisará entrar novamente."
+#~ msgstr "Quando o tempo acabar por inatividade, você precisará entrar novamente."
+
+#~ msgid "Salvar Alterações"
+#~ msgstr "Salvar Alterações"
+
+#~ msgid "Senha Atual"
+#~ msgstr "Senha Atual"
+
+#~ msgid "Nova Senha"
+#~ msgstr "Nova Senha"
+
+#~ msgid "Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números."
+#~ msgstr "Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números."
+
+#~ msgid "Atualizar Senha"
+#~ msgstr "Atualizar Senha"
+
+#~ msgid ""
+#~ "A exclusão da sua conta é "
+#~ "irreversível. Todos os seus dados "
+#~ "financeiros e metas serão apagados "
+#~ "permanentemente."
+#~ msgstr ""
+#~ "A exclusão da sua conta é "
+#~ "irreversível. Todos os seus dados "
+#~ "financeiros e metas serão apagados "
+#~ "permanentemente."
+
+#~ msgid "Excluir Minha Conta"
+#~ msgstr "Excluir Minha Conta"
+
+#~ msgid "Confirmar Exclusão"
+#~ msgstr "Confirmar Exclusão"
+
+#~ msgid "Tem certeza absoluta? Esta ação não pode ser desfeita."
+#~ msgstr "Tem certeza absoluta? Esta ação não pode ser desfeita."
+
+#~ msgid "Para confirmar, digite \"%(token)s\" na caixa abaixo:"
+#~ msgstr "Para confirmar, digite \"%(token)s\" na caixa abaixo:"
+
+#~ msgid "Excluir Permanentemente"
+#~ msgstr "Excluir Permanentemente"
+
+#~ msgid "Criar Conta"
+#~ msgstr "Criar Conta"
+
+#~ msgid "Força da senha"
+#~ msgstr "Força da senha"
+
+#~ msgid "Recomendamos uma senha forte."
+#~ msgstr "Recomendamos uma senha forte."
+
+#~ msgid "Já tem uma conta?"
+#~ msgstr "Já tem uma conta?"
+
+#~ msgid "Nome de usuário disponível"
+#~ msgstr "Nome de usuário disponível"
+
+#~ msgid "Nome de usuário já está em uso"
+#~ msgstr "Nome de usuário já está em uso"
+
+#~ msgid "E-mail disponível"
+#~ msgstr "E-mail disponível"
+
+#~ msgid "Formato de email inválido"
+#~ msgstr "Formato de email inválido"
+
+#~ msgid "E-mail já está em uso"
+#~ msgstr "E-mail já está em uso"
+
+#~ msgid "Fraca"
+#~ msgstr "Fraca"
+
+#~ msgid "Média"
+#~ msgstr "Média"
+
+#~ msgid "Forte"
+#~ msgstr "Forte"
+
+#~ msgid "Redefinir Senha"
+#~ msgstr "Redefinir Senha"
+
+#~ msgid "Usuário: "
+#~ msgstr "Usuário: "
+
+#~ msgid "Chave de Recuperação"
+#~ msgstr "Chave de Recuperação"
+
+msgid "Conheça o Finora, acompanhe a versão instalada e aplique atualizações com backup prévio e migração segura."
+msgstr "Conheça o Finora, acompanhe a versão instalada e aplique atualizações com backup prévio e migração segura."
+
+msgid "Ocorreu um erro na última verificação de atualização. Faça login para ver os detalhes."
+msgstr "Ocorreu um erro na última verificação de atualização. Faça login para ver os detalhes."
+
+msgid "Finora é um sistema local de controle financeiro pessoal com foco em privacidade, clareza e operação segura."
+msgstr "Finora é um sistema local de controle financeiro pessoal com foco em privacidade, clareza e operação segura."
+
+msgid "Controle receitas, despesas, metas e orçamentos com um sistema local, seguro e inteligente."
+msgstr "Controle receitas, despesas, metas e orçamentos com um sistema local, seguro e inteligente."
+
+msgid "Não foi possível verificar atualizações no momento. Faça login para ver os detalhes."
+msgstr "Não foi possível verificar atualizações no momento. Faça login para ver os detalhes."

@@ -15,7 +15,7 @@
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-12 col-md-4">
         <div class="card card-premium h-100 border-start border-4 border-success">
             <div class="card-body card-body-premium text-center">
                 <h6 class="text-muted text-uppercase small">{{ _('Total de receitas') }}</h6>
@@ -23,7 +23,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-12 col-md-4">
         <div class="card card-premium h-100 border-start border-4 border-danger">
             <div class="card-body card-body-premium text-center">
                 <h6 class="text-muted text-uppercase small">{{ _('Total de despesas') }}</h6>
@@ -31,7 +31,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-12 col-md-4">
         <div class="card card-premium h-100 border-start border-4 border-primary">
             <div class="card-body card-body-premium text-center">
                 <h6 class="text-muted text-uppercase small">{{ _('Saldo anual') }}</h6>
@@ -101,20 +101,40 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ csp_nonce }}">
     const canvas = document.getElementById('yearChart');
     const ctx = canvas.getContext('2d');
-    
+
     const labels = JSON.parse(canvas.dataset.labels || '[]');
     const receitas = JSON.parse(canvas.dataset.receitas || '[]');
     const despesas = JSON.parse(canvas.dataset.despesas || '[]');
     const hasAnyData = [...receitas, ...despesas].some((value) => Number(value) > 0);
+    let yearChartInstance = null;
 
-    if (!hasAnyData) {
-        canvas.classList.add('d-none');
-        document.getElementById('yearChartEmpty')?.classList.remove('d-none');
-    } else {
-        new Chart(ctx, {
+    const resolveYearChartTheme = () => {
+        const themeRoot = document.documentElement;
+        const styles = getComputedStyle(themeRoot);
+        const themeMode = themeRoot.getAttribute('data-theme') || 'light';
+
+        return {
+            textColor: styles.getPropertyValue('--text-main').trim() || (themeMode === 'dark' ? '#F1F5F9' : '#334155'),
+            mutedColor: styles.getPropertyValue('--text-muted').trim() || (themeMode === 'dark' ? '#94A3B8' : '#64748B'),
+            borderColor: styles.getPropertyValue('--border-color').trim() || (themeMode === 'dark' ? '#334155' : '#E2E8F0'),
+            receitasFill: themeMode === 'dark' ? 'rgba(34, 197, 94, 0.78)' : '#10B981',
+            receitasBorder: themeMode === 'dark' ? '#4ADE80' : '#059669',
+            despesasFill: themeMode === 'dark' ? 'rgba(239, 68, 68, 0.78)' : '#EF4444',
+            despesasBorder: themeMode === 'dark' ? '#F87171' : '#DC2626',
+        };
+    };
+
+    const renderYearChart = () => {
+        const chartTheme = resolveYearChartTheme();
+
+        if (yearChartInstance) {
+            yearChartInstance.destroy();
+        }
+
+        yearChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -122,16 +142,16 @@
                     {
                         label: "{{ _('Receitas') }}",
                         data: receitas,
-                        backgroundColor: '#10B981',
-                        borderColor: '#059669',
+                        backgroundColor: chartTheme.receitasFill,
+                        borderColor: chartTheme.receitasBorder,
                         borderWidth: 1,
                         borderRadius: 4
                     },
                     {
                         label: "{{ _('Despesas') }}",
                         data: despesas,
-                        backgroundColor: '#EF4444',
-                        borderColor: '#DC2626',
+                        backgroundColor: chartTheme.despesasFill,
+                        borderColor: chartTheme.despesasBorder,
                         borderWidth: 1,
                         borderRadius: 4
                     }
@@ -141,13 +161,51 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'top' }
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: chartTheme.textColor,
+                        },
+                    },
+                    tooltip: {
+                        titleColor: chartTheme.textColor,
+                        bodyColor: chartTheme.textColor,
+                        backgroundColor: chartTheme.borderColor,
+                        borderColor: chartTheme.borderColor,
+                        borderWidth: 1,
+                    },
                 },
                 scales: {
-                    y: { beginAtZero: true }
-                }
+                    x: {
+                        ticks: {
+                            color: chartTheme.mutedColor,
+                        },
+                        grid: {
+                            color: chartTheme.borderColor,
+                            drawBorder: false,
+                        },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: chartTheme.mutedColor,
+                        },
+                        grid: {
+                            color: chartTheme.borderColor,
+                            drawBorder: false,
+                        },
+                    },
+                },
             }
         });
+    };
+
+    if (!hasAnyData) {
+        canvas.classList.add('d-none');
+        document.getElementById('yearChartEmpty')?.classList.remove('d-none');
+    } else {
+        renderYearChart();
+        document.addEventListener('finora:theme-change', renderYearChart);
     }
 </script>
 {% endblock %}

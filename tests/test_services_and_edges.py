@@ -336,6 +336,7 @@ def test_parse_finance_form_returns_normalized_payload():
                 'status': 'Pago',
                 'due_date': '2026-03-10',
                 'payment_date': '2026-03-11',
+                'payment_method': ' credit card ',
                 'observations': '  observacao  ',
             }
         )
@@ -344,7 +345,26 @@ def test_parse_finance_form_returns_normalized_payload():
     assert errors == []
     assert payload['description'] == 'Compra'
     assert payload['category'] == 'Lazer'
+    assert payload['payment_method'] == 'Cartão de Crédito'
     assert payload['observations'] == 'observacao'
+
+
+def test_validate_finance_data_rejects_invalid_payment_method():
+    errors = validate_finance_data(
+        MultiDict(
+            {
+                'description': 'Compra',
+                'value': '10.50',
+                'category': 'Lazer',
+                'type': 'Despesa',
+                'status': 'Pago',
+                'due_date': '2026-03-10',
+                'payment_method': 'Cheque',
+            }
+        )
+    )
+
+    assert 'Forma de pagamento/recebimento inválida.' in errors
 
 
 def test_get_next_run_date_supports_all_frequencies():

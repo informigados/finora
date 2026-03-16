@@ -62,6 +62,7 @@ def get_budget_status(user_id, month=None, year=None):
             'remaining': remaining,
             'percentage': min(percentage, 100), # Cap for UI bar
             'raw_percentage': percentage,
+            'display_percentage': round(percentage, 1),
             'over_budget': spent > budget.limit_amount
         })
         

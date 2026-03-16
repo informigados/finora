@@ -1,5 +1,4 @@
 import time
-import uuid
 
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for
 from flask.typing import ResponseReturnValue
@@ -9,23 +8,38 @@ from sqlalchemy.exc import IntegrityError
 
 from database.db import db
 from extensions import limiter
+from models.time_utils import utcnow_naive
 from models.user import User
 from services.auth_service import (
     MIN_PASSWORD_LENGTH,
     commit_auth_security_state,
+    consume_reset_password_token,
     find_user_by_identifier,
-    generate_reset_password_token,
+    generate_recovery_key,
     is_strong_password,
     is_valid_email,
+    perform_signup_lookup_delay,
     resolve_user_from_reset_token,
-    utcnow_naive,
+    send_recovery_key_email,
+    send_reset_password_email,
+)
+from services.backup_service import (
+    BACKUP_FREQUENCY_OPTIONS,
+    BACKUP_TIMES_PER_PERIOD_OPTIONS,
+    BACKUP_WEEKDAY_OPTIONS,
+    get_or_create_backup_schedule,
 )
 from services.profile_service import (
     DELETE_CONFIRMATION_TOKEN,
     VALID_SESSION_TIMEOUT_OPTIONS,
     apply_profile_update,
+    end_user_session,
+    get_profile_hub_context,
+    record_activity,
+    record_system_event,
     change_user_password,
     delete_user_account,
+    start_user_session,
 )
 
 auth_bp = Blueprint('auth', __name__)
@@ -46,25 +60,45 @@ def _lockout_notice() -> str:
 @auth_bp.route('/check_username', methods=['POST'])
 @limiter.limit(lambda: current_app.config.get('AUTH_RATE_LIMIT_LOOKUPS', '30 per minute'), methods=['POST'])
 def check_username() -> ResponseReturnValue:
+    started_at = time.perf_counter()
     data = request.get_json(silent=True) or {}
     username = (data.get('username') or '').strip()
     if not username:
         return jsonify({'available': False, 'error': _('Nome de usuário inválido.')}), 400
 
-    user = User.query.filter_by(username=username).first()
-    return jsonify({'available': user is None})
+    User.query.filter_by(username=username).first()
+    perform_signup_lookup_delay(started_at)
+    return jsonify(
+        {
+            'available': True,
+            'verified': False,
+            'message': _(
+                'A disponibilidade definitiva será confirmada ao concluir o cadastro.'
+            ),
+        }
+    )
 
 
 @auth_bp.route('/check_email', methods=['POST'])
 @limiter.limit(lambda: current_app.config.get('AUTH_RATE_LIMIT_LOOKUPS', '30 per minute'), methods=['POST'])
 def check_email() -> ResponseReturnValue:
+    started_at = time.perf_counter()
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
     if not email or not is_valid_email(email):
         return jsonify({'available': False, 'error': _('E-mail inválido.')}), 400
 
-    user = User.query.filter_by(email=email).first()
-    return jsonify({'available': user is None})
+    User.query.filter_by(email=email).first()
+    perform_signup_lookup_delay(started_at)
+    return jsonify(
+        {
+            'available': True,
+            'verified': False,
+            'message': _(
+                'A disponibilidade definitiva será confirmada ao concluir o cadastro.'
+            ),
+        }
+    )
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -115,6 +149,15 @@ def login() -> ResponseReturnValue:
 
         login_user(user, remember=remember)
         session['last_activity_ts'] = int(time.time())
+        start_user_session(user, request, session)
+        record_activity(
+            user,
+            'auth',
+            'login_success',
+            'Login realizado com sucesso.',
+            details={'remember': remember},
+            ip_address=request.remote_addr,
+        )
         return redirect(url_for('dashboard.index'))
 
     return render_template('auth/login.html')
@@ -157,7 +200,7 @@ def register() -> ResponseReturnValue:
 
         new_user = User(email=email, username=username, name=name)
         new_user.set_password(password)
-        recovery_key = str(uuid.uuid4()).replace('-', '').upper()[:16]
+        recovery_key = generate_recovery_key()
         new_user.set_recovery_key(recovery_key)
 
         try:
@@ -175,6 +218,22 @@ def register() -> ResponseReturnValue:
             ),
             'success',
         )
+        recovery_delivery = send_recovery_key_email(new_user, recovery_key, 'register')
+        record_activity(
+            new_user,
+            'auth',
+            'account_created',
+            'Conta criada com sucesso.',
+            details={
+                'recovery_key_version': new_user.recovery_key_version,
+                'delivery': recovery_delivery.get('delivery', 'none'),
+            },
+            ip_address=request.remote_addr,
+        )
+        if recovery_delivery.get('ok'):
+            flash(_('Também enviamos a chave de recuperação para o seu e-mail.'), 'info')
+        else:
+            flash(_('O envio por e-mail da chave de recuperação não pôde ser concluído neste momento.'), 'warning')
         return redirect(url_for('auth.login'))
 
     return render_template('auth/register.html')
@@ -183,8 +242,20 @@ def register() -> ResponseReturnValue:
 @auth_bp.route('/logout')
 @login_required
 def logout() -> ResponseReturnValue:
+    user = current_user._get_current_object()
+    record_activity(
+        user,
+        'auth',
+        'logout',
+        'Logout realizado pelo usuario.',
+        ip_address=request.remote_addr,
+    )
+    end_user_session(user, session, 'logout')
     logout_user()
-    return redirect(url_for('auth.login'))
+    response = redirect(url_for('auth.login'))
+    remember_cookie_name = current_app.config.get('REMEMBER_COOKIE_NAME', 'remember_token')
+    response.delete_cookie(remember_cookie_name)
+    return response
 
 
 @auth_bp.route('/forgot_password', methods=['GET', 'POST'])
@@ -202,11 +273,7 @@ def forgot_password() -> ResponseReturnValue:
 
         if method == 'email':
             if user:
-                token = generate_reset_password_token(user)
-                reset_url = url_for('auth.reset_password_token', token=token, _external=True)
-
-                # Local/development fallback: keep instructions available in logs only.
-                current_app.logger.info("Link de recuperação para %s: %s", user.email, reset_url)
+                send_reset_password_email(user)
 
             flash(_generic_recovery_notice(), 'info')
             return redirect(url_for('auth.login'))
@@ -240,6 +307,7 @@ def reset_password_offline() -> ResponseReturnValue:
         if user and user.check_recovery_key(key):
             user.set_password(new_password)
             user.reset_failed_logins()
+            user.bump_password_reset_version()
             try:
                 db.session.commit()
                 flash(_('Sua senha foi atualizada com sucesso!'), 'success')
@@ -278,6 +346,9 @@ def reset_password_token(token: str) -> ResponseReturnValue:
             return redirect(url_for('auth.reset_password_token', token=token))
 
         user.set_password(new_password)
+        consume_reset_password_token(user, token)
+        user.reset_failed_logins()
+        user.bump_password_reset_version()
         try:
             db.session.commit()
             flash(_('Sua senha foi atualizada com sucesso!'), 'success')
@@ -323,6 +394,13 @@ def profile() -> ResponseReturnValue:
                 flash(_('Arquivo de imagem inválido. Formatos permitidos: JPG, PNG e GIF.'), 'error')
                 return redirect(url_for('auth.profile'))
             if error_code == 'profile_persist_failed':
+                record_system_event(
+                    'error',
+                    'profile',
+                    'Falha ao persistir atualizacao de perfil.',
+                    user=current_user,
+                    event_code='profile_persist_failed',
+                )
                 flash(_('Não foi possível atualizar o perfil. Revise os dados e tente novamente.'), 'error')
                 return redirect(url_for('auth.profile'))
 
@@ -330,6 +408,14 @@ def profile() -> ResponseReturnValue:
                 session['last_activity_ts'] = int(time.time())
             else:
                 session.pop('last_activity_ts', None)
+            record_activity(
+                current_user,
+                'profile',
+                'profile_updated',
+                'Perfil atualizado com sucesso.',
+                details={'session_timeout_minutes': current_user.session_timeout_minutes},
+                ip_address=request.remote_addr,
+            )
             flash(_('Perfil atualizado com sucesso!'), 'success')
 
         elif action == 'change_password':
@@ -349,19 +435,41 @@ def profile() -> ResponseReturnValue:
                     'error',
                 )
             elif error_code == 'password_update_failed':
+                record_system_event(
+                    'error',
+                    'profile',
+                    'Falha ao atualizar a senha do usuario.',
+                    user=current_user,
+                    event_code='password_update_failed',
+                )
                 flash(_('Não foi possível alterar a senha. Tente novamente.'), 'error')
             else:
+                record_activity(
+                    current_user,
+                    'profile',
+                    'password_changed',
+                    'Senha atualizada com sucesso.',
+                    ip_address=request.remote_addr,
+                )
                 flash(_('Senha alterada com sucesso!'), 'success')
 
         elif action == 'delete_account':
             confirmation = (request.form.get('confirmation') or '').strip().upper()
             if confirmation == DELETE_CONFIRMATION_TOKEN:
                 user = current_user._get_current_object()
+                end_user_session(user, session, 'account_deleted')
                 logout_user()
                 error_code = delete_user_account(user, current_app.root_path)
                 if not error_code:
                     flash(_('Sua conta foi excluída permanentemente.'), 'info')
                     return redirect(url_for('public.welcome'))
+                record_system_event(
+                    'error',
+                    'profile',
+                    'Falha ao excluir conta de usuario.',
+                    user=user,
+                    event_code='delete_account_failed',
+                )
                 flash(_('Não foi possível excluir a conta neste momento.'), 'error')
                 return redirect(url_for('auth.profile'))
 
@@ -372,11 +480,110 @@ def profile() -> ResponseReturnValue:
                 ),
                 'error',
             )
+        elif action == 'email_recovery_key':
+            recovery_key = current_user.get_recovery_key()
+            if not recovery_key:
+                flash(_('Sua chave atual não está disponível para reenvio. Gere uma nova chave para continuar.'), 'warning')
+                return redirect(url_for('auth.profile', _anchor='recovery-pane'))
 
+            delivery = send_recovery_key_email(current_user, recovery_key, 'resend')
+            if delivery.get('ok'):
+                record_activity(
+                    current_user,
+                    'profile',
+                    'recovery_key_emailed',
+                    'Chave de recuperação reenviada por e-mail.',
+                    details={'delivery': delivery.get('delivery', 'none')},
+                    ip_address=request.remote_addr,
+                )
+                flash(_('Chave de recuperação enviada para o seu e-mail.'), 'success')
+            else:
+                record_system_event(
+                    'error',
+                    'profile',
+                    'Falha ao reenviar chave de recuperação.',
+                    user=current_user,
+                    event_code='recovery_key_email_failed',
+                )
+                flash(_('Não foi possível enviar a chave de recuperação por e-mail.'), 'error')
+            return redirect(url_for('auth.profile', _anchor='recovery-pane'))
+
+        elif action == 'regenerate_recovery_key':
+            recovery_key = generate_recovery_key()
+            current_user.set_recovery_key(recovery_key)
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                record_system_event(
+                    'error',
+                    'profile',
+                    'Falha ao regenerar chave de recuperação.',
+                    user=current_user,
+                    event_code='recovery_key_regenerate_failed',
+                )
+                flash(_('Não foi possível gerar uma nova chave de recuperação.'), 'error')
+                return redirect(url_for('auth.profile', _anchor='recovery-pane'))
+
+            delivery = send_recovery_key_email(current_user, recovery_key, 'regenerate')
+            record_activity(
+                current_user,
+                'profile',
+                'recovery_key_regenerated',
+                'Nova chave de recuperação gerada.',
+                details={'delivery': delivery.get('delivery', 'none')},
+                ip_address=request.remote_addr,
+            )
+            flash(
+                _(
+                    'Nova chave de recuperação gerada com sucesso: %(key)s',
+                    key=recovery_key,
+                ),
+                'success',
+            )
+            if delivery.get('ok'):
+                flash(_('A nova chave também foi enviada para o seu e-mail.'), 'info')
+            else:
+                flash(_('O envio por e-mail da nova chave não pôde ser concluído.'), 'warning')
+            return redirect(url_for('auth.profile', _anchor='recovery-pane'))
+
+    current_user_obj = current_user._get_current_object()
+    if current_user_obj.rewrap_recovery_key():
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+    get_or_create_backup_schedule(
+        current_user_obj,
+        current_app.config.get('BACKUP_DEFAULT_RETENTION_COUNT', 20),
+    )
+    pagination_params = {
+        'backups_page': request.args.get('backups_page', 1),
+        'sessions_page': request.args.get('sessions_page', 1),
+        'activities_page': request.args.get('activities_page', 1),
+        'events_page': request.args.get('events_page', 1),
+    }
+    page_sizes = {
+        'backups': current_app.config.get('PROFILE_BACKUPS_PAGE_SIZE', 10),
+        'sessions': current_app.config.get('PROFILE_SESSIONS_PAGE_SIZE', 10),
+        'activities': current_app.config.get('PROFILE_ACTIVITIES_PAGE_SIZE', 15),
+        'events': current_app.config.get('PROFILE_SYSTEM_EVENTS_PAGE_SIZE', 12),
+    }
+    profile_context = get_profile_hub_context(
+        current_user_obj,
+        current_app.config.get('APP_VERSION', '1.3.0'),
+        current_app.config.get('BACKUP_DEFAULT_RETENTION_COUNT', 20),
+        pagination_params=pagination_params,
+        page_sizes=page_sizes,
+    )
     return render_template(
         'auth/profile.html',
         delete_confirmation_token=DELETE_CONFIRMATION_TOKEN,
         session_timeout_options=sorted(VALID_SESSION_TIMEOUT_OPTIONS),
+        backup_frequency_options=BACKUP_FREQUENCY_OPTIONS,
+        backup_times_per_period_options=BACKUP_TIMES_PER_PERIOD_OPTIONS,
+        backup_weekday_options=BACKUP_WEEKDAY_OPTIONS,
+        **profile_context,
     )
 
 

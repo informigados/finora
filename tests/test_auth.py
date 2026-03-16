@@ -1,3 +1,6 @@
+from routes import auth as auth_module
+
+
 def test_register(client):
     response = client.post('/register', data={
         'username': 'newuser',
@@ -8,6 +11,38 @@ def test_register(client):
     assert response.status_code == 200
     # Check for success message (might be in toast)
     assert b'Conta criada com sucesso' in response.data
+
+
+def test_register_sends_recovery_key_email_and_persists_ciphertext(client, app, monkeypatch):
+    deliveries = []
+
+    def fake_send_recovery_key_email(user, recovery_key, reason):
+        deliveries.append((user.email, recovery_key, reason))
+        return {'ok': True, 'delivery': 'smtp'}
+
+    monkeypatch.setattr(auth_module, 'send_recovery_key_email', fake_send_recovery_key_email)
+
+    response = client.post('/register', data={
+        'username': 'mailregister',
+        'email': 'mailregister@example.com',
+        'password': 'Password123',
+        'name': 'Mail Register User'
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b'Tamb' in response.data
+    assert len(deliveries) == 1
+    assert deliveries[0][0] == 'mailregister@example.com'
+    assert deliveries[0][2] == 'register'
+    assert len(deliveries[0][1]) == 16
+
+    with app.app_context():
+        from models.user import User
+
+        user = User.query.filter_by(username='mailregister').first()
+        assert user is not None
+        assert user.recovery_key_ciphertext
+        assert user.get_recovery_key() == deliveries[0][1]
 
 def test_register_invalid_email(client):
     response = client.post('/register', data={

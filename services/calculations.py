@@ -1,21 +1,22 @@
-from typing import Dict, Any, Optional
+from typing import Any, Dict
 from sqlalchemy import func, extract, case
 from models.finance import Finance
 from database.db import db
 
-def get_monthly_stats(month: int, year: int, user_id: Optional[int] = None) -> Dict[str, Any]:
+def get_monthly_stats(month: int, year: int, user_id: int) -> Dict[str, Any]:
     """
     Calculates financial statistics for a specific month and year.
     Based on due_date. Optimized for a single aggregate query.
     """
+    if user_id is None:
+        raise ValueError('user_id is required for monthly stats')
+
     base_query = db.session.query(Finance).filter(
         extract('year', Finance.due_date) == year,
-        extract('month', Finance.due_date) == month
+        extract('month', Finance.due_date) == month,
+        Finance.user_id == user_id,
     )
-    
-    if user_id:
-        base_query = base_query.filter(Finance.user_id == user_id)
-        
+
     # Single query aggregation for all totals
     stats = base_query.with_entities(
         func.sum(case((Finance.type == 'Despesa', Finance.value), else_=0)).label('total_despesa'),
@@ -53,7 +54,7 @@ def get_monthly_stats(month: int, year: int, user_id: Optional[int] = None) -> D
         'chart_values': category_values
     }
 
-def get_yearly_stats(year: int, user_id: Optional[int] = None) -> Dict[str, Any]:
+def get_yearly_stats(year: int, user_id: int | None = None) -> Dict[str, Any]:
     if user_id is None:
         raise ValueError('user_id is required for yearly stats')
 

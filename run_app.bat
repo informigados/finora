@@ -31,7 +31,7 @@ echo   ██      ██ ██  ██ ██ ██    ██ ██   ██
 echo   ██      ██ ██   ████  ██████  ██   ██ ██   ██ 
 echo.
 echo             Sistema Profissional de Gestao Financeira
-echo  Versao: 1.2.0                      Status: Multi-Usuario
+echo  Versao: 1.3.0                      Status: Multi-Usuario
 echo  ==============================================================
 echo.
 echo [INFO] Inicializando FINORA...

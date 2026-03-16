@@ -8,6 +8,7 @@ from services.import_service import (
     ImportValidationError,
     import_finances_from_file,
 )
+from services.profile_service import record_activity, record_system_event
 
 import_bp = Blueprint('import', __name__)
 
@@ -36,6 +37,19 @@ def import_file() -> ResponseReturnValue:
             return redirect(url_for('dashboard.index'))
 
         db.session.add_all(result.entries)
+        record_activity(
+            current_user,
+            'imports',
+            'import_completed',
+            'Importação concluída com sucesso.',
+            details={
+                'imported_rows': result.imported_rows,
+                'skipped_rows': result.skipped_rows,
+                'filename': file.filename,
+            },
+            ip_address=request.remote_addr,
+            commit=False,
+        )
         db.session.commit()
         flash(
             _('%(count)d lançamento(s) importado(s) com sucesso.', count=result.imported_rows),
@@ -59,10 +73,26 @@ def import_file() -> ResponseReturnValue:
             )
     except ImportValidationError as exc:
         db.session.rollback()
+        record_system_event(
+            'warning',
+            'imports',
+            'Importação rejeitada por validação.',
+            user=current_user,
+            event_code='import_validation_failed',
+            details={'filename': file.filename, 'error': str(exc)},
+        )
         flash(str(exc), 'error')
     except Exception:
         db.session.rollback()
         current_app.logger.exception('Erro inesperado durante importação de arquivo.')
+        record_system_event(
+            'error',
+            'imports',
+            'Erro inesperado durante importação de arquivo.',
+            user=current_user,
+            event_code='import_unexpected_failed',
+            details={'filename': file.filename},
+        )
         flash(_('Erro inesperado ao importar arquivo. Nenhuma alteração foi salva.'), 'error')
 
     return redirect(url_for('dashboard.index'))

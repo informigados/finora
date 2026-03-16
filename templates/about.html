@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}{{ _('Sobre o Finora') }} | Finora{% endblock %}
+{% block meta_description %}{{ _('Conheça o Finora, acompanhe a versão instalada e aplique atualizações com backup prévio e migração segura.') }}{% endblock %}
 
 {% block content %}
 <section class="about-hero card card-premium p-4 p-md-5 mb-4">
@@ -29,12 +30,97 @@
     </div>
 </section>
 
+<section class="card card-premium about-update-shell p-4 p-md-5 mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <h2 class="h4 mb-2">{{ _('Atualizações do Sistema') }}</h2>
+            <p class="text-muted mb-0">{{ _('Verifique a versão instalada, acompanhe o canal atual e aplique atualizações com backup prévio e migração segura do banco de dados.') }}</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <form action="{{ url_for('public.about_check_update') }}" method="POST" data-loading-text="{{ _('Verificando') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <button type="submit" class="btn btn-outline-primary">{{ _('Verificar atualizações') }}</button>
+            </form>
+            {% if current_user.is_authenticated and update_available %}
+            <form action="{{ url_for('public.about_apply_update') }}" method="POST" data-loading-text="{{ _('Aplicando atualização') }}" data-confirm="{{ _('Deseja aplicar esta atualização agora? O sistema fará um backup prévio antes de substituir os arquivos.') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <button type="submit" class="btn btn-primary">{{ _('Atualizar agora') }}</button>
+            </form>
+            {% elif not current_user.is_authenticated and update_available %}
+            <a class="btn btn-primary" href="{{ url_for('auth.login') }}">{{ _('Entrar para atualizar') }}</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="about-feature about-update-stat h-100">
+                <h3>{{ _('Versão instalada') }}</h3>
+                <p class="mb-0 about-update-value">{{ update_state.installed_version }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="about-feature about-update-stat h-100">
+                <h3>{{ _('Última versão conhecida') }}</h3>
+                <p class="mb-0 about-update-value">{{ update_state.latest_known_version or _('Não verificada ainda') }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="about-feature about-update-stat h-100">
+                <h3>{{ _('Canal') }}</h3>
+                <p class="mb-0 text-capitalize about-update-value">{{ update_state.update_channel }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="about-feature about-update-stat h-100">
+                <h3>{{ _('Status') }}</h3>
+                <p class="mb-0 about-update-value">{{ update_status_label }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="about-feature about-update-detail h-100">
+                <h3>{{ _('Última verificação') }}</h3>
+                <p class="mb-0">
+                    {% if update_state.last_checked_at %}
+                        {{ update_state.last_checked_at|app_datetime }}
+                    {% else %}
+                        {{ _('Ainda não realizada') }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="about-feature about-update-detail h-100">
+                <h3>{{ _('Observações') }}</h3>
+                {% if update_state.last_error %}
+                    {% if current_user.is_authenticated %}
+                <p class="mb-0 text-danger">{{ update_state.last_error }}</p>
+                    {% else %}
+                <p class="mb-0 text-danger">{{ _('Ocorreu um erro na última verificação de atualização. Faça login para ver os detalhes.') }}</p>
+                    {% endif %}
+                {% elif update_available %}
+                <p class="mb-0 text-success">{{ _('Uma atualização está disponível e pode ser aplicada a partir desta tela.') }}</p>
+                {% elif update_remote_configured %}
+                <p class="mb-0 text-muted">{{ _('Nenhuma atualização pendente foi encontrada na última verificação.') }}</p>
+                {% elif update_configured %}
+                <p class="mb-0 text-muted">{{ _('O manifesto local padrão está ativo para status e testes seguros. Configure UPDATE_MANIFEST_URL para usar um canal remoto de atualização.') }}</p>
+                {% else %}
+                <p class="mb-0 text-muted">{{ _('Configure UPDATE_MANIFEST_URL para habilitar verificações automáticas de versão.') }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="mb-4">
     <h2 class="h4 mb-3">{{ _('Autores') }}</h2>
     <div class="row g-3">
         <div class="col-md-6">
             <article class="author-card">
-                <img src="{{ url_for('static', filename='images/authors/informigados.webp') }}" alt="INformigados" class="author-avatar" onerror="this.onerror=null; this.src='{{ url_for('static', filename='profile_pics/default_profile.svg') }}';">
+                <img src="{{ url_for('static', filename='images/authors/informigados.webp') }}" alt="INformigados" class="author-avatar" data-fallback-src="{{ url_for('static', filename='profile_pics/default_profile.svg') }}">
                 <div>
                     <h3 class="h5 mb-1">INformigados</h3>
                     <a class="author-link" href="https://github.com/informigados/" target="_blank" rel="noopener noreferrer">github.com/informigados</a>
@@ -43,7 +129,7 @@
         </div>
         <div class="col-md-6">
             <article class="author-card">
-                <img src="{{ url_for('static', filename='images/authors/alex-brito-dev.webp') }}" alt="Alex Brito" class="author-avatar" onerror="this.onerror=null; this.src='{{ url_for('static', filename='profile_pics/default_profile.svg') }}';">
+                <img src="{{ url_for('static', filename='images/authors/alex-brito-dev.webp') }}" alt="Alex Brito" class="author-avatar" data-fallback-src="{{ url_for('static', filename='profile_pics/default_profile.svg') }}">
                 <div>
                     <h3 class="h5 mb-1">Alex Brito</h3>
                     <a class="author-link" href="https://github.com/AlexBritoDEV" target="_blank" rel="noopener noreferrer">github.com/AlexBritoDEV</a>

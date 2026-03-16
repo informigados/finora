@@ -12,6 +12,7 @@ Contributions are especially useful when they improve:
 - Dashboard, entries, budgets, and goals
 - Import/export reliability
 - Backups and data safety
+- Update delivery and release safety
 - Accessibility and responsive UI
 - Internationalization and translation quality
 - Tests, validation, and maintainability
@@ -104,6 +105,7 @@ Please add or update tests when your change affects:
 
 - Authentication or session behavior
 - Imports, exports, or backups
+- Update checks, package application, or migration-triggering flows
 - Goals, budgets, recurring entries, or dashboard calculations
 - Validation and error handling
 - Migrations or persistence behavior
@@ -129,7 +131,7 @@ Finora already contains compatibility handling for some legacy SQLite scenarios,
 
 ## 🔐 Security-Sensitive Contributions
 
-Changes involving login, password reset, profile uploads, imports, exports, cookies, sessions, or backup behavior should be reviewed with extra care.
+Changes involving login, password reset, recovery keys, profile uploads, imports, exports, cookies, sessions, backup behavior, or the update system should be reviewed with extra care.
 
 For those changes, please include:
 

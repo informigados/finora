@@ -3,11 +3,37 @@
 {% block title %}{{ _('Meu Perfil') }} | Finora{% endblock %}
 
 {% block content %}
+{% macro render_profile_pagination(pagination) -%}
+  {% if pagination and pagination.pages > 1 %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+    <div class="text-muted small">
+      {{ _('Página %(page)s de %(pages)s', page=pagination.page, pages=pagination.pages) }}
+      · {{ _('Total: %(count)s', count=pagination.total) }}
+    </div>
+    <div class="btn-group btn-group-sm" role="group" aria-label="{{ _('Paginação') }}">
+      <a
+        href="{{ pagination.prev_url or '#' }}"
+        class="btn btn-outline-secondary {% if not pagination.has_prev %}disabled{% endif %}"
+        {% if not pagination.has_prev %}aria-disabled="true" tabindex="-1"{% endif %}
+      >
+        {{ _('Anterior') }}
+      </a>
+      <a
+        href="{{ pagination.next_url or '#' }}"
+        class="btn btn-outline-secondary {% if not pagination.has_next %}disabled{% endif %}"
+        {% if not pagination.has_next %}aria-disabled="true" tabindex="-1"{% endif %}
+      >
+        {{ _('Próxima') }}
+      </a>
+    </div>
+  </div>
+  {% endif %}
+{%- endmacro %}
 <div class="row g-4">
     <div class="col-lg-4">
       <div class="profile-panel p-4 text-center">
         {% if current_user.profile_image %}
-        <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_image) }}" class="rounded-circle img-fluid mb-3 shadow avatar-lg" alt="{{ _('Foto de perfil') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='profile_pics/default_profile.svg') }}';" />
+        <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_image) }}" class="rounded-circle img-fluid mb-3 shadow avatar-lg" alt="{{ _('Foto de perfil') }}" data-fallback-src="{{ url_for('static', filename='profile_pics/default_profile.svg') }}" />
         {% else %}
         <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3 avatar-lg">
           <i data-lucide="user" class="text-white icon-xxl"></i>
@@ -15,23 +41,98 @@
         {% endif %}
         <h4 class="card-title">{{ current_user.name or current_user.username }}</h4>
         <p class="text-muted mb-1">@{{ current_user.username }}</p>
-        <p class="text-muted small mb-0">{{ current_user.email }}</p>
+        <p class="text-muted small mb-1">{{ current_user.email }}</p>
+        {% if current_user.created_at %}
+        <p class="text-muted small mb-1">{{ _('Conta criada em %(date)s', date=(current_user.created_at|app_date)) }}</p>
+        {% endif %}
+        {% if current_user.last_login_at %}
+        <p class="text-muted small mb-4">{{ _('Último login em %(date)s', date=(current_user.last_login_at|app_datetime)) }}</p>
+        {% else %}
+        <p class="text-muted small mb-4">{{ _('Nenhum login anterior registrado.') }}</p>
+        {% endif %}
+
+        <div class="d-grid gap-2 profile-support-actions">
+          <a href="{{ suggestion_mailto }}" class="btn btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2">
+            <i data-lucide="lightbulb" class="icon-sm"></i>
+            <span>{{ _('Enviar Sugestão') }}</span>
+          </a>
+          <a href="{{ error_mailto }}" class="btn btn-outline-danger d-inline-flex align-items-center justify-content-center gap-2">
+            <i data-lucide="triangle-alert" class="icon-sm"></i>
+            <span>{{ _('Comunicar Erro') }}</span>
+          </a>
+        </div>
       </div>
     </div>
 
     <div class="col-lg-8">
+      <div class="row g-3 mb-3">
+        <div class="col-sm-6 col-xl-3">
+          <div class="profile-panel profile-summary-card p-3 h-100">
+            <div class="profile-summary-icon">
+              <i data-lucide="hard-drive" class="icon-sm"></i>
+            </div>
+            <div class="text-muted small mb-1">{{ _('Backups salvos') }}</div>
+            <div class="fs-4 fw-semibold profile-summary-value">{{ profile_hub_summary.backup_count }}</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="profile-panel profile-summary-card p-3 h-100">
+            <div class="profile-summary-icon">
+              <i data-lucide="shield-check" class="icon-sm"></i>
+            </div>
+            <div class="text-muted small mb-1">{{ _('Sessões ativas') }}</div>
+            <div class="fs-4 fw-semibold profile-summary-value">{{ profile_hub_summary.active_sessions_count }}</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="profile-panel profile-summary-card p-3 h-100">
+            <div class="profile-summary-icon">
+              <i data-lucide="history" class="icon-sm"></i>
+            </div>
+            <div class="text-muted small mb-1">{{ _('Atividades recentes') }}</div>
+            <div class="fs-4 fw-semibold profile-summary-value">{{ profile_hub_summary.activity_count }}</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="profile-panel profile-summary-card p-3 h-100">
+            <div class="profile-summary-icon profile-summary-icon-danger">
+              <i data-lucide="triangle-alert" class="icon-sm"></i>
+            </div>
+            <div class="text-muted small mb-1">{{ _('Alertas abertos') }}</div>
+            <div class="fs-4 fw-semibold profile-summary-value">{{ profile_hub_summary.open_system_events_count }}</div>
+          </div>
+        </div>
+      </div>
+
       <div class="profile-panel p-0">
-        <ul class="nav nav-tabs profile-tabs px-3 pt-3" id="profileTabs" role="tablist">
+        <div class="profile-tabs-shell px-3 pt-3">
+        <ul class="nav nav-tabs profile-tabs" id="profileTabs" role="tablist">
           <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit-pane" type="button" role="tab" aria-controls="edit-pane" aria-selected="true">{{ _('Editar Perfil') }}</button>
+            <button class="nav-link active" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit-pane" type="button" role="tab" aria-controls="edit-pane" aria-selected="true">{{ _('Perfil') }}</button>
           </li>
           <li class="nav-item" role="presentation">
             <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-pane" type="button" role="tab" aria-controls="password-pane" aria-selected="false">{{ _('Alterar Senha') }}</button>
           </li>
           <li class="nav-item" role="presentation">
+            <button class="nav-link" id="recovery-tab" data-bs-toggle="tab" data-bs-target="#recovery-pane" type="button" role="tab" aria-controls="recovery-pane" aria-selected="false">{{ _('Recuperação') }}</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="backups-tab" data-bs-toggle="tab" data-bs-target="#backups-pane" type="button" role="tab" aria-controls="backups-pane" aria-selected="false">{{ _('Meus Backups') }}</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sessions-tab" data-bs-toggle="tab" data-bs-target="#sessions-pane" type="button" role="tab" aria-controls="sessions-pane" aria-selected="false">{{ _('Sessões') }}</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity-pane" type="button" role="tab" aria-controls="activity-pane" aria-selected="false">{{ _('Atividades') }}</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status-pane" type="button" role="tab" aria-controls="status-pane" aria-selected="false">{{ _('Status do Sistema') }}</button>
+          </li>
+          <li class="nav-item" role="presentation">
             <button class="nav-link text-danger" id="danger-tab" data-bs-toggle="tab" data-bs-target="#danger-pane" type="button" role="tab" aria-controls="danger-pane" aria-selected="false">{{ _('Zona de Perigo') }}</button>
           </li>
         </ul>
+        </div>
 
         <div class="tab-content p-4">
           <div class="tab-pane fade show active" id="edit-pane" role="tabpanel" aria-labelledby="edit-tab" tabindex="0">
@@ -113,6 +214,388 @@
             </form>
           </div>
 
+          <div class="tab-pane fade" id="recovery-pane" role="tabpanel" aria-labelledby="recovery-tab" tabindex="0">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="profile-panel p-3 h-100">
+                  <div class="text-muted small mb-1">{{ _('Versão da chave') }}</div>
+                  <div class="fs-5 fw-semibold">{{ recovery_key_summary.version }}</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="profile-panel p-3 h-100">
+                  <div class="text-muted small mb-1">{{ _('Última geração') }}</div>
+                  <div class="fw-semibold">
+                    {% if recovery_key_summary.generated_at %}
+                    {{ recovery_key_summary.generated_at|app_datetime }}
+                    {% else %}
+                    {{ _('Não registrada') }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="profile-panel p-3">
+                  <label for="current_recovery_key" class="form-label">{{ _('Chave atual') }}</label>
+                  <div class="input-group mb-3">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="current_recovery_key"
+                      value="{{ recovery_key_summary.current_key or '' }}"
+                      {% if not recovery_key_summary.current_key %}placeholder="{{ _('Gere uma nova chave para disponibilizar a cópia nesta tela.') }}"{% endif %}
+                      readonly
+                    />
+                    <button type="button" class="btn btn-outline-secondary" id="copyRecoveryKeyBtn" {% if not recovery_key_summary.current_key %}disabled{% endif %}>
+                      {{ _('Copiar') }}
+                    </button>
+                  </div>
+                  <div class="text-muted small mb-1">{{ _('Último envio por e-mail') }}</div>
+                  <div class="fw-semibold mb-2">
+                    {% if recovery_key_summary.last_sent_at %}
+                    {{ recovery_key_summary.last_sent_at|app_datetime }}
+                    {% else %}
+                    {{ _('Nenhum envio registrado até o momento.') }}
+                    {% endif %}
+                  </div>
+                  <p class="text-muted mb-3">{{ _('Mantenha esta chave em local seguro. Se você suspeitar de comprometimento, gere uma nova chave imediatamente.') }}</p>
+                  <div class="d-flex flex-wrap gap-2">
+                    <form action="{{ url_for('auth.profile') }}" method="POST">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                      <input type="hidden" name="action" value="email_recovery_key" />
+                      <button type="submit" class="btn btn-outline-primary">{{ _('Enviar por e-mail') }}</button>
+                    </form>
+                    <form action="{{ url_for('auth.profile') }}" method="POST" data-confirm="{{ _('Deseja gerar uma nova chave de recuperação? A chave anterior deixará de valer imediatamente.') }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                      <input type="hidden" name="action" value="regenerate_recovery_key" />
+                      <button type="submit" class="btn btn-outline-danger">{{ _('Gerar nova chave') }}</button>
+                    </form>
+                    <a href="{{ url_for('auth.forgot_password') }}" class="btn btn-outline-secondary">{{ _('Abrir fluxo de recuperação') }}</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="backups-pane" role="tabpanel" aria-labelledby="backups-tab" tabindex="0">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+              <div>
+                <h5 class="mb-1">{{ _('Meus Backups') }}</h5>
+                <p class="text-muted mb-0">{{ _('Centralize aqui os backups manuais, a rotina automática e o histórico salvo.') }}</p>
+              </div>
+              <a href="{{ url_for('backup.download_backup') }}" class="btn btn-primary">{{ _('Gerar Backup Manual') }}</a>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <div class="profile-panel p-3 h-100">
+                  <div class="text-muted small mb-1">{{ _('Rotina automática') }}</div>
+                  <div class="fw-semibold mb-1">{{ _('Ativada') if backup_schedule.enabled else _('Desativada') }}</div>
+                  <div class="text-muted small">{{ _('Frequência: %(frequency)s', frequency=backup_schedule.frequency) }}</div>
+                  <div class="text-muted small">{{ _('Retenção: %(count)s backup(s)', count=backup_schedule.retention_count) }}</div>
+                  <div class="text-muted small">{{ _('Execuções por período: %(count)s', count=backup_schedule.times_per_period) }}</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="profile-panel p-3 h-100">
+                  <div class="text-muted small mb-1">{{ _('Próxima execução') }}</div>
+                  <div class="fw-semibold mb-1">
+                    {% if backup_schedule.next_run_at %}
+                    {{ backup_schedule.next_run_at|app_datetime }}
+                    {% else %}
+                    {{ _('Ainda não agendada') }}
+                    {% endif %}
+                  </div>
+                  <div class="text-muted small">
+                    {% if backup_schedule.last_run_at %}
+                    {{ _('Última execução em %(date)s', date=(backup_schedule.last_run_at|app_datetime)) }}
+                    {% else %}
+                    {{ _('Nenhuma execução automática registrada.') }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-panel p-3 mb-4">
+              <h6 class="mb-3">{{ _('Configurar rotina automática') }}</h6>
+              <form action="{{ url_for('backup.update_backup_schedule') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <div class="form-check form-switch mb-3">
+                  <input class="form-check-input" type="checkbox" role="switch" id="backup_enabled" name="enabled" {% if backup_schedule.enabled %}checked{% endif %} />
+                  <label class="form-check-label" for="backup_enabled">{{ _('Ativar backups automáticos') }}</label>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="backup_frequency" class="form-label">{{ _('Frequência') }}</label>
+                    <select class="form-select" id="backup_frequency" name="frequency">
+                      {% for frequency in backup_frequency_options %}
+                      <option value="{{ frequency }}" {% if frequency == backup_schedule.frequency %}selected{% endif %}>{{ frequency }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="backup_times_per_period" class="form-label">{{ _('Execuções por período') }}</label>
+                    <select class="form-select" id="backup_times_per_period" name="times_per_period">
+                      {% for option in backup_times_per_period_options %}
+                      <option value="{{ option }}" {% if option == backup_schedule.times_per_period %}selected{% endif %}>{{ option }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6 backup-weekday-field">
+                    <label for="backup_day_of_week" class="form-label">{{ _('Dia da semana') }}</label>
+                    <select class="form-select" id="backup_day_of_week" name="day_of_week">
+                      {% for weekday_value, weekday_label in backup_weekday_options %}
+                      <option value="{{ weekday_value }}" {% if weekday_value == (backup_schedule.day_of_week if backup_schedule.day_of_week is not none else 0) %}selected{% endif %}>{{ weekday_label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6 backup-monthday-field">
+                    <label for="backup_day_of_month" class="form-label">{{ _('Dia do mês') }}</label>
+                    <input type="number" min="1" max="31" class="form-control" id="backup_day_of_month" name="day_of_month" value="{{ backup_schedule.day_of_month if backup_schedule.day_of_month is not none else 1 }}" />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="backup_run_hour" class="form-label">{{ _('Hora inicial') }}</label>
+                    <input type="number" min="0" max="23" class="form-control" id="backup_run_hour" name="run_hour" value="{{ backup_schedule.run_hour }}" />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="backup_run_minute" class="form-label">{{ _('Minuto') }}</label>
+                    <input type="number" min="0" max="59" class="form-control" id="backup_run_minute" name="run_minute" value="{{ backup_schedule.run_minute }}" />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="backup_retention_count" class="form-label">{{ _('Retenção máxima') }}</label>
+                    <input type="number" min="1" max="100" class="form-control" id="backup_retention_count" name="retention_count" value="{{ backup_schedule.retention_count }}" />
+                    <div class="form-text">{{ _('Backups mais antigos acima deste limite serão removidos automaticamente.') }}</div>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <button type="submit" class="btn btn-outline-primary">{{ _('Salvar rotina') }}</button>
+                </div>
+              </form>
+            </div>
+
+            {% if backup_records %}
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>{{ _('Arquivo') }}</th>
+                    <th>{{ _('Origem') }}</th>
+                    <th>{{ _('Criado em') }}</th>
+                    <th>{{ _('Tamanho') }}</th>
+                    <th class="text-end">{{ _('Ações') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for backup in backup_records %}
+                  <tr>
+                    <td>
+                      <div class="fw-semibold">{{ backup.file_name }}</div>
+                      <div class="text-muted small">{{ backup.status }}</div>
+                    </td>
+                    <td>{{ backup.trigger_source }}</td>
+                    <td>{{ backup.created_at|app_datetime }}</td>
+                    <td>
+                      {% if backup.file_size_bytes %}
+                      {{ '%.1f'|format(backup.file_size_bytes / 1024 / 1024) }} MB
+                      {% else %}
+                      -
+                      {% endif %}
+                    </td>
+                    <td class="text-end">
+                      <div class="d-inline-flex gap-2">
+                        <a href="{{ url_for('backup.download_saved_backup', record_id=backup.id) }}" class="btn btn-sm btn-outline-primary">{{ _('Baixar') }}</a>
+                        <form action="{{ url_for('backup.delete_saved_backup', record_id=backup.id) }}" method="POST" data-confirm="{{ _('Deseja excluir este backup salvo?') }}">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                          <button type="submit" class="btn btn-sm btn-outline-danger">{{ _('Excluir') }}</button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {{ render_profile_pagination(backup_records_pagination) }}
+            {% else %}
+            <div class="profile-panel p-3">
+              <p class="text-muted mb-0">{{ _('Nenhum backup manual registrado ainda.') }}</p>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="tab-pane fade" id="sessions-pane" role="tabpanel" aria-labelledby="sessions-tab" tabindex="0">
+            {% if session_history %}
+            <div class="list-group list-group-flush">
+              {% for session_item in session_history %}
+              {% set login_session = session_item.entry %}
+              <div class="list-group-item px-0">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div>
+                    <div class="fw-semibold">
+                      {{ session_item.device_label }}
+                      {% if login_session.is_current %}
+                      <span class="badge text-bg-success ms-2">{{ _('Ativa') }}</span>
+                      {% else %}
+                      <span class="badge text-bg-secondary ms-2">{{ session_item.ended_reason_label }}</span>
+                      {% endif %}
+                    </div>
+                    <div class="text-muted small">{{ login_session.ip_address or _('IP indisponível') }}</div>
+                  </div>
+                  <div class="text-muted small text-end">
+                    <div>{{ _('Início: %(date)s', date=(login_session.started_at|app_datetime)) }}</div>
+                    <div>{{ _('Última atividade: %(date)s', date=(login_session.last_seen_at|app_datetime)) }}</div>
+                    {% if login_session.ended_at %}
+                    <div>{{ _('%(label)s em %(date)s', label=session_item.ended_reason_label, date=(login_session.ended_at|app_datetime)) }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {{ render_profile_pagination(session_history_pagination) }}
+            {% else %}
+            <div class="profile-panel p-3">
+              <p class="text-muted mb-0">{{ _('Nenhuma sessão registrada até o momento.') }}</p>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="tab-pane fade" id="activity-pane" role="tabpanel" aria-labelledby="activity-tab" tabindex="0">
+            {% if activity_timeline %}
+            <div class="list-group list-group-flush">
+              {% for activity_item in activity_timeline %}
+              {% set activity = activity_item.entry %}
+              <div class="list-group-item px-0">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div>
+                    <div class="fw-semibold">{{ _(activity.message) }}</div>
+                    <div class="text-muted small">{{ activity_item.event_category_label }} · {{ activity_item.event_type_label }}</div>
+                    {% if activity_item.details %}
+                    <div class="mt-2 d-flex flex-wrap gap-2">
+                      {% for detail in activity_item.details %}
+                      <span class="badge text-bg-light activity-detail-badge" title="{{ detail.label }}: {{ detail.value }}">{{ detail.label }}: {{ detail.value }}</span>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="text-muted small">{{ activity.created_at|app_datetime }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {{ render_profile_pagination(activity_timeline_pagination) }}
+            {% else %}
+            <div class="profile-panel p-3">
+              <p class="text-muted mb-0">{{ _('Nenhuma atividade registrada ainda.') }}</p>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="tab-pane fade" id="status-pane" role="tabpanel" aria-labelledby="status-tab" tabindex="0">
+            <div class="row g-3 mb-4">
+              <div class="col-md-3">
+                <div class="profile-panel p-3 h-100">
+                  <div class="text-muted small mb-1">{{ _('Banco de dados') }}</div>
+                  <div class="fw-semibold">{{ system_health.database_status.label }}</div>
+                  <div class="text-muted small">{{ _('Conectividade em tempo real') }}</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="profile-panel p-3 h-100">
+                  <div class="text-muted small mb-1">{{ _('Agendador de backups') }}</div>
+                  <div class="fw-semibold">{{ _('Ativo') if system_health.backup_scheduler_enabled else _('Desativado') }}</div>
+                  <div class="text-muted small">{{ _('Storage pronto: %(state)s', state=_('Sim') if system_health.backup_storage_ready else _('Não')) }}</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="profile-panel p-3 h-100">
+                  <div class="text-muted small mb-1">{{ _('Agendador de recorrências') }}</div>
+                  <div class="fw-semibold">{{ _('Ativo') if system_health.recurring_scheduler_enabled else _('Desativado') }}</div>
+                  <div class="text-muted small">{{ _('Operação automática de lançamentos') }}</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="profile-panel p-3 h-100">
+                  <div class="text-muted small mb-1">{{ _('Atualizações') }}</div>
+                  <div class="fw-semibold">{{ app_update_state.installed_version if app_update_state else app_version }}</div>
+                  <div class="text-muted small">{{ _('Status: %(status)s', status=system_health.update_status_label) }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-lg-6">
+                <div class="profile-panel p-3 h-100">
+                  <div class="text-muted small mb-1">{{ _('Manifesto de atualização') }}</div>
+                  <div class="fw-semibold">{{ _('Configurado') if system_health.update_manifest_configured else _('Não configurado') }}</div>
+                  <div class="text-muted small">
+                    {% if app_update_state and app_update_state.last_checked_at %}
+                    {{ _('Última verificação em %(date)s', date=(app_update_state.last_checked_at|app_datetime)) }}
+                    {% else %}
+                    {{ _('Nenhuma verificação de atualização registrada.') }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="profile-panel p-3 h-100">
+                  <div class="text-muted small mb-1">{{ _('Último backup salvo') }}</div>
+                  <div class="fw-semibold profile-filename-truncate" {% if system_health.latest_backup_name %}title="{{ system_health.latest_backup_name }}"{% endif %}>
+                    {% if system_health.latest_backup_name %}
+                    {{ system_health.latest_backup_name }}
+                    {% else %}
+                    {{ _('Nenhum backup salvo ainda') }}
+                    {% endif %}
+                  </div>
+                  <div class="text-muted small">
+                    {% if system_health.latest_backup_at %}
+                    {{ system_health.latest_backup_at|app_datetime }}
+                    {% else %}
+                    {{ _('Gere um backup manual ou automático para começar o histórico.') }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {% if system_event_timeline %}
+            <div class="list-group list-group-flush">
+              {% for system_event_item in system_event_timeline %}
+              {% set system_event = system_event_item.entry %}
+              <div class="list-group-item px-0">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div>
+                    <div class="fw-semibold">{{ _(system_event.message) }}</div>
+                    <div class="text-muted small">{{ system_event_item.source_label }} · {{ system_event_item.severity_label }}</div>
+                    {% if system_event_item.details %}
+                    <div class="mt-2 d-flex flex-wrap gap-2">
+                      {% for detail in system_event_item.details %}
+                      <span class="badge text-bg-light activity-detail-badge" title="{{ detail.label }}: {{ detail.value }}">{{ detail.label }}: {{ detail.value }}</span>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="text-muted small text-end">
+                    <div>{{ system_event.created_at|app_datetime }}</div>
+                    {% if system_event.resolved_at %}
+                    <div>{{ _('Resolvido em %(date)s', date=(system_event.resolved_at|app_datetime)) }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {{ render_profile_pagination(system_event_timeline_pagination) }}
+            {% else %}
+            <div class="profile-panel p-3">
+              <p class="text-muted mb-0">{{ _('Nenhum evento de sistema registrado no momento.') }}</p>
+            </div>
+            {% endif %}
+          </div>
+
           <div class="tab-pane fade" id="danger-pane" role="tabpanel" aria-labelledby="danger-tab" tabindex="0">
             <p class="text-muted">{{ _('A exclusão da sua conta é irreversível. Todos os seus dados financeiros e metas serão apagados permanentemente.') }}</p>
             <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
@@ -150,7 +633,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ csp_nonce }}">
   document.addEventListener("DOMContentLoaded", function () {
     const triggerFromHash = function () {
       const hash = window.location.hash;
@@ -170,7 +653,34 @@
       });
     });
 
+    const backupFrequencySelect = document.getElementById("backup_frequency");
+    const weekdayField = document.querySelector(".backup-weekday-field");
+    const monthdayField = document.querySelector(".backup-monthday-field");
+    const syncBackupScheduleFields = function () {
+      if (!backupFrequencySelect || !weekdayField || !monthdayField) return;
+      const frequency = backupFrequencySelect.value;
+      weekdayField.classList.toggle("d-none", frequency !== "Semanal");
+      monthdayField.classList.toggle("d-none", frequency !== "Mensal");
+    };
+
+    backupFrequencySelect?.addEventListener("change", syncBackupScheduleFields);
     triggerFromHash();
+    syncBackupScheduleFields();
+
+    const copyRecoveryKeyBtn = document.getElementById("copyRecoveryKeyBtn");
+    const currentRecoveryKeyInput = document.getElementById("current_recovery_key");
+    copyRecoveryKeyBtn?.addEventListener("click", async function () {
+      if (!currentRecoveryKeyInput?.value) return;
+      try {
+        await navigator.clipboard.writeText(currentRecoveryKeyInput.value);
+        copyRecoveryKeyBtn.textContent = "{{ _('Copiado!') }}";
+        window.setTimeout(() => {
+          copyRecoveryKeyBtn.textContent = "{{ _('Copiar') }}";
+        }, 1500);
+      } catch (_error) {
+        currentRecoveryKeyInput.select();
+      }
+    });
   });
 </script>
 {% endblock %}
