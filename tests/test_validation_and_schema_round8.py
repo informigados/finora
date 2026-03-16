@@ -15,7 +15,7 @@ from services.db_resilience import run_idempotent_db_operation
 from services.import_service import ImportValidationError, import_finances_from_file
 from services.validators import parse_finance_form, validate_finance_data
 
-DUMMY_SQL_FOR_RETRY_TEST = 'SELECT 1'
+TEST_SQL_STATEMENT = 'SELECT 1'
 
 
 def test_finance_and_goal_user_id_are_non_nullable():
@@ -99,21 +99,36 @@ def test_normalize_finance_category_housing_alias():
 
 
 def test_budget_route_rejects_invalid_category(client, app):
-    with app.app_context():
-        user = User(username='budgetinvalidcat', email='budgetinvalidcat@example.com', name='Budget Invalid Cat')
-        user.set_password('Pass1234')
-        db.session.add(user)
-        db.session.commit()
+    try:
+        with app.app_context():
+            user = User(
+                username='budgetinvalidcat',
+                email='budgetinvalidcat@example.com',
+                name='Budget Invalid Cat',
+            )
+            user.set_password('Pass1234')
+            db.session.add(user)
+            db.session.commit()
 
-    client.post('/login', data={'identifier': 'budgetinvalidcat', 'password': 'Pass1234'}, follow_redirects=True)
-    response = client.post(
-        '/budgets/add',
-        data={'category': 'OutraCategoria', 'limit_amount': '100', 'period': 'Mensal'},
-        follow_redirects=True,
-    )
+        client.post(
+            '/login',
+            data={'identifier': 'budgetinvalidcat', 'password': 'Pass1234'},
+            follow_redirects=True,
+        )
+        response = client.post(
+            '/budgets/add',
+            data={'category': 'OutraCategoria', 'limit_amount': '100', 'period': 'Mensal'},
+            follow_redirects=True,
+        )
 
-    assert response.status_code == 200
-    assert b'Categoria inv\xc3\xa1lida. Selecione uma categoria permitida.' in response.data
+        assert response.status_code == 200
+        assert b'Categoria inv\xc3\xa1lida. Selecione uma categoria permitida.' in response.data
+    finally:
+        with app.app_context():
+            user = User.query.filter_by(username='budgetinvalidcat').first()
+            if user is not None:
+                db.session.delete(user)
+                db.session.commit()
 
 
 def test_import_service_normalizes_allowed_category_alias():
@@ -189,7 +204,7 @@ def test_run_idempotent_db_operation_retries_retryable_errors(app):
             nonlocal call_count
             call_count += 1
             if call_count == 1:
-                raise OperationalError(DUMMY_SQL_FOR_RETRY_TEST, {}, RuntimeError('db down'))
+                raise OperationalError(TEST_SQL_STATEMENT, {}, RuntimeError('db down'))
             return 'ok'
 
         assert run_idempotent_db_operation(flaky_operation) == 'ok'
@@ -198,21 +213,27 @@ def test_run_idempotent_db_operation_retries_retryable_errors(app):
 
 def test_run_idempotent_db_operation_raises_after_max_retries_and_applies_backoff(app):
     with app.app_context():
-        app.config['DB_IDEMPOTENT_MAX_RETRIES'] = 2
-        app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = 0.25
-        call_count = 0
+        original_max_retries = app.config.get('DB_IDEMPOTENT_MAX_RETRIES')
+        original_backoff = app.config.get('DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS')
+        try:
+            app.config['DB_IDEMPOTENT_MAX_RETRIES'] = 2
+            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = 0.25
+            call_count = 0
 
-        def always_failing_operation():
-            nonlocal call_count
-            call_count += 1
-            raise OperationalError(DUMMY_SQL_FOR_RETRY_TEST, {}, RuntimeError('db still down'))
+            def always_failing_operation():
+                nonlocal call_count
+                call_count += 1
+                raise OperationalError(TEST_SQL_STATEMENT, {}, RuntimeError('db still down'))
 
-        with patch('services.db_resilience.time.sleep') as sleep_mock:
-            with pytest.raises(OperationalError):
-                run_idempotent_db_operation(always_failing_operation)
+            with patch('services.db_resilience.time.sleep') as sleep_mock:
+                with pytest.raises(OperationalError):
+                    run_idempotent_db_operation(always_failing_operation)
 
-        assert call_count == 3
-        assert [call.args[0] for call in sleep_mock.call_args_list] == [0.25, 0.5]
+            assert call_count == 3
+            assert [call.args[0] for call in sleep_mock.call_args_list] == [0.25, 0.5]
+        finally:
+            app.config['DB_IDEMPOTENT_MAX_RETRIES'] = original_max_retries
+            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = original_backoff
 
 
 def test_run_idempotent_db_operation_does_not_hide_non_retryable_errors(app):
