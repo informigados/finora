@@ -221,6 +221,7 @@ def test_run_idempotent_db_operation_raises_after_max_retries(app):
         try:
             app.config['DB_IDEMPOTENT_MAX_RETRIES'] = 2
             app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = 0.25
+            max_retries = app.config['DB_IDEMPOTENT_MAX_RETRIES']
             call_count = 0
 
             def always_failing_operation():
@@ -231,7 +232,7 @@ def test_run_idempotent_db_operation_raises_after_max_retries(app):
             with pytest.raises(OperationalError):
                 run_idempotent_db_operation(always_failing_operation)
 
-            assert call_count == 3
+            assert call_count == max_retries + 1
         finally:
             app.config['DB_IDEMPOTENT_MAX_RETRIES'] = original_max_retries
             app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = original_backoff
@@ -262,7 +263,7 @@ def test_run_idempotent_db_operation_applies_backoff(app):
                 for attempt in range(1, max_retries + 1)
             ]
 
-            assert call_count == 3
+            assert call_count == max_retries + 1
             assert [call.args[0] for call in sleep_mock.call_args_list] == expected_backoffs
         finally:
             app.config['DB_IDEMPOTENT_MAX_RETRIES'] = original_max_retries
