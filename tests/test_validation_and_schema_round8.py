@@ -17,6 +17,10 @@ from services.validators import parse_finance_form, validate_finance_data
 
 TEST_SQL_STATEMENT = 'SELECT 1'
 TEST_BACKOFF_SECONDS = 0.25
+RETRY_CONFIG_KEYS = (
+    'DB_IDEMPOTENT_MAX_RETRIES',
+    'DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS',
+)
 
 
 def _compute_expected_backoffs(base_backoff_seconds: float, max_retries: int):
@@ -24,6 +28,21 @@ def _compute_expected_backoffs(base_backoff_seconds: float, max_retries: int):
         base_backoff_seconds * attempt
         for attempt in range(1, max_retries + 1)
     ]
+
+
+def _capture_config_state(app, *keys):
+    return {
+        key: (key in app.config, app.config.get(key))
+        for key in keys
+    }
+
+
+def _restore_config_state(app, state):
+    for key, (was_present, value) in state.items():
+        if was_present:
+            app.config[key] = value
+        else:
+            app.config.pop(key, None)
 
 
 @pytest.fixture
@@ -221,7 +240,7 @@ def test_import_service_requires_due_date():
 
 def test_run_idempotent_db_operation_retries_retryable_errors(app):
     with app.app_context():
-        original_backoff = app.config.get('DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS')
+        original_state = _capture_config_state(app, 'DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS')
         call_count = 0
         try:
             app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = TEST_BACKOFF_SECONDS
@@ -239,13 +258,12 @@ def test_run_idempotent_db_operation_retries_retryable_errors(app):
             assert call_count == 2
             sleep_mock.assert_called_once_with(TEST_BACKOFF_SECONDS)
         finally:
-            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = original_backoff
+            _restore_config_state(app, original_state)
 
 
 def test_run_idempotent_db_operation_raises_after_max_retries(app):
     with app.app_context():
-        original_max_retries = app.config.get('DB_IDEMPOTENT_MAX_RETRIES')
-        original_backoff = app.config.get('DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS')
+        original_state = _capture_config_state(app, *RETRY_CONFIG_KEYS)
         try:
             app.config['DB_IDEMPOTENT_MAX_RETRIES'] = 2
             app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = TEST_BACKOFF_SECONDS
@@ -262,14 +280,12 @@ def test_run_idempotent_db_operation_raises_after_max_retries(app):
 
             assert call_count == max_retries + 1
         finally:
-            app.config['DB_IDEMPOTENT_MAX_RETRIES'] = original_max_retries
-            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = original_backoff
+            _restore_config_state(app, original_state)
 
 
 def test_run_idempotent_db_operation_applies_backoff(app):
     with app.app_context():
-        original_max_retries = app.config.get('DB_IDEMPOTENT_MAX_RETRIES')
-        original_backoff = app.config.get('DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS')
+        original_state = _capture_config_state(app, *RETRY_CONFIG_KEYS)
         try:
             app.config['DB_IDEMPOTENT_MAX_RETRIES'] = 2
             app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = TEST_BACKOFF_SECONDS
@@ -291,8 +307,37 @@ def test_run_idempotent_db_operation_applies_backoff(app):
             assert call_count == max_retries + 1
             assert [call.args[0] for call in sleep_mock.call_args_list] == expected_backoffs
         finally:
-            app.config['DB_IDEMPOTENT_MAX_RETRIES'] = original_max_retries
-            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = original_backoff
+            _restore_config_state(app, original_state)
+
+
+def test_run_idempotent_db_operation_handles_missing_retry_config(app):
+    with app.app_context():
+        original_state = _capture_config_state(app, *RETRY_CONFIG_KEYS)
+        call_count = 0
+        try:
+            for key in RETRY_CONFIG_KEYS:
+                app.config.pop(key, None)
+
+            def flaky_operation():
+                nonlocal call_count
+                call_count += 1
+                if call_count == 1:
+                    raise OperationalError(TEST_SQL_STATEMENT, {}, RuntimeError('db down'))
+                return 'ok'
+
+            with patch('services.db_resilience.time.sleep') as sleep_mock:
+                assert run_idempotent_db_operation(flaky_operation) == 'ok'
+
+            assert call_count == 2
+            sleep_mock.assert_called_once()
+        finally:
+            _restore_config_state(app, original_state)
+
+        for key, (was_present, value) in original_state.items():
+            if was_present:
+                assert app.config[key] == value
+            else:
+                assert key not in app.config
 
 
 def test_run_idempotent_db_operation_does_not_hide_non_retryable_errors(app):
