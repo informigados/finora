@@ -381,6 +381,7 @@ def _run_database_upgrade(app):
     target_root = _get_update_target_root(app)
     environment = _build_upgrade_environment(app)
 
+    # nosec B603,B607 - fixed interpreter command with sanitized cwd and environment.
     result = subprocess.run(  # nosec
         [sys.executable, '-m', 'flask', 'db', 'upgrade'],
         cwd=target_root,

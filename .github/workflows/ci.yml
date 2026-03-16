@@ -44,4 +44,4 @@ jobs:
           pip-audit -r requirements.txt
 
       - name: Run tests
-        run: python -m pytest tests -q --cov=app --cov=config --cov=database --cov=extensions --cov=models --cov=routes --cov=services --cov-report=term-missing --cov-report=xml --cov-fail-under=88
+        run: python -m pytest tests -q --cov=app --cov=config --cov=database --cov=extensions --cov=models --cov=routes --cov=services --cov-report=term-missing --cov-report=xml --cov-fail-under=90
