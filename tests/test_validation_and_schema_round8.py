@@ -99,6 +99,7 @@ def test_normalize_finance_category_housing_alias():
 
 
 def test_budget_route_rejects_invalid_category(client, app):
+    user_id = None
     try:
         with app.app_context():
             user = User(
@@ -109,6 +110,7 @@ def test_budget_route_rejects_invalid_category(client, app):
             user.set_password('Pass1234')
             db.session.add(user)
             db.session.commit()
+            user_id = user.id
 
         client.post(
             '/login',
@@ -125,10 +127,11 @@ def test_budget_route_rejects_invalid_category(client, app):
         assert b'Categoria inv\xc3\xa1lida. Selecione uma categoria permitida.' in response.data
     finally:
         with app.app_context():
-            user = User.query.filter_by(username='budgetinvalidcat').first()
-            if user is not None:
-                db.session.delete(user)
-                db.session.commit()
+            if user_id is not None:
+                user = db.session.get(User, user_id)
+                if user is not None:
+                    db.session.delete(user)
+                    db.session.commit()
 
 
 def test_import_service_normalizes_allowed_category_alias():
@@ -253,9 +256,10 @@ def test_run_idempotent_db_operation_applies_backoff(app):
                     run_idempotent_db_operation(always_failing_operation)
 
             base_backoff = app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS']
+            max_retries = app.config['DB_IDEMPOTENT_MAX_RETRIES']
             expected_backoffs = [
                 base_backoff * attempt
-                for attempt in range(1, len(sleep_mock.call_args_list) + 1)
+                for attempt in range(1, max_retries + 1)
             ]
 
             assert call_count == 3
