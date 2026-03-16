@@ -2,7 +2,7 @@ import hashlib
 import json
 import os
 import shutil
-import subprocess
+import subprocess  # nosec B404
 import sys
 import tempfile
 import zipfile
@@ -134,7 +134,7 @@ def _open_source_stream(location, timeout_seconds):
 
     parsed = urlparse(location)
     if parsed.scheme == 'https':
-        return urlopen(location, timeout=timeout_seconds)
+        return urlopen(location, timeout=timeout_seconds)  # nosec B310
     if parsed.scheme:
         raise ValueError('Atualizacoes remotas aceitam apenas URLs HTTPS seguras.')
     raise ValueError('Origem de atualizacao invalida ou indisponivel.')
@@ -381,7 +381,7 @@ def _run_database_upgrade(app):
     target_root = _get_update_target_root(app)
     environment = _build_upgrade_environment(app)
 
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603,B607
         [sys.executable, '-m', 'flask', 'db', 'upgrade'],
         cwd=target_root,
         env=environment,

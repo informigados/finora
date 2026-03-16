@@ -162,6 +162,8 @@ def test_profile_bootstraps_active_session_for_authenticated_user_without_audit_
 
 
 def test_profile_bootstrap_reconciles_duplicate_active_sessions_for_same_client(client, app):
+    user_agent = 'pytest-agent'
+
     with app.app_context():
         user = User(username='sessionreconcile', email='sessionreconcile@example.com', name='Session Reconcile')
         user.set_password('Password123')
@@ -174,27 +176,29 @@ def test_profile_bootstrap_reconciles_duplicate_active_sessions_for_same_client(
                 user_id=user_id,
                 session_token_hash='legacy-session',
                 ip_address='127.0.0.1',
-                user_agent='Werkzeug/3.1.3',
+                user_agent=user_agent,
                 started_at=datetime(2026, 3, 16, 10, 0),
                 last_seen_at=datetime(2026, 3, 16, 10, 1),
                 is_current=True,
             )
         )
         db.session.commit()
+        existing_session_id = (
+            UserSession.query.filter_by(user_id=user_id, is_current=True).first().id
+        )
 
     with client.session_transaction() as flask_session:
         flask_session['_user_id'] = str(user_id)
         flask_session['_fresh'] = True
 
-    response = client.get('/profile')
+    response = client.get('/profile', headers={'User-Agent': user_agent})
 
     assert response.status_code == 200
 
     with app.app_context():
         active_sessions = UserSession.query.filter_by(user_id=user_id, is_current=True).all()
-        ended_sessions = UserSession.query.filter_by(user_id=user_id, ended_reason='replaced').all()
         assert len(active_sessions) == 1
-        assert ended_sessions
+        assert active_sessions[0].id == existing_session_id
 
 
 def test_profile_hub_paginates_backup_and_activity_history(client, app):

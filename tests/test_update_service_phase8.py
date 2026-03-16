@@ -282,10 +282,12 @@ def test_check_for_updates_blocks_local_assets_from_local_manifest_by_default(ap
 def test_open_source_stream_rejects_remote_insecure_schemes(app):
     with app.app_context():
         with pytest.raises(ValueError, match='HTTPS'):
-            update_service._open_source_stream('http://example.com/update.json', 5)
+            stream = update_service._open_source_stream('http://example.com/update.json', 5)
+            stream.close()
 
         with pytest.raises(ValueError, match='HTTPS'):
-            update_service._open_source_stream('file:///tmp/update.json', 5)
+            stream = update_service._open_source_stream('file:///tmp/update.json', 5)
+            stream.close()
 
 
 def test_run_database_upgrade_uses_sanitized_environment(app, monkeypatch, tmp_path):

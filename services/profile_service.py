@@ -401,20 +401,27 @@ def ensure_user_session(user, request_obj, session_store):
         )
 
         reusable_session = None
+        same_client_sessions = []
         for active_session in active_sessions:
+            if (
+                active_session.ip_address == request_ip
+                and active_session.user_agent == request_user_agent
+            ):
+                same_client_sessions.append(active_session)
+                continue
+
             last_seen_at = active_session.last_seen_at or active_session.started_at
             if last_seen_at and last_seen_at.timestamp() >= recent_cutoff:
-                if (
-                    active_session.ip_address == request_ip
-                    and active_session.user_agent == request_user_agent
-                ):
-                    reusable_session = active_session
-                    active_session.last_seen_at = now
-                    continue
-                active_session.last_seen_at = now
-                active_session.ended_at = now
-                active_session.ended_reason = 'replaced'
-                active_session.is_current = False
+                continue
+
+        if same_client_sessions:
+            reusable_session = same_client_sessions[0]
+            reusable_session.last_seen_at = now
+            for duplicate_session in same_client_sessions[1:]:
+                duplicate_session.last_seen_at = now
+                duplicate_session.ended_at = now
+                duplicate_session.ended_reason = 'replaced'
+                duplicate_session.is_current = False
 
         db.session.commit()
         if reusable_session is not None:

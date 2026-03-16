@@ -151,4 +151,4 @@ def export_data(type: str, year: int, month: int) -> ResponseReturnValue:
             download_name=filename
         )
          
-    abort(400, description=_('Tipo de exportação inválido.'))
+    return abort(400, description=_('Tipo de exportação inválido.'))

@@ -37,7 +37,8 @@ def get_or_create_local_secret_key():
                 if existing_secret:
                     return existing_secret
     except OSError:
-        pass
+        # If the persisted local key cannot be read, fall back to generating a new one.
+        existing_secret = None
 
     generated_secret = secrets.token_urlsafe(48)
     try:
