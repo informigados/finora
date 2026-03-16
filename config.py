@@ -1,10 +1,17 @@
 import os
 import secrets
+import base64
+import getpass
+import hashlib
+import platform
+
+from cryptography.fernet import Fernet, InvalidToken
 from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 LOCAL_SECRET_KEY_PATH = os.path.join(basedir, 'database', '.finora_secret_key')
+LOCAL_SECRET_KEY_PREFIX = 'finora-key:v1:'
 DEFAULT_UPDATE_MANIFEST_PATH = os.path.join(basedir, 'updates', 'manifest.json')
 
 
@@ -25,6 +32,35 @@ def _env_int(name, default):
         return default
 
 
+def _get_local_secret_cipher():
+    fingerprint = '|'.join(
+        (
+            platform.node() or 'unknown-host',
+            getpass.getuser() or 'unknown-user',
+            os.path.abspath(LOCAL_SECRET_KEY_PATH),
+        )
+    ).encode('utf-8')
+    derived_key = base64.urlsafe_b64encode(hashlib.sha256(fingerprint).digest())
+    return Fernet(derived_key)
+
+
+def _decrypt_persisted_local_secret(persisted_value):
+    persisted_value = (persisted_value or '').strip()
+    if not persisted_value:
+        return ''
+    if not persisted_value.startswith(LOCAL_SECRET_KEY_PREFIX):
+        return persisted_value
+
+    encrypted_payload = persisted_value[len(LOCAL_SECRET_KEY_PREFIX):].encode('utf-8')
+    decrypted_secret = _get_local_secret_cipher().decrypt(encrypted_payload)
+    return decrypted_secret.decode('utf-8')
+
+
+def _encrypt_local_secret(secret_value):
+    encrypted_payload = _get_local_secret_cipher().encrypt(secret_value.encode('utf-8'))
+    return f'{LOCAL_SECRET_KEY_PREFIX}{encrypted_payload.decode("utf-8")}'
+
+
 def get_or_create_local_secret_key():
     secret_key = os.environ.get('SECRET_KEY')
     if secret_key:
@@ -33,18 +69,18 @@ def get_or_create_local_secret_key():
     try:
         if os.path.exists(LOCAL_SECRET_KEY_PATH):
             with open(LOCAL_SECRET_KEY_PATH, encoding='utf-8') as secret_file:
-                existing_secret = secret_file.read().strip()
+                existing_secret = _decrypt_persisted_local_secret(secret_file.read())
                 if existing_secret:
                     return existing_secret
-    except OSError:
-        # If the persisted local key cannot be read, fall back to generating a new one.
-        existing_secret = None
+    except (OSError, InvalidToken):
+        # If the persisted local key cannot be read or decrypted, fall back to generating a new one.
+        pass
 
     generated_secret = secrets.token_urlsafe(48)
     try:
         os.makedirs(os.path.dirname(LOCAL_SECRET_KEY_PATH), exist_ok=True)
         with open(LOCAL_SECRET_KEY_PATH, 'w', encoding='utf-8') as secret_file:
-            secret_file.write(generated_secret)
+            secret_file.write(_encrypt_local_secret(generated_secret))
     except OSError:
         return generated_secret
 

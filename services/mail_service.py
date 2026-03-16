@@ -18,10 +18,10 @@ def send_email(app, to_address, subject, plain_text_body):
 
     if not mail_server or not mail_default_sender:
         app.logger.info(
-            'Envio de e-mail em modo local. Destino=%s assunto=%s conteudo=%s',
+            'Envio de e-mail em modo local. Destino=%s assunto=%s corpo_chars=%s',
             to_address,
             subject,
-            plain_text_body,
+            len(plain_text_body or ''),
         )
         return {'ok': True, 'delivery': 'log'}
 

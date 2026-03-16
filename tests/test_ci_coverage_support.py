@@ -24,6 +24,12 @@ def test_config_helpers_cover_env_and_secret_key_fallbacks(tmp_path, monkeypatch
     monkeypatch.delenv('SECRET_KEY', raising=False)
     assert config_module.get_or_create_local_secret_key() == 'persisted-secret'
 
+    secret_path.write_text(
+        config_module._encrypt_local_secret('wrapped-secret'),
+        encoding='utf-8',
+    )
+    assert config_module.get_or_create_local_secret_key() == 'wrapped-secret'
+
     monkeypatch.setenv('SECRET_KEY', 'env-secret')
     assert config_module.get_or_create_local_secret_key() == 'env-secret'
 
@@ -48,6 +54,19 @@ def test_config_secret_key_generation_handles_read_and_write_oserror(tmp_path, m
     generated = config_module.get_or_create_local_secret_key()
     assert isinstance(generated, str)
     assert len(generated) > 20
+
+
+def test_config_generated_secret_is_persisted_encrypted(tmp_path, monkeypatch):
+    monkeypatch.delenv('SECRET_KEY', raising=False)
+    secret_path = tmp_path / '.finora_secret_key'
+    monkeypatch.setattr(config_module, 'LOCAL_SECRET_KEY_PATH', str(secret_path))
+
+    generated = config_module.get_or_create_local_secret_key()
+    persisted = secret_path.read_text(encoding='utf-8')
+
+    assert persisted.startswith(config_module.LOCAL_SECRET_KEY_PREFIX)
+    assert generated not in persisted
+    assert config_module._decrypt_persisted_local_secret(persisted) == generated
 
 
 def test_time_utils_format_and_timezone_fallbacks(app):
@@ -92,6 +111,7 @@ def test_mail_service_covers_local_log_smtp_tls_ssl_and_failure(monkeypatch):
     assert mail_service.send_email(app, '', 'Assunto', 'Corpo')['reason'] == 'missing_recipient'
     assert mail_service.send_email(app, 'dest@example.com', 'Assunto', 'Corpo')['delivery'] == 'log'
     assert 'info' in logged
+    assert logged['info'][3] == len('Corpo')
 
     class FakeSMTP:
         def __init__(self, *_args, **_kwargs):
