@@ -211,7 +211,30 @@ def test_run_idempotent_db_operation_retries_retryable_errors(app):
         assert call_count == 2
 
 
-def test_run_idempotent_db_operation_raises_after_max_retries_and_applies_backoff(app):
+def test_run_idempotent_db_operation_raises_after_max_retries(app):
+    with app.app_context():
+        original_max_retries = app.config.get('DB_IDEMPOTENT_MAX_RETRIES')
+        original_backoff = app.config.get('DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS')
+        try:
+            app.config['DB_IDEMPOTENT_MAX_RETRIES'] = 2
+            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = 0.25
+            call_count = 0
+
+            def always_failing_operation():
+                nonlocal call_count
+                call_count += 1
+                raise OperationalError(TEST_SQL_STATEMENT, {}, RuntimeError('db still down'))
+
+            with pytest.raises(OperationalError):
+                run_idempotent_db_operation(always_failing_operation)
+
+            assert call_count == 3
+        finally:
+            app.config['DB_IDEMPOTENT_MAX_RETRIES'] = original_max_retries
+            app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = original_backoff
+
+
+def test_run_idempotent_db_operation_applies_backoff(app):
     with app.app_context():
         original_max_retries = app.config.get('DB_IDEMPOTENT_MAX_RETRIES')
         original_backoff = app.config.get('DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS')
@@ -229,8 +252,14 @@ def test_run_idempotent_db_operation_raises_after_max_retries_and_applies_backof
                 with pytest.raises(OperationalError):
                     run_idempotent_db_operation(always_failing_operation)
 
+            base_backoff = app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS']
+            expected_backoffs = [
+                base_backoff * attempt
+                for attempt in range(1, len(sleep_mock.call_args_list) + 1)
+            ]
+
             assert call_count == 3
-            assert [call.args[0] for call in sleep_mock.call_args_list] == [0.25, 0.5]
+            assert [call.args[0] for call in sleep_mock.call_args_list] == expected_backoffs
         finally:
             app.config['DB_IDEMPOTENT_MAX_RETRIES'] = original_max_retries
             app.config['DB_IDEMPOTENT_RETRY_BACKOFF_SECONDS'] = original_backoff
