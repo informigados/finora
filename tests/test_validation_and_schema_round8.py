@@ -26,6 +26,37 @@ def _compute_expected_backoffs(base_backoff_seconds: float, max_retries: int):
     ]
 
 
+@pytest.fixture
+def budgetinvalidcat_user(app):
+    with app.app_context():
+        user = User(
+            username='budgetinvalidcat',
+            email='budgetinvalidcat@example.com',
+            name='Budget Invalid Cat',
+        )
+        user.set_password('Pass1234')
+        db.session.add(user)
+        db.session.commit()
+        user_id = user.id
+        try:
+            yield user
+        finally:
+            persisted_user = db.session.get(User, user_id)
+            if persisted_user is not None:
+                db.session.delete(persisted_user)
+                db.session.commit()
+
+
+def test_compute_expected_backoffs():
+    assert _compute_expected_backoffs(TEST_BACKOFF_SECONDS, 3) == [
+        TEST_BACKOFF_SECONDS,
+        TEST_BACKOFF_SECONDS * 2,
+        TEST_BACKOFF_SECONDS * 3,
+    ]
+    assert _compute_expected_backoffs(TEST_BACKOFF_SECONDS, 1) == [TEST_BACKOFF_SECONDS]
+    assert _compute_expected_backoffs(TEST_BACKOFF_SECONDS, 0) == []
+
+
 def test_finance_and_goal_user_id_are_non_nullable():
     assert Finance.__table__.c.user_id.nullable is False
     assert Goal.__table__.c.user_id.nullable is False
@@ -106,41 +137,21 @@ def test_normalize_finance_category_housing_alias():
     assert normalize_finance_category('housing') == 'Moradia'
 
 
-def test_budget_route_rejects_invalid_category(client, app):
-    user_id = None
-    try:
-        with app.app_context():
-            user = User(
-                username='budgetinvalidcat',
-                email='budgetinvalidcat@example.com',
-                name='Budget Invalid Cat',
-            )
-            user.set_password('Pass1234')
-            db.session.add(user)
-            db.session.commit()
-            user_id = user.id
+def test_budget_route_rejects_invalid_category(client, budgetinvalidcat_user):
+    login_response = client.post(
+        '/login',
+        data={'identifier': budgetinvalidcat_user.username, 'password': 'Pass1234'},
+        follow_redirects=True,
+    )
+    assert login_response.status_code == 200
+    response = client.post(
+        '/budgets/add',
+        data={'category': 'OutraCategoria', 'limit_amount': '100', 'period': 'Mensal'},
+        follow_redirects=True,
+    )
 
-        login_response = client.post(
-            '/login',
-            data={'identifier': 'budgetinvalidcat', 'password': 'Pass1234'},
-            follow_redirects=True,
-        )
-        assert login_response.status_code == 200
-        response = client.post(
-            '/budgets/add',
-            data={'category': 'OutraCategoria', 'limit_amount': '100', 'period': 'Mensal'},
-            follow_redirects=True,
-        )
-
-        assert response.status_code == 200
-        assert b'Categoria inv\xc3\xa1lida. Selecione uma categoria permitida.' in response.data
-    finally:
-        with app.app_context():
-            if user_id is not None:
-                user = db.session.get(User, user_id)
-                if user is not None:
-                    db.session.delete(user)
-                    db.session.commit()
+    assert response.status_code == 200
+    assert b'Categoria inv\xc3\xa1lida. Selecione uma categoria permitida.' in response.data
 
 
 def test_import_service_normalizes_allowed_category_alias():
