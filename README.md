@@ -285,7 +285,7 @@ Or:
 ## 👥 Authors
 
 - INformigados: https://github.com/informigados/
-- Alex Brito: https://github.com/AlexBritoDEV
+- Alex Brito: https://github.com/alexbritodev
 
 ## 📜 License
 
