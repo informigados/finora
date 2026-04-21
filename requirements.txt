@@ -26,7 +26,7 @@ packaging==26.0
 pillow==12.1.1
 pymysql==1.1.2
 python-dateutil==2.9.0.post0
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 pytz==2025.2
 six==1.17.0
 SQLAlchemy==2.0.46
