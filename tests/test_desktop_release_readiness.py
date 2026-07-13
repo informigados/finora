@@ -64,14 +64,29 @@ def test_windows_icon_is_visible_multiresolution_and_wired_into_builds():
     spec = Path('Finora.spec').read_text(encoding='utf-8')
     installer = Path('finora_installer.iss').read_text(encoding='utf-8')
     assert "icon=['static/favicon.ico']" in spec
+    assert "'logging.config'" in spec
+    assert "'logging.handlers'" in spec
     assert 'SetupIconFile=static\\favicon.ico' in installer
-    assert installer.count('IconFilename: "{app}\\Finora.exe"') == 2
-    assert installer.count('IconIndex: 0') == 2
+    assert 'Source: "static\\favicon.ico"; DestDir: "{app}"; DestName: "Finora.ico"' in installer
+    assert installer.count('IconFilename: "{app}\\Finora.ico"') == 2
+    assert installer.count('WorkingDir: "{app}"') == 2
+    assert 'UninstallDisplayIcon={app}\\Finora.ico' in installer
+    assert 'ChangesAssociations=yes' in installer
     builder = Path('create_installer.py').read_text(encoding='utf-8')
     assert 'scripts/generate_windows_icon.py' in builder
     generator = Path('scripts/generate_windows_icon.py').read_text(encoding='utf-8')
     assert 'ROOT / "icons" / "finora-icone-fundo-azul.png"' in generator
     assert Path('icons/finora-icone-fundo-azul.png').exists()
+
+
+def test_installer_stops_running_app_and_cleans_install_directory():
+    installer = Path('finora_installer.iss').read_text(encoding='utf-8')
+    assert 'CloseApplicationsFilter=Finora.exe' in installer
+    assert 'RestartApplications=no' in installer
+    assert 'function PrepareToInstall(var NeedsRestart: Boolean): String;' in installer
+    assert "'/F /T /IM Finora.exe'" in installer
+    assert 'if CurUninstallStep = usUninstall then' in installer
+    assert "DelTree(ExpandConstant('{app}'), True, True, True);" in installer
 
 
 def test_base_template_uses_svg_favicon_with_ico_fallback():

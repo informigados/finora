@@ -307,6 +307,7 @@ Or:
 - Bundled all frontend runtime assets so the installed application works without internet access.
 - Added single-instance enforcement, safe migration of legacy 1.3 desktop data, and an installer-based update flow with SHA-256 and Authenticode validation.
 - Added signing-capable GitHub Release automation with checksums, release metadata, update manifest, and build provenance attestation.
+- Fixed packaged database migrations, added a dedicated Windows shortcut icon, and hardened reinstall/uninstall cleanup for running Finora processes.
 
 ## 👥 Authors
 
