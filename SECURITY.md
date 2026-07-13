@@ -57,7 +57,7 @@ Finora already includes several baseline protections:
 - 🖥️ Packaged desktop runs use a hardened profile with debug disabled and store writable private data outside the installation directory.
 - 📦 Frontend dependencies are bundled locally so security and core functionality do not depend on third-party CDNs at runtime.
 - 🧍 A per-user instance lock prevents concurrent desktop processes from sharing the same SQLite database and schedulers.
-- 🧾 Public release automation produces SHA-256 checksums, signed binaries, release metadata, and GitHub provenance attestation.
+- 🧾 Public release automation produces SHA-256 checksums, release metadata, and GitHub provenance attestation; it signs binaries automatically when a trusted certificate is configured and explicitly labels temporary unsigned releases otherwise.
 - 🎲 Local session and encryption secrets are randomly generated, machine-bound at rest, and persisted across upgrades.
 
 ## ✅ Deployment and Hardening Notes

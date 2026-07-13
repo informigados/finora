@@ -1,4 +1,4 @@
-name: Signed Windows Release
+name: Windows Release
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
   release:
     runs-on: windows-latest
     env:
-      FINORA_REQUIRE_SIGNING: "1"
+      FINORA_REQUIRE_SIGNING: ${{ (secrets.WINDOWS_CERTIFICATE_BASE64 != '' && secrets.WINDOWS_CERTIFICATE_PASSWORD != '') && '1' || '0' }}
 
     steps:
       - name: Checkout tagged source
@@ -33,14 +33,12 @@ jobs:
         run: choco install innosetup --no-progress --yes
 
       - name: Import Authenticode certificate
+        if: env.FINORA_REQUIRE_SIGNING == '1'
         shell: pwsh
         env:
           CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
         run: |
-          if (-not $env:CERTIFICATE_BASE64 -or -not $env:CERTIFICATE_PASSWORD) {
-            throw "Windows signing certificate secrets are required."
-          }
           $certificatePath = Join-Path $env:RUNNER_TEMP "finora-signing.pfx"
           [IO.File]::WriteAllBytes($certificatePath, [Convert]::FromBase64String($env:CERTIFICATE_BASE64))
           $password = ConvertTo-SecureString $env:CERTIFICATE_PASSWORD -AsPlainText -Force
@@ -59,10 +57,11 @@ jobs:
           pip-audit -r requirements-dev.txt
           python -m pytest tests -q --cov=app --cov=config --cov=database --cov=extensions --cov=models --cov=routes --cov=services --cov-fail-under=90
 
-      - name: Build and sign installer
+      - name: Build installer
         run: python create_installer.py
 
       - name: Verify Authenticode signatures
+        if: env.FINORA_REQUIRE_SIGNING == '1'
         shell: pwsh
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
@@ -79,6 +78,33 @@ jobs:
         with:
           subject-path: dist_setup/Finora_Setup_*.exe
 
+      - name: Prepare release notes
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $metadata = Get-Content dist_setup/release-metadata.json -Raw | ConvertFrom-Json
+          if ($metadata.authenticode_signed) {
+            $signatureNotice = "> [!NOTE]`n> This release is digitally signed and its Authenticode signature was verified during the release workflow."
+          } else {
+            $signatureNotice = "> [!WARNING]`n> This installer is temporarily unsigned while Finora awaits approval from a public code-signing certificate provider. Windows SmartScreen may identify the publisher as unknown. Download only from this official release and verify SHA-256 against ``SHA256SUMS.txt`` before choosing **More info** and **Run anyway**."
+          }
+          @"
+          ## Finora $version
+
+          $signatureNotice
+
+          ### Highlights
+
+          - Fully offline desktop interface with bundled runtime assets.
+          - Single-instance launcher and safe migration of Finora 1.3 desktop data.
+          - Hardened installer/update pipeline with checksums, release metadata, and provenance attestation.
+          - Accessibility, dark-mode contrast, translations, dependency, and reliability refinements.
+
+          ### Verification
+
+          Installer SHA-256: ``$($metadata.sha256)``
+          "@ | Set-Content dist_setup/RELEASE_NOTES.md -Encoding utf8
+
       - name: Publish GitHub Release
         shell: pwsh
         env:
@@ -90,5 +116,5 @@ jobs:
             dist_setup/release-metadata.json `
             dist_setup/manifest.json `
             --verify-tag `
-            --generate-notes `
+            --notes-file dist_setup/RELEASE_NOTES.md `
             --title "Finora $env:GITHUB_REF_NAME"

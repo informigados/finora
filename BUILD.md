@@ -63,7 +63,7 @@ Expected output:
 - `dist_setup\release-metadata.json`
 - `dist_setup\manifest.json`
 
-Local builds may be unsigned for development. A public release build must set:
+Local builds may be unsigned for development. When a trusted certificate is available, set:
 
 ```powershell
 $env:FINORA_REQUIRE_SIGNING = "1"
@@ -71,7 +71,7 @@ $env:FINORA_SIGNING_CERT_SHA1 = "CERTIFICATE_THUMBPRINT"
 .\release.bat
 ```
 
-The builder signs and verifies `Finora.exe` before packaging, then signs and verifies the final installer. Do not publish artifacts produced with signing disabled.
+The builder signs and verifies `Finora.exe` before packaging, then signs and verifies the final installer. A temporary unsigned public release is permitted only while certificate enrollment is pending, must be clearly identified in the release notes and README, and must include the generated checksum and provenance attestation.
 
 ## 4. PyInstaller Build (Executable Only)
 
@@ -177,11 +177,11 @@ If a release must be rolled back, use this sequence:
 - `release-metadata.json`
 - `manifest.json`
 
-## 11. Automated Signed Release
+## 11. Automated Windows Release
 
-The `Signed Windows Release` workflow runs when a `v*` tag is pushed. Configure these repository secrets first:
+The `Windows Release` workflow runs when a `v*` tag is pushed. To enable Authenticode signing, configure these repository secrets:
 
 - `WINDOWS_CERTIFICATE_BASE64`: Base64-encoded PFX certificate
 - `WINDOWS_CERTIFICATE_PASSWORD`: PFX password
 
-The tag must match `VERSION` exactly (for example, `v1.4.0`). The workflow reruns lint, security auditing, tests, signs both executables, verifies Authenticode, generates a GitHub artifact attestation, and publishes the GitHub Release. If the certificate is absent or invalid, publication fails closed.
+The tag must match `VERSION` exactly (for example, `v1.4.0`). The workflow reruns lint, security auditing, tests, generates a GitHub artifact attestation, and publishes the GitHub Release. When both certificate secrets exist, it signs and verifies both executables and fails closed on any signing error. Without the secrets, it publishes an explicitly labeled unsigned installer with checksum verification.

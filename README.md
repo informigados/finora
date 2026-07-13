@@ -56,6 +56,15 @@ migrations/
 tests/
 ```
 
+## 🪟 Windows Desktop Installation
+
+The official Windows installer is published on the [GitHub Releases page](https://github.com/informigados/finora/releases).
+
+> [!WARNING]
+> Finora 1.4.0 is temporarily distributed without an Authenticode code-signing certificate while the project awaits approval from a public certificate provider. Windows SmartScreen may therefore display **"Windows protected your PC"** and identify the publisher as unknown. This is expected for the current unsigned release, but the warning must not be treated as proof that every copy is safe. Download only from the official INformigados repository and verify the SHA-256 value against `SHA256SUMS.txt` in the same release. Do not continue if the source or checksum differs.
+
+On a verified official download, select **More info** and then **Run anyway** to continue. Future releases will be signed as soon as a trusted certificate becomes available.
+
 ## ⚙️ Local Setup
 
 1. Create virtual environment and install dependencies:
@@ -295,7 +304,7 @@ Or:
 - Refined dashboard wording, singular/plural item counts, and dark-mode chart contrast.
 - Bundled all frontend runtime assets so the installed application works without internet access.
 - Added single-instance enforcement, safe migration of legacy 1.3 desktop data, and an installer-based update flow with SHA-256 and Authenticode validation.
-- Added signed GitHub Release automation with checksums, release metadata, update manifest, and build provenance attestation.
+- Added signing-capable GitHub Release automation with checksums, release metadata, update manifest, and build provenance attestation.
 
 ## 👥 Authors
 
