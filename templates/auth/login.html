@@ -29,14 +29,14 @@
                         <label class="form-check-label" for="remember">{{ _('Lembrar-me') }}</label>
                     </div>
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">{{ _('Entrar') }}</button>
+                        <button type="submit" class="btn btn-primary btn-lg d-inline-flex align-items-center justify-content-center gap-2"><i data-lucide="log-in" class="icon-sm"></i><span>{{ _('Entrar') }}</span></button>
                     </div>
                     <div class="text-center mt-3">
-                        <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none">{{ _('Esqueceu sua senha?') }}</a>
+                        <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none d-inline-flex align-items-center gap-1"><i data-lucide="key-round" class="icon-xs"></i><span>{{ _('Esqueceu sua senha?') }}</span></a>
                     </div>
                 </form>
                 <div class="text-center mt-3">
-                    <p class="mb-0">{{ _('Não tem uma conta?') }} <a href="{{ url_for('auth.register') }}" class="text-decoration-none">{{ _('Cadastre-se') }}</a></p>
+                    <p class="mb-0">{{ _('Não tem uma conta?') }} <a href="{{ url_for('auth.register') }}" class="text-decoration-none d-inline-flex align-items-center gap-1"><i data-lucide="user-plus" class="icon-xs"></i><span>{{ _('Cadastre-se') }}</span></a></p>
                 </div>
             </div>
         </div>

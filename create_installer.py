@@ -158,6 +158,9 @@ def main() -> int:
 
         clean_release_dirs()
 
+        # Rebuild the Windows icon from the checked-in Finora branding source.
+        run_command([sys.executable, "scripts/generate_windows_icon.py"])
+
         # Ensure translation binaries are always up to date for release.
         run_command([sys.executable, "-m", "babel.messages.frontend", "compile", "-d", "translations"])
 

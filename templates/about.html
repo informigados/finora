@@ -39,15 +39,15 @@
         <div class="d-flex flex-wrap gap-2">
             <form action="{{ url_for('public.about_check_update') }}" method="POST" data-loading-text="{{ _('Verificando') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                <button type="submit" class="btn btn-outline-primary">{{ _('Verificar atualizações') }}</button>
+                <button type="submit" class="btn btn-outline-primary d-inline-flex align-items-center gap-2"><i data-lucide="refresh-cw" class="icon-sm"></i><span>{{ _('Verificar atualizações') }}</span></button>
             </form>
             {% if current_user.is_authenticated and update_available %}
             <form action="{{ url_for('public.about_apply_update') }}" method="POST" data-loading-text="{{ _('Preparando atualização') }}" data-confirm="{{ _('Deseja instalar esta atualização agora? O Finora validará o arquivo, fará um backup e será reiniciado.') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                <button type="submit" class="btn btn-primary">{{ _('Atualizar agora') }}</button>
+                <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2"><i data-lucide="download" class="icon-sm"></i><span>{{ _('Atualizar agora') }}</span></button>
             </form>
             {% elif not current_user.is_authenticated and update_available %}
-            <a class="btn btn-primary" href="{{ url_for('auth.login') }}">{{ _('Entrar para atualizar') }}</a>
+            <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{{ url_for('auth.login') }}"><i data-lucide="log-in" class="icon-sm"></i><span>{{ _('Entrar para atualizar') }}</span></a>
             {% endif %}
         </div>
     </div>
@@ -142,6 +142,6 @@
 <section class="card card-premium p-4 p-md-5 text-center">
     <h2 class="h4 mb-3">{{ _('Espaço para colaboradores') }}</h2>
     <p class="text-muted mb-4">{{ _('Contribuições futuras poderão ser destacadas aqui com créditos e histórico de participação.') }}</p>
-    <a class="btn btn-outline-primary about-repo-btn" href="https://github.com/informigados/finora/" target="_blank" rel="noopener noreferrer">{{ _('Ver repositório') }}</a>
+    <a class="btn btn-outline-primary about-repo-btn d-inline-flex align-items-center gap-2" href="https://github.com/informigados/finora/" target="_blank" rel="noopener noreferrer"><i data-lucide="github" class="icon-sm"></i><span>{{ _('Ver repositório') }}</span></a>
 </section>
 {% endblock %}

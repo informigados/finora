@@ -32,6 +32,7 @@ class User(UserMixin, db.Model):
     failed_login_attempts = db.Column(db.Integer, nullable=False, default=0)
     locked_until = db.Column(db.DateTime)
     last_login_at = db.Column(db.DateTime)
+    username_changed_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=utcnow_naive)
     
     # Relationships
@@ -175,6 +176,15 @@ class User(UserMixin, db.Model):
             self.failed_login_attempts = 0
 
         return self.is_locked_out(current_time)
+
+    def username_change_available_at(self):
+        if not self.username_changed_at:
+            return None
+        return self.username_changed_at + timedelta(days=90)
+
+    def can_change_username(self, now=None):
+        available_at = self.username_change_available_at()
+        return available_at is None or available_at <= (now or utcnow_naive())
 
     def __repr__(self):
         return f'<User {self.username}>'

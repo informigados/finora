@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Conta criada') }} | Finora{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center auth-shell">
+  <div class="col-md-7 col-lg-6">
+    <div class="card card-premium auth-card-premium border-0">
+      <div class="card-body p-5 text-center">
+        <div class="recovery-success-icon mx-auto mb-3" aria-hidden="true">
+          <i data-lucide="badge-check" class="icon-xl"></i>
+        </div>
+        <h2 class="h3 mb-2">{{ _('Conta criada com sucesso!') }}</h2>
+        <p class="text-muted mb-4">{{ _('Guarde sua chave de recuperação em um local seguro. Ela permite recuperar o acesso mesmo sem e-mail.') }}</p>
+
+        <label for="registrationRecoveryKey" class="form-label fw-semibold">{{ _('Sua chave de recuperação') }}</label>
+        <div class="input-group input-group-lg mb-3 recovery-key-group">
+          <input id="registrationRecoveryKey" class="form-control font-monospace text-center" value="{{ recovery_key }}" readonly aria-describedby="recoveryKeyHelp" />
+          <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-2" id="copyRegistrationRecoveryKey">
+            <i data-lucide="copy" class="icon-sm" data-copy-icon></i>
+            <span data-copy-label>{{ _('Copiar') }}</span>
+          </button>
+        </div>
+        <p id="recoveryKeyHelp" class="small text-muted mb-4">
+          {% if email_delivery_ok %}
+          {{ _('Também enviamos esta chave para o seu e-mail.') }}
+          {% else %}
+          {{ _('O envio por e-mail não foi concluído; copie a chave antes de continuar.') }}
+          {% endif %}
+        </p>
+
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg d-inline-flex align-items-center gap-2">
+          <i data-lucide="log-in" class="icon-sm"></i><span>{{ _('Entrar') }}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script nonce="{{ csp_nonce }}">
+document.addEventListener('DOMContentLoaded', function () {
+  const copyButton = document.getElementById('copyRegistrationRecoveryKey');
+  const keyInput = document.getElementById('registrationRecoveryKey');
+  const copyLabel = copyButton?.querySelector('[data-copy-label]');
+
+  copyButton?.addEventListener('click', async function () {
+    if (!keyInput?.value) return;
+    try {
+      await navigator.clipboard.writeText(keyInput.value);
+    } catch (_error) {
+      keyInput.select();
+      document.execCommand('copy');
+    }
+    copyButton.innerHTML = '<i data-lucide="check" class="icon-sm"></i><span data-copy-label>{{ _("Copiado!") }}</span>';
+    refreshLucideIcons(copyButton);
+    window.setTimeout(() => {
+      copyButton.innerHTML = '<i data-lucide="copy" class="icon-sm"></i><span data-copy-label>{{ _("Copiar") }}</span>';
+      refreshLucideIcons(copyButton);
+    }, 1800);
+  });
+});
+</script>
+{% endblock %}

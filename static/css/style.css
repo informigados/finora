@@ -1622,3 +1622,52 @@ h6 {
     animation: none !important;
   }
 }
+.profile-avatar-picker {
+  position: relative;
+  display: inline-flex;
+  width: fit-content;
+  cursor: pointer;
+  border-radius: 50%;
+  outline: 3px solid transparent;
+  outline-offset: 3px;
+  transition: transform 180ms ease, outline-color 180ms ease;
+}
+
+.profile-avatar-picker:hover {
+  transform: translateY(-2px);
+}
+
+.profile-avatar-picker:focus-within,
+.profile-avatar-picker:focus-visible {
+  outline-color: rgba(37, 99, 235, 0.38);
+}
+
+.profile-avatar-overlay {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: #fff;
+  background: var(--primary-color, #2563eb);
+  border: 3px solid var(--surface-color, #fff);
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+}
+
+.recovery-success-icon {
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  color: #fff;
+  background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+  border-radius: 1.35rem;
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.24);
+}
+
+.recovery-key-group .form-control {
+  letter-spacing: 0.08em;
+}

@@ -54,6 +54,42 @@ def test_register_invalid_email(client):
     assert response.status_code == 200
     assert b'Por favor, insira um endere' in response.data # Partial match for unicode safety
 
+
+def test_register_preserves_non_secret_fields_after_validation_error(client):
+    response = client.post('/register', data={
+        'username': 'alexfinora',
+        'email': 'alex@example.com',
+        'password': 'weak',
+        'name': 'Alex Henrique',
+    })
+
+    assert response.status_code == 200
+    assert b'value="Alex Henrique"' in response.data
+    assert b'value="alexfinora"' in response.data
+    assert b'value="alex@example.com"' in response.data
+    assert b'Use ao menos 8 caracteres' in response.data
+
+
+def test_register_success_exposes_copyable_recovery_key(client, monkeypatch):
+    monkeypatch.setattr(auth_module, 'generate_recovery_key', lambda: 'FINORAKEY1234567')
+    monkeypatch.setattr(
+        auth_module,
+        'send_recovery_key_email',
+        lambda *_args, **_kwargs: {'ok': False, 'delivery': 'none'},
+    )
+
+    response = client.post('/register', data={
+        'username': 'copykeyuser',
+        'email': 'copykey@example.com',
+        'password': 'Password123',
+        'name': 'Copy Key',
+    })
+
+    assert response.status_code == 200
+    assert b'FINORAKEY1234567' in response.data
+    assert b'copyRegistrationRecoveryKey' in response.data
+    assert b'data-lucide="copy"' in response.data
+
 def test_login(client, app):
     # Register first
     with app.app_context():

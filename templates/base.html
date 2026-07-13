@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="{% block meta_description %}{{ _('Finora é um sistema local de controle financeiro pessoal com foco em privacidade, clareza e operação segura.') }}{% endblock %}" />
     <title>{% block title %}FINORA - Organizador Financeiro{% endblock %}</title>
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}?v=20260302e" />
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.svg') }}?v=20260302e" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}?v=20260713" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=20260713" />
     <link href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet" />
     <script src="{{ url_for('static', filename='vendor/lucide/lucide.min.js') }}"></script>
     <script nonce="{{ csp_nonce }}">
@@ -154,7 +154,7 @@
     <div id="sessionWarning" class="session-warning d-none" role="status" aria-live="polite">
       <div class="session-warning-title">{{ _('Sua sessão está prestes a expirar.') }}</div>
       <div class="session-warning-time">{{ _('Tempo restante:') }} <strong id="sessionRemaining">00:00</strong></div>
-      <button type="button" id="renewSessionBtn" class="btn btn-sm btn-primary mt-2">{{ _('Renovar sessão') }}</button>
+      <button type="button" id="renewSessionBtn" class="btn btn-sm btn-primary mt-2 d-inline-flex align-items-center gap-2"><i data-lucide="refresh-cw" class="icon-xs"></i><span>{{ _('Renovar sessão') }}</span></button>
     </div>
     {% endif %}
 
@@ -169,8 +169,8 @@
             <p class="mb-0" id="confirmActionModalText">{{ _('Deseja continuar?') }}</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
-            <button type="button" class="btn btn-danger" id="confirmActionModalSubmit">{{ _('Confirmar') }}</button>
+            <button type="button" class="btn btn-secondary d-inline-flex align-items-center gap-2" data-bs-dismiss="modal"><i data-lucide="x" class="icon-sm"></i><span>{{ _('Cancelar') }}</span></button>
+            <button type="button" class="btn btn-danger d-inline-flex align-items-center gap-2" id="confirmActionModalSubmit"><i data-lucide="check" class="icon-sm"></i><span>{{ _('Confirmar') }}</span></button>
           </div>
         </div>
       </div>

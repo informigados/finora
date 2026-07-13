@@ -14,7 +14,7 @@
                         <label for="name" class="form-label">{{ _('Nome Completo') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i data-lucide="contact" class="icon-sm"></i></span>
-                            <input type="text" class="form-control" id="name" name="name" required autocomplete="name">
+                            <input type="text" class="form-control" id="name" name="name" value="{{ form_data.get('name', '') }}" required autocomplete="name">
                         </div>
                     </div>
                     
@@ -22,7 +22,7 @@
                         <label for="username" class="form-label">{{ _('Nome de Usuário') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i data-lucide="user" class="icon-sm"></i></span>
-                            <input type="text" class="form-control" id="username" name="username" required autocomplete="username">
+                            <input type="text" class="form-control" id="username" name="username" value="{{ form_data.get('username', '') }}" minlength="3" required autocomplete="username" aria-describedby="username-help">
                             <span class="input-group-text auth-status-icon" id="username-status"></span>
                         </div>
                         <div class="form-text" id="username-help"></div>
@@ -32,7 +32,7 @@
                         <label for="email" class="form-label">{{ _('E-mail') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i data-lucide="mail" class="icon-sm"></i></span>
-                            <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
+                            <input type="email" class="form-control" id="email" name="email" value="{{ form_data.get('email', '') }}" required autocomplete="email" aria-describedby="email-help">
                             <span class="input-group-text auth-status-icon" id="email-status"></span>
                         </div>
                         <div class="form-text" id="email-help"></div>
@@ -42,20 +42,21 @@
                         <label for="password" class="form-label">{{ _('Senha') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i data-lucide="lock" class="icon-sm"></i></span>
-                            <input type="password" class="form-control" id="password" name="password" required autocomplete="new-password">
+                            <input type="password" class="form-control" id="password" name="password" minlength="8" required autocomplete="new-password" aria-describedby="password-requirements password-strength-text">
                         </div>
                         <div class="progress mt-2 auth-progress-wrapper">
                             <div class="progress-bar auth-progress-bar-initial" role="progressbar" id="password-strength-bar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="{{ _('Força da senha') }}" title="{{ _('Força da senha') }}"></div>
                         </div>
-                        <div class="form-text" id="password-strength-text">{{ _('Recomendamos uma senha forte.') }}</div>
+                        <div class="form-text" id="password-requirements">{{ _('Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números.') }}</div>
+                        <div class="form-text" id="password-strength-text" aria-live="polite">{{ _('Recomendamos uma senha forte.') }}</div>
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">{{ _('Cadastrar') }}</button>
+                        <button type="submit" class="btn btn-primary btn-lg d-inline-flex align-items-center justify-content-center gap-2" id="submitBtn"><i data-lucide="user-plus" class="icon-sm"></i><span>{{ _('Cadastrar') }}</span></button>
                     </div>
                 </form>
                 <div class="text-center mt-3">
-                    <p class="mb-0">{{ _('Já tem uma conta?') }} <a href="{{ url_for('auth.login') }}" class="text-decoration-none">{{ _('Entrar') }}</a></p>
+                    <p class="mb-0">{{ _('Já tem uma conta?') }} <a href="{{ url_for('auth.login') }}" class="text-decoration-none d-inline-flex align-items-center gap-1"><i data-lucide="log-in" class="icon-xs"></i><span>{{ _('Entrar') }}</span></a></p>
                 </div>
             </div>
         </div>
@@ -71,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailStatusIcon = document.getElementById('email-status');
     const usernameHelp = document.getElementById('username-help');
     const emailHelp = document.getElementById('email-help');
+    const registerForm = document.getElementById('registerForm');
 
     function refreshLucideIcons() {
         if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -101,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check Username Availability
     usernameInput.addEventListener('blur', function() {
         const username = this.value;
-        if(username.length > 0) {
+        if(username.length >= 3) {
             fetch('{{ url_for("auth.check_username") }}', {
                 method: 'POST',
                 headers: {
@@ -119,8 +121,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     "{{ _('Nome de usuário disponível') }}",
                     "{{ _('Nome de usuário já está em uso') }}",
                     Boolean(data.available),
-                    data.verified === false ? data.message || '' : ''
+                    ''
                 );
+            }).catch(() => {
+                usernameHelp.textContent = "{{ _('Não foi possível verificar agora. A validação será repetida no cadastro.') }}";
+                usernameHelp.className = 'form-text text-muted';
             });
         }
     });
@@ -162,8 +167,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     "{{ _('E-mail disponível') }}",
                     "{{ _('E-mail já está em uso') }}",
                     Boolean(data.available),
-                    data.verified === false ? data.message || '' : ''
+                    ''
                 );
+            }).catch(() => {
+                emailHelp.textContent = "{{ _('Não foi possível verificar agora. A validação será repetida no cadastro.') }}";
+                emailHelp.className = 'form-text text-muted';
             });
         }
     });
@@ -196,8 +204,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (password.match(/[$@#&!]+/)) strength += 20;
         
         bar.style.width = strength + '%';
+        bar.setAttribute('aria-valuenow', String(strength));
+        const isStrong = password.length >= 8 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /[0-9]/.test(password);
+        this.setCustomValidity(isStrong || !password ? '' : "{{ _('Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números.') }}");
+        this.classList.toggle('is-invalid', Boolean(password) && !isStrong);
+        this.classList.toggle('is-valid', isStrong);
         
-        if (strength < 40) {
+        if (!password) {
+            bar.className = 'progress-bar';
+            text.textContent = "{{ _('Recomendamos uma senha forte.') }}";
+        } else if (strength < 40) {
             bar.className = 'progress-bar bg-danger';
             text.textContent = "{{ _('Fraca') }}";
         } else if (strength < 80) {
@@ -206,6 +222,19 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             bar.className = 'progress-bar bg-success';
             text.textContent = "{{ _('Forte') }}";
+        }
+    });
+
+    registerForm.addEventListener('submit', function(event) {
+        const password = passwordInput.value;
+        const isStrong = password.length >= 8 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /[0-9]/.test(password);
+        if (!isStrong) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            passwordInput.setCustomValidity("{{ _('Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números.') }}");
+            passwordInput.classList.add('is-invalid');
+            passwordInput.reportValidity();
+            passwordInput.focus();
         }
     });
 });

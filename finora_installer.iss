@@ -49,8 +49,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "dist\Finora\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\Finora.exe"; IconFilename: "{app}\Finora.exe"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\Finora.exe"; Tasks: desktopicon; IconFilename: "{app}\Finora.exe"
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\Finora.exe"; IconFilename: "{app}\Finora.exe"; IconIndex: 0
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\Finora.exe"; Tasks: desktopicon; IconFilename: "{app}\Finora.exe"; IconIndex: 0
 
 [Run]
 Filename: "{app}\Finora.exe"; Description: "{cm:LaunchProgram,{#MyAppName}}"; Flags: nowait postinstall skipifsilent

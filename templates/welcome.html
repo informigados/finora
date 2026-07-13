@@ -13,8 +13,8 @@
                 {{ _('Organize receitas, despesas, metas e orçamentos em um fluxo simples, rápido e seguro.') }}
             </p>
             <div class="d-flex flex-wrap gap-2">
-                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">{{ _('Entrar') }}</a>
-                <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary btn-lg">{{ _('Criar conta') }}</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg d-inline-flex align-items-center gap-2"><i data-lucide="log-in" class="icon-sm"></i><span>{{ _('Entrar') }}</span></a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary btn-lg d-inline-flex align-items-center gap-2"><i data-lucide="user-plus" class="icon-sm"></i><span>{{ _('Criar conta') }}</span></a>
             </div>
         </div>
         <div class="col-lg-5">

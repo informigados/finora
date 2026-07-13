@@ -356,14 +356,14 @@ def test_about_page_translates_update_section_in_english(client):
     assert 'The bundled local manifest is active for status and safe testing.' in html
 
 
-def test_register_lookup_endpoints_are_non_disclosive(client):
+def test_register_lookup_endpoints_confirm_availability(client):
     username_response = client.post('/check_username', json={'username': 'someone'})
     email_response = client.post('/check_email', json={'email': 'someone@example.com'})
 
     assert username_response.status_code == 200
     assert email_response.status_code == 200
-    assert username_response.get_json()['verified'] is False
-    assert email_response.get_json()['verified'] is False
+    assert username_response.get_json()['verified'] is True
+    assert email_response.get_json()['verified'] is True
 
 
 def test_dashboard_period_form_uses_loading_submit_feedback(client, app):

@@ -5,6 +5,7 @@ from flask import Blueprint, abort, current_app, flash, jsonify, redirect, rende
 from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
 from flask_login import current_user, login_required, login_user, logout_user
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 from config import DEFAULT_APP_VERSION
@@ -81,15 +82,16 @@ def check_username() -> ResponseReturnValue:
     if not username:
         return jsonify({'available': False, 'error': _('Nome de usuário inválido.')}), 400
 
-    User.query.filter_by(username=username).first()
+    existing_user = User.query.filter(func.lower(User.username) == username.lower()).first()
     perform_signup_lookup_delay(started_at)
+    available = existing_user is None or (
+        current_user.is_authenticated and existing_user.id == current_user.id
+    )
     return jsonify(
         {
-            'available': True,
-            'verified': False,
-            'message': _(
-                'A disponibilidade definitiva será confirmada ao concluir o cadastro.'
-            ),
+            'available': available,
+            'verified': True,
+            'message': _('Nome de usuário disponível.') if available else _('Nome de usuário já está em uso.'),
         }
     )
 
@@ -103,15 +105,16 @@ def check_email() -> ResponseReturnValue:
     if not email or not is_valid_email(email):
         return jsonify({'available': False, 'error': _('E-mail inválido.')}), 400
 
-    User.query.filter_by(email=email).first()
+    existing_user = User.query.filter(func.lower(User.email) == email.lower()).first()
     perform_signup_lookup_delay(started_at)
+    available = existing_user is None or (
+        current_user.is_authenticated and existing_user.id == current_user.id
+    )
     return jsonify(
         {
-            'available': True,
-            'verified': False,
-            'message': _(
-                'A disponibilidade definitiva será confirmada ao concluir o cadastro.'
-            ),
+            'available': available,
+            'verified': True,
+            'message': _('E-mail disponível.') if available else _('E-mail já está em uso.'),
         }
     )
 
@@ -189,14 +192,15 @@ def register() -> ResponseReturnValue:
         username = (request.form.get('username') or '').strip()
         name = (request.form.get('name') or '').strip()
         password = request.form.get('password') or ''
+        form_data = {'email': email, 'username': username, 'name': name}
 
         if not is_valid_email(email):
             flash(_('Por favor, insira um endereço de e-mail válido.'), 'error')
-            return redirect(url_for('auth.register'))
+            return render_template('auth/register.html', form_data=form_data)
 
         if len(username) < 3:
             flash(_('Nome de usuário deve ter pelo menos 3 caracteres.'), 'error')
-            return redirect(url_for('auth.register'))
+            return render_template('auth/register.html', form_data=form_data)
 
         if not is_strong_password(password):
             flash(
@@ -206,12 +210,15 @@ def register() -> ResponseReturnValue:
                 ),
                 'error',
             )
-            return redirect(url_for('auth.register'))
+            return render_template('auth/register.html', form_data=form_data)
 
-        user = User.query.filter((User.email == email) | (User.username == username)).first()
+        user = User.query.filter(
+            (func.lower(User.email) == email.lower())
+            | (func.lower(User.username) == username.lower())
+        ).first()
         if user:
             flash(_('Endereço de e-mail ou nome de usuário já existe.'), 'error')
-            return redirect(url_for('auth.register'))
+            return render_template('auth/register.html', form_data=form_data)
 
         new_user = User(email=email, username=username, name=name)
         new_user.set_password(password)
@@ -224,15 +231,8 @@ def register() -> ResponseReturnValue:
         except IntegrityError:
             db.session.rollback()
             flash(_('Não foi possível concluir o cadastro. Verifique os dados informados.'), 'error')
-            return redirect(url_for('auth.register'))
+            return render_template('auth/register.html', form_data=form_data)
 
-        flash(
-            _(
-                'Conta criada com sucesso! Sua chave de recuperação é: %(key)s. Guarde-a em local seguro!',
-                key=recovery_key,
-            ),
-            'success',
-        )
         recovery_delivery = send_recovery_key_email(new_user, recovery_key, 'register')
         record_activity(
             new_user,
@@ -245,13 +245,13 @@ def register() -> ResponseReturnValue:
             },
             ip_address=request.remote_addr,
         )
-        if recovery_delivery.get('ok'):
-            flash(_('Também enviamos a chave de recuperação para o seu e-mail.'), 'info')
-        else:
-            flash(_('O envio por e-mail da chave de recuperação não pôde ser concluído neste momento.'), 'warning')
-        return redirect(url_for('auth.login'))
+        return render_template(
+            'auth/register_success.html',
+            recovery_key=recovery_key,
+            email_delivery_ok=bool(recovery_delivery.get('ok')),
+        )
 
-    return render_template('auth/register.html')
+    return render_template('auth/register.html', form_data={})
 
 
 @auth_bp.route('/logout')
@@ -395,6 +395,22 @@ def profile() -> ResponseReturnValue:
                 return redirect(url_for('auth.profile'))
             if error_code == 'invalid_email':
                 flash(_('Por favor, insira um endereço de e-mail válido.'), 'error')
+                return redirect(url_for('auth.profile'))
+            if error_code == 'invalid_username':
+                flash(_('Nome de usuário deve ter pelo menos 3 caracteres.'), 'error')
+                return redirect(url_for('auth.profile'))
+            if error_code == 'duplicate_username':
+                flash(_('Este nome de usuário já está em uso.'), 'error')
+                return redirect(url_for('auth.profile'))
+            if error_code == 'username_change_cooldown':
+                available_at = current_user.username_change_available_at()
+                flash(
+                    _(
+                        'O nome de usuário pode ser alterado a cada 90 dias. Nova alteração disponível em %(date)s.',
+                        date=available_at.strftime('%d/%m/%Y') if available_at else '',
+                    ),
+                    'warning',
+                )
                 return redirect(url_for('auth.profile'))
             if error_code == 'duplicate_email':
                 flash(_('Este endereço de e-mail já está em uso.'), 'error')

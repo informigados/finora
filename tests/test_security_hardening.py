@@ -26,6 +26,7 @@ def test_security_headers_are_present(client):
     assert "script-src 'self' 'nonce-" in csp
     assert "style-src 'self'" in csp
     assert "font-src 'self' data:" in csp
+    assert "img-src 'self' data: blob:" in csp
     assert 'cdn.jsdelivr.net' not in csp
     assert 'fonts.googleapis.com' not in csp
     assert 'unpkg.com' not in csp
@@ -252,9 +253,9 @@ def test_check_username_and_email_validation_endpoints(client, app):
     username_response = client.post('/check_username', json={'username': 'lookupuser'})
     assert username_response.status_code == 200
     username_payload = username_response.get_json()
-    assert username_payload['available'] is True
-    assert username_payload['verified'] is False
-    assert 'cadastro' in username_payload['message']
+    assert username_payload['available'] is False
+    assert username_payload['verified'] is True
+    assert 'uso' in username_payload['message']
 
     invalid_username_response = client.post('/check_username', json={'username': ''})
     assert invalid_username_response.status_code == 400
@@ -262,9 +263,9 @@ def test_check_username_and_email_validation_endpoints(client, app):
     email_response = client.post('/check_email', json={'email': 'lookup@example.com'})
     assert email_response.status_code == 200
     email_payload = email_response.get_json()
-    assert email_payload['available'] is True
-    assert email_payload['verified'] is False
-    assert 'cadastro' in email_payload['message']
+    assert email_payload['available'] is False
+    assert email_payload['verified'] is True
+    assert 'uso' in email_payload['message']
 
     invalid_email_response = client.post('/check_email', json={'email': 'invalid'})
     assert invalid_email_response.status_code == 400

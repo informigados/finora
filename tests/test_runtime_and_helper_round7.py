@@ -176,7 +176,8 @@ def test_runtime_schema_compatibility_applies_missing_columns(app, monkeypatch):
 
     assert any('failed_login_attempts' in statement for statement in executed)
     assert any('locked_until' in statement for statement in executed)
-    assert committed['count'] == 2
+    assert any('username_changed_at' in statement for statement in executed)
+    assert committed['count'] == 3
 
 
 def test_runtime_schema_compatibility_skips_alembic_managed_sqlite(app, monkeypatch):

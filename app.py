@@ -56,6 +56,7 @@ RUNTIME_SQLITE_COLUMN_PATCHES = {
         'session_timeout_minutes': 'INTEGER NOT NULL DEFAULT 0',
         'failed_login_attempts': 'INTEGER NOT NULL DEFAULT 0',
         'locked_until': 'DATETIME',
+        'username_changed_at': 'DATETIME',
     }
 }
 
@@ -73,7 +74,7 @@ def _build_content_security_policy(nonce):
         "form-action 'self'",
         "frame-ancestors 'none'",
         "object-src 'none'",
-        "img-src 'self' data:",
+        "img-src 'self' data: blob:",
         "style-src 'self'",
         "font-src 'self' data:",
         f"script-src 'self' 'nonce-{nonce}'",
@@ -664,7 +665,7 @@ def create_app(config_name='default'):
 
     @app.route('/favicon.ico')
     def favicon():
-        return redirect(url_for('static', filename='favicon.svg', v='20260302e'))
+        return redirect(url_for('static', filename='favicon.ico', v='20260713'))
 
     @app.route('/health')
     def health():

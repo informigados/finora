@@ -231,26 +231,45 @@ def parse_session_timeout_minutes(raw_value):
 
 
 def apply_profile_update(user, form, files, root_path, max_image_size):
-    user.name = (form.get('name') or '').strip() or None
+    new_name = (form.get('name') or '').strip() or None
+    new_username = (form.get('username') or user.username or '').strip()
     new_email = (form.get('email') or '').strip().lower()
     raw_timeout = form.get('session_timeout_minutes', '0')
 
     try:
-        user.session_timeout_minutes = parse_session_timeout_minutes(raw_timeout)
+        new_session_timeout = parse_session_timeout_minutes(raw_timeout)
     except ValueError:
         return 'invalid_session_timeout'
+
+    username_changed = new_username.casefold() != (user.username or '').casefold()
+    if len(new_username) < 3:
+        return 'invalid_username'
+    if username_changed:
+        if not user.can_change_username():
+            return 'username_change_cooldown'
+        existing_username = User.query.filter(
+            func.lower(User.username) == new_username.lower(), User.id != user.id
+        ).first()
+        if existing_username:
+            return 'duplicate_username'
 
     if new_email and new_email != user.email:
         if not is_valid_email(new_email):
             return 'invalid_email'
 
         existing_user = User.query.filter(
-            User.email == new_email, User.id != user.id
+            func.lower(User.email) == new_email.lower(), User.id != user.id
         ).first()
         if existing_user:
             return 'duplicate_email'
 
+    user.name = new_name
+    user.session_timeout_minutes = new_session_timeout
+    if new_email:
         user.email = new_email
+    if username_changed:
+        user.username = new_username
+        user.username_changed_at = utcnow_naive()
 
     if 'delete_image' in form:
         old_image = user.profile_image

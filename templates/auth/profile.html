@@ -33,11 +33,19 @@
     <div class="col-lg-4">
       <div class="profile-panel p-4 text-center">
         {% if current_user.profile_image %}
-        <img src="{{ url_for('auth.profile_image', filename=current_user.profile_image) if current_user.profile_image and current_user.profile_image not in ['default_profile.svg', 'default_profile.png'] else url_for('static', filename='profile_pics/default_profile.svg') }}" class="rounded-circle img-fluid mb-3 shadow avatar-lg" alt="{{ _('Foto de perfil') }}" data-fallback-src="{{ url_for('static', filename='profile_pics/default_profile.svg') }}" />
+        <label for="profile_image" class="profile-avatar-picker mb-3" title="{{ _('Alterar foto de perfil') }}">
+          <img id="profileAvatarPreview" src="{{ url_for('auth.profile_image', filename=current_user.profile_image) if current_user.profile_image and current_user.profile_image not in ['default_profile.svg', 'default_profile.png'] else url_for('static', filename='profile_pics/default_profile.svg') }}" class="rounded-circle img-fluid shadow avatar-lg" alt="{{ _('Foto de perfil') }}" data-fallback-src="{{ url_for('static', filename='profile_pics/default_profile.svg') }}" />
+          <span class="profile-avatar-overlay" aria-hidden="true"><i data-lucide="camera" class="icon-sm"></i></span>
+          <span class="visually-hidden">{{ _('Selecionar nova foto de perfil') }}</span>
+        </label>
         {% else %}
-        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3 avatar-lg">
-          <i data-lucide="user" class="text-white icon-xxl"></i>
-        </div>
+        <label for="profile_image" class="profile-avatar-picker mb-3" title="{{ _('Alterar foto de perfil') }}">
+          <span class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto avatar-lg">
+            <i data-lucide="user" class="text-white icon-xxl"></i>
+          </span>
+          <span class="profile-avatar-overlay" aria-hidden="true"><i data-lucide="camera" class="icon-sm"></i></span>
+          <span class="visually-hidden">{{ _('Selecionar nova foto de perfil') }}</span>
+        </label>
         {% endif %}
         <h4 class="card-title">{{ current_user.name or current_user.username }}</h4>
         <p class="text-muted mb-1">@{{ current_user.username }}</p>
@@ -108,28 +116,28 @@
         <div class="profile-tabs-shell px-3 pt-3">
         <ul class="nav nav-tabs profile-tabs" id="profileTabs" role="tablist">
           <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit-pane" type="button" role="tab" aria-controls="edit-pane" aria-selected="true">{{ _('Perfil') }}</button>
+            <button class="nav-link active" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit-pane" type="button" role="tab" aria-controls="edit-pane" aria-selected="true"><i data-lucide="user-round" class="icon-xs me-1"></i>{{ _('Perfil') }}</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-pane" type="button" role="tab" aria-controls="password-pane" aria-selected="false">{{ _('Alterar Senha') }}</button>
+            <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-pane" type="button" role="tab" aria-controls="password-pane" aria-selected="false"><i data-lucide="key-round" class="icon-xs me-1"></i>{{ _('Alterar Senha') }}</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="recovery-tab" data-bs-toggle="tab" data-bs-target="#recovery-pane" type="button" role="tab" aria-controls="recovery-pane" aria-selected="false">{{ _('Recuperação') }}</button>
+            <button class="nav-link" id="recovery-tab" data-bs-toggle="tab" data-bs-target="#recovery-pane" type="button" role="tab" aria-controls="recovery-pane" aria-selected="false"><i data-lucide="life-buoy" class="icon-xs me-1"></i>{{ _('Recuperação') }}</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="backups-tab" data-bs-toggle="tab" data-bs-target="#backups-pane" type="button" role="tab" aria-controls="backups-pane" aria-selected="false">{{ _('Meus Backups') }}</button>
+            <button class="nav-link" id="backups-tab" data-bs-toggle="tab" data-bs-target="#backups-pane" type="button" role="tab" aria-controls="backups-pane" aria-selected="false"><i data-lucide="database-backup" class="icon-xs me-1"></i>{{ _('Meus Backups') }}</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="sessions-tab" data-bs-toggle="tab" data-bs-target="#sessions-pane" type="button" role="tab" aria-controls="sessions-pane" aria-selected="false">{{ _('Sessões') }}</button>
+            <button class="nav-link" id="sessions-tab" data-bs-toggle="tab" data-bs-target="#sessions-pane" type="button" role="tab" aria-controls="sessions-pane" aria-selected="false"><i data-lucide="monitor-smartphone" class="icon-xs me-1"></i>{{ _('Sessões') }}</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity-pane" type="button" role="tab" aria-controls="activity-pane" aria-selected="false">{{ _('Atividades') }}</button>
+            <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity-pane" type="button" role="tab" aria-controls="activity-pane" aria-selected="false"><i data-lucide="history" class="icon-xs me-1"></i>{{ _('Atividades') }}</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status-pane" type="button" role="tab" aria-controls="status-pane" aria-selected="false">{{ _('Status do Sistema') }}</button>
+            <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status-pane" type="button" role="tab" aria-controls="status-pane" aria-selected="false"><i data-lucide="activity" class="icon-xs me-1"></i>{{ _('Status do Sistema') }}</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link text-danger" id="danger-tab" data-bs-toggle="tab" data-bs-target="#danger-pane" type="button" role="tab" aria-controls="danger-pane" aria-selected="false">{{ _('Zona de Perigo') }}</button>
+            <button class="nav-link text-danger" id="danger-tab" data-bs-toggle="tab" data-bs-target="#danger-pane" type="button" role="tab" aria-controls="danger-pane" aria-selected="false"><i data-lucide="triangle-alert" class="icon-xs me-1"></i>{{ _('Zona de Perigo') }}</button>
           </li>
         </ul>
         </div>
@@ -142,8 +150,18 @@
 
               <div class="mb-3">
                 <label for="username" class="form-label">{{ _('Nome de Usuário') }}</label>
-                <input type="text" class="form-control" id="username" value="{{ current_user.username }}" disabled />
-                <div class="form-text">{{ _('O nome de usuário não pode ser alterado.') }}</div>
+                <div class="input-group">
+                  <span class="input-group-text"><i data-lucide="at-sign" class="icon-sm"></i></span>
+                  <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username }}" minlength="3" required autocomplete="username" aria-describedby="profile-username-help" {% if not current_user.can_change_username() %}disabled{% endif %} />
+                  <span class="input-group-text auth-status-icon" id="profile-username-status"></span>
+                </div>
+                <div class="form-text" id="profile-username-help">
+                  {% if current_user.can_change_username() %}
+                  {{ _('Você pode alterar o nome de usuário agora. Depois de salvar, uma nova troca ficará disponível em 90 dias.') }}
+                  {% else %}
+                  {{ _('Próxima alteração disponível em %(date)s.', date=(current_user.username_change_available_at()|app_date)) }}
+                  {% endif %}
+                </div>
               </div>
 
               <div class="mb-3">
@@ -158,7 +176,8 @@
 
               <div class="mb-3">
                 <label for="profile_image" class="form-label">{{ _('Foto de Perfil') }}</label>
-                <input type="file" class="form-control mb-2" id="profile_image" name="profile_image" accept="image/*" />
+                <input type="file" class="form-control mb-2" id="profile_image" name="profile_image" accept="image/png,image/jpeg,image/gif" />
+                <div class="form-text mb-2">{{ _('Clique também na foto ao lado para escolher uma imagem. Formatos JPG, PNG ou GIF, até 2 MB.') }}</div>
 
                 {% if current_user.profile_image and current_user.profile_image != 'default_profile.svg' and current_user.profile_image != 'default_profile.png' %}
                 <div class="form-check">
@@ -190,7 +209,7 @@
                 <div class="form-text">{{ _('Quando o tempo acabar por inatividade, você precisará entrar novamente.') }}</div>
               </div>
 
-              <button type="submit" class="btn btn-primary">{{ _('Salvar Alterações') }}</button>
+              <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2"><i data-lucide="save" class="icon-sm"></i><span>{{ _('Salvar Alterações') }}</span></button>
             </form>
           </div>
 
@@ -210,7 +229,7 @@
                 <div class="form-text">{{ _('Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números.') }}</div>
               </div>
 
-              <button type="submit" class="btn btn-warning text-white">{{ _('Atualizar Senha') }}</button>
+              <button type="submit" class="btn btn-warning text-white d-inline-flex align-items-center gap-2"><i data-lucide="key-round" class="icon-sm"></i><span>{{ _('Atualizar Senha') }}</span></button>
             </form>
           </div>
 
@@ -246,8 +265,8 @@
                       {% if not recovery_key_summary.current_key %}placeholder="{{ _('Gere uma nova chave para disponibilizar a cópia nesta tela.') }}"{% endif %}
                       readonly
                     />
-                    <button type="button" class="btn btn-outline-secondary" id="copyRecoveryKeyBtn" {% if not recovery_key_summary.current_key %}disabled{% endif %}>
-                      {{ _('Copiar') }}
+                    <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" id="copyRecoveryKeyBtn" {% if not recovery_key_summary.current_key %}disabled{% endif %}>
+                      <i data-lucide="copy" class="icon-sm"></i><span>{{ _('Copiar') }}</span>
                     </button>
                   </div>
                   <div class="text-muted small mb-1">{{ _('Último envio por e-mail') }}</div>
@@ -263,14 +282,14 @@
                     <form action="{{ url_for('auth.profile') }}" method="POST">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                       <input type="hidden" name="action" value="email_recovery_key" />
-                      <button type="submit" class="btn btn-outline-primary">{{ _('Enviar por e-mail') }}</button>
+                      <button type="submit" class="btn btn-outline-primary d-inline-flex align-items-center gap-2"><i data-lucide="send" class="icon-sm"></i><span>{{ _('Enviar por e-mail') }}</span></button>
                     </form>
                     <form action="{{ url_for('auth.profile') }}" method="POST" data-confirm="{{ _('Deseja gerar uma nova chave de recuperação? A chave anterior deixará de valer imediatamente.') }}">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                       <input type="hidden" name="action" value="regenerate_recovery_key" />
-                      <button type="submit" class="btn btn-outline-danger">{{ _('Gerar nova chave') }}</button>
+                      <button type="submit" class="btn btn-outline-danger d-inline-flex align-items-center gap-2"><i data-lucide="refresh-cw" class="icon-sm"></i><span>{{ _('Gerar nova chave') }}</span></button>
                     </form>
-                    <a href="{{ url_for('auth.forgot_password') }}" class="btn btn-outline-secondary">{{ _('Abrir fluxo de recuperação') }}</a>
+                    <a href="{{ url_for('auth.forgot_password') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2"><i data-lucide="external-link" class="icon-sm"></i><span>{{ _('Abrir fluxo de recuperação') }}</span></a>
                   </div>
                 </div>
               </div>
@@ -283,7 +302,7 @@
                 <h5 class="mb-1">{{ _('Meus Backups') }}</h5>
                 <p class="text-muted mb-0">{{ _('Centralize aqui os backups manuais, a rotina automática e o histórico salvo.') }}</p>
               </div>
-              <a href="{{ url_for('backup.download_backup') }}" class="btn btn-primary">{{ _('Gerar Backup Manual') }}</a>
+              <a href="{{ url_for('backup.download_backup') }}" class="btn btn-primary d-inline-flex align-items-center gap-2"><i data-lucide="database-backup" class="icon-sm"></i><span>{{ _('Gerar Backup Manual') }}</span></a>
             </div>
 
             <div class="row g-3 mb-4">
@@ -371,7 +390,7 @@
                 </div>
 
                 <div class="mt-3">
-                  <button type="submit" class="btn btn-outline-primary">{{ _('Salvar rotina') }}</button>
+                      <button type="submit" class="btn btn-outline-primary d-inline-flex align-items-center gap-2"><i data-lucide="save" class="icon-sm"></i><span>{{ _('Salvar rotina') }}</span></button>
                 </div>
               </form>
             </div>
@@ -406,10 +425,10 @@
                     </td>
                     <td class="text-end">
                       <div class="d-inline-flex gap-2">
-                        <a href="{{ url_for('backup.download_saved_backup', record_id=backup.id) }}" class="btn btn-sm btn-outline-primary">{{ _('Baixar') }}</a>
+                        <a href="{{ url_for('backup.download_saved_backup', record_id=backup.id) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"><i data-lucide="download" class="icon-xs"></i><span>{{ _('Baixar') }}</span></a>
                         <form action="{{ url_for('backup.delete_saved_backup', record_id=backup.id) }}" method="POST" data-confirm="{{ _('Deseja excluir este backup salvo?') }}">
                           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                          <button type="submit" class="btn btn-sm btn-outline-danger">{{ _('Excluir') }}</button>
+                          <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"><i data-lucide="trash-2" class="icon-xs"></i><span>{{ _('Excluir') }}</span></button>
                         </form>
                       </div>
                     </td>
@@ -622,8 +641,8 @@
           <input type="hidden" name="action" value="delete_account" />
           <input type="text" class="form-control mb-3" name="confirmation" placeholder="{{ delete_confirmation_token }}" required pattern="{{ delete_confirmation_token }}" />
           <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
-            <button type="submit" class="btn btn-danger">{{ _('Excluir Permanentemente') }}</button>
+            <button type="button" class="btn btn-secondary d-inline-flex align-items-center gap-2" data-bs-dismiss="modal"><i data-lucide="x" class="icon-sm"></i><span>{{ _('Cancelar') }}</span></button>
+            <button type="submit" class="btn btn-danger d-inline-flex align-items-center gap-2"><i data-lucide="trash-2" class="icon-sm"></i><span>{{ _('Excluir Permanentemente') }}</span></button>
           </div>
         </form>
       </div>
@@ -673,13 +692,68 @@
       if (!currentRecoveryKeyInput?.value) return;
       try {
         await navigator.clipboard.writeText(currentRecoveryKeyInput.value);
-        copyRecoveryKeyBtn.textContent = "{{ _('Copiado!') }}";
+        copyRecoveryKeyBtn.innerHTML = '<i data-lucide="check" class="icon-sm"></i><span>{{ _("Copiado!") }}</span>';
+        refreshLucideIcons(copyRecoveryKeyBtn);
         window.setTimeout(() => {
-          copyRecoveryKeyBtn.textContent = "{{ _('Copiar') }}";
+          copyRecoveryKeyBtn.innerHTML = '<i data-lucide="copy" class="icon-sm"></i><span>{{ _("Copiar") }}</span>';
+          refreshLucideIcons(copyRecoveryKeyBtn);
         }, 1500);
       } catch (_error) {
         currentRecoveryKeyInput.select();
       }
+    });
+
+    const profileImageInput = document.getElementById('profile_image');
+    const profileAvatarPreview = document.getElementById('profileAvatarPreview');
+    const deleteImageInput = document.getElementById('delete_image');
+    let previewObjectUrl = null;
+    profileImageInput?.addEventListener('change', function () {
+      const selectedFile = this.files?.[0];
+      if (!selectedFile || !profileAvatarPreview) return;
+      if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+      previewObjectUrl = URL.createObjectURL(selectedFile);
+      profileAvatarPreview.src = previewObjectUrl;
+      deleteImageInput && (deleteImageInput.checked = false);
+    });
+
+    const profileUsernameInput = document.getElementById('username');
+    const profileUsernameStatus = document.getElementById('profile-username-status');
+    const profileUsernameHelp = document.getElementById('profile-username-help');
+    let usernameLookupTimer = null;
+    profileUsernameInput?.addEventListener('input', function () {
+      if (this.disabled) return;
+      window.clearTimeout(usernameLookupTimer);
+      profileUsernameStatus.innerHTML = '';
+      this.classList.remove('is-valid', 'is-invalid');
+      const username = this.value.trim();
+      if (username.length < 3) {
+        profileUsernameHelp.textContent = "{{ _('Use pelo menos 3 caracteres.') }}";
+        return;
+      }
+      usernameLookupTimer = window.setTimeout(async () => {
+        try {
+          const response = await fetch('{{ url_for("auth.check_username") }}', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ username })
+          });
+          const data = await response.json();
+          profileUsernameStatus.innerHTML = data.available
+            ? '<i data-lucide="check" class="text-success icon-sm"></i>'
+            : '<i data-lucide="x" class="text-danger icon-sm"></i>';
+          profileUsernameHelp.textContent = data.message || '';
+          profileUsernameHelp.className = data.available ? 'form-text text-success' : 'form-text text-danger';
+          profileUsernameInput.classList.toggle('is-valid', Boolean(data.available));
+          profileUsernameInput.classList.toggle('is-invalid', !data.available);
+          refreshLucideIcons(profileUsernameStatus);
+        } catch (_error) {
+          profileUsernameHelp.textContent = "{{ _('Não foi possível verificar agora. A validação será repetida ao salvar.') }}";
+          profileUsernameHelp.className = 'form-text text-muted';
+        }
+      }, 350);
     });
   });
 </script>

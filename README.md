@@ -142,6 +142,8 @@ MAIL_TIMEOUT_SECONDS=10
 
 Finora supports an optional default user seed for local environments, including local desktop/package runs.
 
+> The official Windows installer does **not** create an `admin/admin123` account. This is intentional: a universal production credential would expose every installation. On first use, select **Create account** and register the local owner. The seed below is restricted to explicitly configured development/test environments.
+
 - Disabled by default (`ENABLE_DEFAULT_USER_SEED=False`)
 - Intended for local use only, and only runs when `ENABLE_DEFAULT_USER_SEED=1`
 - Requires `DEFAULT_USER_PASSWORD` to be set (otherwise seed is skipped)

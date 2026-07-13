@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from models.user import User
+from models.time_utils import utcnow_naive
 from models.audit import ActivityLog, UserSession
 from database.db import db
 from routes import auth as auth_module
@@ -128,6 +131,61 @@ def test_profile_update_session_timeout(client, app):
     with app.app_context():
         user = User.query.filter_by(username='sessiontest').first()
         assert user.session_timeout_minutes == 5
+
+
+def test_profile_username_change_checks_availability_and_enforces_90_days(client, app):
+    with app.app_context():
+        user = User(username='originalname', email='rename@example.com', name='Rename User')
+        user.set_password('Password123')
+        occupied = User(username='occupiedname', email='occupied@example.com', name='Occupied')
+        occupied.set_password('Password123')
+        db.session.add_all([user, occupied])
+        db.session.commit()
+
+    client.post('/login', data={'identifier': 'originalname', 'password': 'Password123'}, follow_redirects=True)
+
+    duplicate_response = client.post('/profile', data={
+        'action': 'update_info',
+        'username': 'occupiedname',
+        'name': 'Rename User',
+        'email': 'rename@example.com',
+        'session_timeout_minutes': '0',
+    }, follow_redirects=True)
+    assert 'nome de usuário já está em uso' in duplicate_response.get_data(as_text=True)
+
+    changed_response = client.post('/profile', data={
+        'action': 'update_info',
+        'username': 'renameduser',
+        'name': 'Rename User',
+        'email': 'rename@example.com',
+        'session_timeout_minutes': '0',
+    }, follow_redirects=True)
+    assert b'Perfil atualizado com sucesso' in changed_response.data
+
+    cooldown_response = client.post('/profile', data={
+        'action': 'update_info',
+        'username': 'anothername',
+        'name': 'Rename User',
+        'email': 'rename@example.com',
+        'session_timeout_minutes': '0',
+    }, follow_redirects=True)
+    assert b'90 dias' in cooldown_response.data
+
+    with app.app_context():
+        user = User.query.filter_by(email='rename@example.com').first()
+        assert user.username == 'renameduser'
+        assert user.username_changed_at is not None
+        user.username_changed_at = utcnow_naive() - timedelta(days=91)
+        db.session.commit()
+
+    final_response = client.post('/profile', data={
+        'action': 'update_info',
+        'username': 'anothername',
+        'name': 'Rename User',
+        'email': 'rename@example.com',
+        'session_timeout_minutes': '0',
+    }, follow_redirects=True)
+    assert b'Perfil atualizado com sucesso' in final_response.data
 
 
 def test_refresh_session_endpoint(client, app):

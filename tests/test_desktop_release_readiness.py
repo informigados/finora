@@ -5,6 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from PIL import Image
 
 from config import get_or_create_local_secret_key
 from services import update_service
@@ -49,6 +50,25 @@ def test_base_template_uses_only_bundled_frontend_dependencies():
     assert "vendor/bootstrap/bootstrap.min.css" in template
     assert "vendor/chartjs/chart.umd.min.js" in template
     assert "vendor/lucide/lucide.min.js" in template
+
+
+def test_windows_icon_is_visible_multiresolution_and_wired_into_builds():
+    icon = Image.open('static/favicon.ico')
+    expected_sizes = {(16, 16), (24, 24), (32, 32), (48, 48), (256, 256)}
+    assert expected_sizes.issubset(icon.info['sizes'])
+    for size in expected_sizes:
+        frame = icon.ico.getimage(size).convert('RGBA')
+        assert frame.getbbox() is not None
+        assert frame.getchannel('A').getextrema()[1] == 255
+
+    spec = Path('Finora.spec').read_text(encoding='utf-8')
+    installer = Path('finora_installer.iss').read_text(encoding='utf-8')
+    assert "icon=['static/favicon.ico']" in spec
+    assert 'SetupIconFile=static\\favicon.ico' in installer
+    assert installer.count('IconFilename: "{app}\\Finora.exe"') == 2
+    assert installer.count('IconIndex: 0') == 2
+    builder = Path('create_installer.py').read_text(encoding='utf-8')
+    assert 'scripts/generate_windows_icon.py' in builder
 
 
 def test_desktop_asset_filename_requires_executable():
