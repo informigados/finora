@@ -68,6 +68,11 @@ def test_desktop_asset_filename_requires_executable():
 def test_authenticode_validation_requires_valid_expected_publisher(monkeypatch):
     monkeypatch.setattr(update_service.os, 'name', 'nt')
     monkeypatch.setattr(
+        update_service,
+        '_get_powershell_executable',
+        lambda: 'powershell.exe',
+    )
+    monkeypatch.setattr(
         update_service.subprocess,
         'run',
         lambda *_args, **_kwargs: SimpleNamespace(
@@ -282,6 +287,11 @@ def test_authenticode_validation_failure_paths(monkeypatch):
         update_service._verify_desktop_installer_signature('installer.exe')
 
     monkeypatch.setattr(update_service.os, 'name', 'nt')
+    monkeypatch.setattr(
+        update_service,
+        '_get_powershell_executable',
+        lambda: 'powershell.exe',
+    )
     responses = iter(
         (
             SimpleNamespace(returncode=1, stdout=''),
