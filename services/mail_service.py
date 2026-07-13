@@ -18,12 +18,16 @@ def send_email(app, to_address, subject, plain_text_body):
 
     if not mail_server or not mail_default_sender:
         app.logger.info(
-            'Envio de e-mail em modo local. Destino=%s assunto=%s corpo_chars=%s',
+            'Envio de e-mail desativado por falta de configuração SMTP. Destino=%s assunto=%s corpo_chars=%s',
             to_address,
             subject,
             len(plain_text_body or ''),
         )
-        return {'ok': True, 'delivery': 'log'}
+        return {
+            'ok': False,
+            'delivery': 'disabled',
+            'reason': 'not_configured',
+        }
 
     message = EmailMessage()
     message['Subject'] = subject

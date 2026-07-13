@@ -1,14 +1,56 @@
-version: '3.8'
-
 services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Defina MYSQL_DATABASE no arquivo .env}
+      MYSQL_USER: ${MYSQL_USER:?Defina MYSQL_USER no arquivo .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Defina MYSQL_PASSWORD no arquivo .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD no arquivo .env}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
   web:
     build: .
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./database:/app/database
-    environment:
-      - FLASK_ENV=production
-      - SECRET_KEY=change_this_secret_key_in_production
-      - DATABASE_URL=sqlite:////app/database/finora.db
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${FINORA_PORT:-5000}:5000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY:?Defina SECRET_KEY no arquivo .env}
+      DATABASE_URL: ${DATABASE_URL:?Defina DATABASE_URL no arquivo .env}
+      APP_BASE_URL: ${APP_BASE_URL:?Defina APP_BASE_URL no arquivo .env}
+      APP_TIMEZONE: ${APP_TIMEZONE:-America/Sao_Paulo}
+      ENABLE_DEFAULT_USER_SEED: "0"
+      ENABLE_BACKUP_SCHEDULER: ${ENABLE_BACKUP_SCHEDULER:-1}
+      LOG_TO_FILE: ${LOG_TO_FILE:-1}
+      LOG_DIRECTORY: /app/logs
+      BACKUP_STORAGE_DIR: /app/backups
+      TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-0}
+      MAIL_SERVER: ${MAIL_SERVER:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_USE_TLS: ${MAIL_USE_TLS:-1}
+      MAIL_USE_SSL: ${MAIL_USE_SSL:-0}
+      MAIL_DEFAULT_SENDER: ${MAIL_DEFAULT_SENDER:-}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Finora}
+      MAIL_TIMEOUT_SECONDS: ${MAIL_TIMEOUT_SECONDS:-10}
+    volumes:
+      - finora_backups:/app/backups
+      - finora_logs:/app/logs
+      - finora_profiles:/app/static/profile_pics
+
+volumes:
+  mysql_data:
+  finora_backups:
+  finora_logs:
+  finora_profiles:

@@ -6,7 +6,7 @@ import sys
 import click
 import shutil
 import tempfile
-from flask import Flask, request, session, flash, redirect, url_for, g, jsonify
+from flask import Flask, request, session, flash, redirect, url_for, g, jsonify, send_from_directory
 from flask_babel import Babel, gettext as _
 from flask_login import LoginManager, current_user, logout_user
 from flask_migrate import Migrate
@@ -37,6 +37,7 @@ from services.backup_service import run_backup_maintenance, start_backup_schedul
 from services.db_resilience import run_idempotent_db_operation
 from services.logging_utils import configure_application_logging, request_id_context
 from services.maintenance_service import run_recurring_maintenance, start_recurring_scheduler
+from services.mail_settings_service import apply_desktop_mail_settings
 from services.profile_service import (
     end_user_session,
     ensure_user_session,
@@ -465,6 +466,7 @@ def create_app(config_name='default'):
             raise RuntimeError(
                 'SECRET_KEY não configurada. Defina SECRET_KEY para iniciar em produção.'
             )
+    apply_desktop_mail_settings(app)
     configure_application_logging(app)
     
     # Babel configuration
@@ -525,7 +527,7 @@ def create_app(config_name='default'):
 
         if (
             request.method == 'GET'
-            and request.endpoint not in {None, 'set_language', 'health', 'favicon'}
+            and request.endpoint not in {None, 'set_language', 'health', 'favicon', 'brand_mark'}
             and not (request.endpoint or '').startswith('static')
         ):
             session['language_redirect_target'] = request.full_path.rstrip('?')
@@ -666,6 +668,14 @@ def create_app(config_name='default'):
     @app.route('/favicon.ico')
     def favicon():
         return redirect(url_for('static', filename='favicon.ico', v='20260713b'))
+
+    @app.route('/brand/finora-mark-white.png')
+    def brand_mark():
+        return send_from_directory(
+            os.path.join(app.root_path, 'icons'),
+            'finora-icone-branco-transparente.png',
+            max_age=31536000,
+        )
 
     @app.route('/health')
     def health():

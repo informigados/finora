@@ -47,6 +47,10 @@ def test_login_and_register_redirect_when_authenticated(client, app):
 
 def test_forgot_password_email_flow_returns_generic_message(client, app):
     _create_user(app, 'recovermail', 'recovermail@example.com')
+    app.config.update(
+        MAIL_SERVER='smtp.example.com',
+        MAIL_DEFAULT_SENDER='noreply@example.com',
+    )
 
     response = client.post(
         '/forgot_password',
@@ -60,6 +64,10 @@ def test_forgot_password_email_flow_returns_generic_message(client, app):
 
 def test_forgot_password_email_flow_calls_mail_sender_for_existing_user(client, app, monkeypatch):
     _create_user(app, 'recovermailcall', 'recovermailcall@example.com')
+    app.config.update(
+        MAIL_SERVER='smtp.example.com',
+        MAIL_DEFAULT_SENDER='noreply@example.com',
+    )
     calls = []
 
     def fake_send_reset_password_email(user):
@@ -77,6 +85,18 @@ def test_forgot_password_email_flow_calls_mail_sender_for_existing_user(client, 
     assert response.status_code == 200
     assert b'Se existir uma conta correspondente' in response.data
     assert calls == ['recovermailcall@example.com']
+
+
+def test_forgot_password_email_flow_explains_when_smtp_is_unavailable(client):
+    response = client.post(
+        '/forgot_password',
+        data={'identifier': 'any-user', 'method': 'email'},
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b'envio por e-mail ainda n' in response.data
+    assert b'configure o SMTP no perfil' in response.data
 
 
 def test_reset_password_offline_rejects_weak_password(client, app):

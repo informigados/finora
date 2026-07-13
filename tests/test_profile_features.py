@@ -6,6 +6,50 @@ from models.audit import ActivityLog, UserSession
 from database.db import db
 from routes import auth as auth_module
 
+
+def test_desktop_profile_saves_encrypted_smtp_settings_and_sends_test(
+    auth_client,
+    app,
+    tmp_path,
+    monkeypatch,
+):
+    settings_path = tmp_path / 'mail.json'
+    app.config.update(
+        DESKTOP_MODE=True,
+        MAIL_SETTINGS_PATH=str(settings_path),
+        MAIL_SERVER='',
+        MAIL_DEFAULT_SENDER='',
+    )
+    sent = []
+
+    def fake_send_email(_app, recipient, subject, body):
+        sent.append((recipient, subject, body))
+        return {'ok': True, 'delivery': 'smtp'}
+
+    monkeypatch.setattr(auth_module, 'send_email', fake_send_email)
+    response = auth_client.post(
+        '/profile',
+        data={
+            'action': 'test_mail_settings',
+            'mail_server': 'smtp.example.com',
+            'mail_port': '465',
+            'mail_security': 'ssl',
+            'mail_username': 'sender@example.com',
+            'mail_password': 'local-secret',
+            'mail_default_sender': 'sender@example.com',
+            'mail_from_name': 'Finora',
+        },
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b'e-mail de teste enviado com sucesso' in response.data
+    assert settings_path.exists()
+    assert b'local-secret' not in settings_path.read_bytes()
+    assert sent and sent[0][0] == 'test@example.com'
+    assert b'local-secret' not in response.data
+
+
 def test_profile_update_email_success(client, app):
     """Test updating email successfully"""
     # Setup user

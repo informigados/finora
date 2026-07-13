@@ -124,6 +124,11 @@
           <li class="nav-item" role="presentation">
             <button class="nav-link" id="recovery-tab" data-bs-toggle="tab" data-bs-target="#recovery-pane" type="button" role="tab" aria-controls="recovery-pane" aria-selected="false"><i data-lucide="life-buoy" class="icon-xs me-1"></i>{{ _('Recuperação') }}</button>
           </li>
+          {% if desktop_mail_settings %}
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="mail-tab" data-bs-toggle="tab" data-bs-target="#mail-pane" type="button" role="tab" aria-controls="mail-pane" aria-selected="false"><i data-lucide="mail" class="icon-xs me-1"></i>{{ _('E-mail') }}</button>
+          </li>
+          {% endif %}
           <li class="nav-item" role="presentation">
             <button class="nav-link" id="backups-tab" data-bs-toggle="tab" data-bs-target="#backups-pane" type="button" role="tab" aria-controls="backups-pane" aria-selected="false"><i data-lucide="database-backup" class="icon-xs me-1"></i>{{ _('Meus Backups') }}</button>
           </li>
@@ -295,6 +300,74 @@
               </div>
             </div>
           </div>
+
+          {% if desktop_mail_settings %}
+          <div class="tab-pane fade" id="mail-pane" role="tabpanel" aria-labelledby="mail-tab" tabindex="0">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+              <div>
+                <h5 class="mb-1">{{ _('Envio de e-mails') }}</h5>
+                <p class="text-muted mb-0">{{ _('Configure o SMTP usado para chaves de recuperação, redefinição de senha e avisos do Finora.') }}</p>
+              </div>
+              <span class="badge {{ 'text-bg-success' if desktop_mail_settings.configured else 'text-bg-warning' }}">
+                {{ _('Configurado') if desktop_mail_settings.configured else _('Não configurado') }}
+              </span>
+            </div>
+
+            <form action="{{ url_for('auth.profile') }}" method="POST" autocomplete="off">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <label for="mail_server" class="form-label">{{ _('Servidor SMTP') }}</label>
+                  <input type="text" class="form-control" id="mail_server" name="mail_server" value="{{ desktop_mail_settings.server }}" placeholder="mail.exemplo.com" required spellcheck="false" />
+                </div>
+                <div class="col-md-4">
+                  <label for="mail_port" class="form-label">{{ _('Porta') }}</label>
+                  <input type="number" class="form-control" id="mail_port" name="mail_port" value="{{ desktop_mail_settings.port }}" min="1" max="65535" required inputmode="numeric" />
+                </div>
+                <div class="col-md-6">
+                  <label for="mail_security" class="form-label">{{ _('Segurança') }}</label>
+                  <select class="form-select" id="mail_security" name="mail_security" required>
+                    <option value="ssl" {% if desktop_mail_settings.security == 'ssl' %}selected{% endif %}>SSL/TLS</option>
+                    <option value="starttls" {% if desktop_mail_settings.security == 'starttls' %}selected{% endif %}>STARTTLS</option>
+                    <option value="none" {% if desktop_mail_settings.security == 'none' %}selected{% endif %}>{{ _('Sem criptografia') }}</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="mail_username" class="form-label">{{ _('Usuário SMTP') }}</label>
+                  <input type="text" class="form-control" id="mail_username" name="mail_username" value="{{ desktop_mail_settings.username }}" autocomplete="username" spellcheck="false" />
+                </div>
+                <div class="col-md-6">
+                  <label for="mail_password" class="form-label">{{ _('Senha SMTP') }}</label>
+                  <input type="password" class="form-control" id="mail_password" name="mail_password" autocomplete="new-password" aria-describedby="mailPasswordHelp" />
+                  <div class="form-text" id="mailPasswordHelp">
+                    {% if desktop_mail_settings.password_saved %}
+                    {{ _('Uma senha criptografada já está salva. Deixe em branco para mantê-la.') }}
+                    {% else %}
+                    {{ _('A senha será criptografada e armazenada somente neste computador.') }}
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="mail_default_sender" class="form-label">{{ _('E-mail remetente') }}</label>
+                  <input type="email" class="form-control" id="mail_default_sender" name="mail_default_sender" value="{{ desktop_mail_settings.default_sender }}" required autocomplete="email" />
+                </div>
+                <div class="col-12">
+                  <label for="mail_from_name" class="form-label">{{ _('Nome do remetente') }}</label>
+                  <input type="text" class="form-control" id="mail_from_name" name="mail_from_name" value="{{ desktop_mail_settings.from_name }}" maxlength="120" required />
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 mt-4">
+                <button type="submit" name="action" value="save_mail_settings" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                  <i data-lucide="save" class="icon-sm"></i><span>{{ _('Salvar configurações') }}</span>
+                </button>
+                <button type="submit" name="action" value="test_mail_settings" class="btn btn-outline-primary d-inline-flex align-items-center gap-2">
+                  <i data-lucide="send" class="icon-sm"></i><span>{{ _('Salvar e enviar teste') }}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+          {% endif %}
 
           <div class="tab-pane fade" id="backups-pane" role="tabpanel" aria-labelledby="backups-tab" tabindex="0">
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">

@@ -32,6 +32,12 @@ from services.backup_service import (
     BACKUP_WEEKDAY_OPTIONS,
     get_or_create_backup_schedule,
 )
+from services.mail_service import send_email
+from services.mail_settings_service import (
+    get_mail_settings_summary,
+    is_mail_delivery_configured,
+    save_desktop_mail_settings,
+)
 from services.profile_service import (
     DELETE_CONFIRMATION_TOKEN,
     VALID_SESSION_TIMEOUT_OPTIONS,
@@ -287,6 +293,15 @@ def forgot_password() -> ResponseReturnValue:
         user = find_user_by_identifier(identifier)
 
         if method == 'email':
+            if not is_mail_delivery_configured(current_app):
+                flash(
+                    _(
+                        'O envio por e-mail ainda não está configurado neste Finora. '
+                        'Use a chave de recuperação offline ou configure o SMTP no perfil.'
+                    ),
+                    'warning',
+                )
+                return redirect(url_for('auth.forgot_password'))
             if user:
                 send_reset_password_email(user)
 
@@ -296,7 +311,10 @@ def forgot_password() -> ResponseReturnValue:
         flash(_generic_recovery_notice(), 'info')
         return redirect(url_for('auth.reset_password_offline', identifier=identifier))
 
-    return render_template('auth/forgot_password.html')
+    return render_template(
+        'auth/forgot_password.html',
+        mail_delivery_available=is_mail_delivery_configured(current_app),
+    )
 
 
 @auth_bp.route('/reset_password/offline', methods=['GET', 'POST'])
@@ -484,6 +502,51 @@ def profile() -> ResponseReturnValue:
                 )
                 flash(_('Senha alterada com sucesso!'), 'success')
 
+        elif action in {'save_mail_settings', 'test_mail_settings'}:
+            error_code = save_desktop_mail_settings(current_app, request.form)
+            mail_error_messages = {
+                'desktop_only': _('Esta configuração está disponível somente no aplicativo desktop.'),
+                'invalid_server': _('Informe um servidor SMTP válido.'),
+                'invalid_port': _('Informe uma porta SMTP válida.'),
+                'invalid_security': _('Selecione uma opção válida de segurança SMTP.'),
+                'invalid_sender': _('Informe um endereço de remetente válido.'),
+                'missing_password': _('Informe a senha SMTP para autenticar este usuário.'),
+                'storage_unavailable': _('O armazenamento local das configurações de e-mail não está disponível.'),
+                'persist_failed': _('Não foi possível salvar as configurações de e-mail.'),
+            }
+            if error_code:
+                flash(
+                    mail_error_messages.get(
+                        error_code,
+                        _('Não foi possível validar as configurações de e-mail.'),
+                    ),
+                    'error',
+                )
+                return redirect(url_for('auth.profile', _anchor='mail-pane'))
+
+            if action == 'test_mail_settings':
+                delivery = send_email(
+                    current_app,
+                    current_user.email,
+                    _('Finora - Teste de e-mail'),
+                    _(
+                        'Este é um e-mail de teste do Finora. Sua configuração SMTP está funcionando corretamente.'
+                    ),
+                )
+                if delivery.get('ok'):
+                    flash(_('Configurações salvas e e-mail de teste enviado com sucesso.'), 'success')
+                else:
+                    flash(
+                        _(
+                            'As configurações foram salvas, mas o e-mail de teste falhou. '
+                            'Revise servidor, porta, segurança, usuário e senha.'
+                        ),
+                        'error',
+                    )
+            else:
+                flash(_('Configurações de e-mail salvas com segurança.'), 'success')
+            return redirect(url_for('auth.profile', _anchor='mail-pane'))
+
         elif action == 'delete_account':
             confirmation = (request.form.get('confirmation') or '').strip().upper()
             if confirmation == DELETE_CONFIRMATION_TOKEN:
@@ -617,6 +680,7 @@ def profile() -> ResponseReturnValue:
         backup_frequency_options=BACKUP_FREQUENCY_OPTIONS,
         backup_times_per_period_options=BACKUP_TIMES_PER_PERIOD_OPTIONS,
         backup_weekday_options=BACKUP_WEEKDAY_OPTIONS,
+        desktop_mail_settings=get_mail_settings_summary(current_app),
         **profile_context,
     )
 

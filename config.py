@@ -225,6 +225,8 @@ class Config:
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', '')
     MAIL_FROM_NAME = os.environ.get('MAIL_FROM_NAME', 'Finora')
     MAIL_TIMEOUT_SECONDS = _env_int('MAIL_TIMEOUT_SECONDS', 10)
+    MAIL_SETTINGS_PATH = ''
+    MAIL_SETTINGS_SOURCE = 'environment'
     UPDATE_CHANNEL = os.environ.get('UPDATE_CHANNEL', 'stable')
     UPDATE_MANIFEST_URL = os.environ.get('UPDATE_MANIFEST_URL') or DEFAULT_UPDATE_MANIFEST_PATH
     UPDATE_DOWNLOAD_DIR = os.environ.get('UPDATE_DOWNLOAD_DIR') or os.path.join(basedir, 'updates')
@@ -281,6 +283,7 @@ class DesktopConfig(Config):
     )
     PROFILE_STORAGE_ROOT = DESKTOP_DATA_ROOT
     LOCAL_SECRET_KEY_PATH = os.path.join(DESKTOP_DATA_ROOT, 'database', '.finora_secret_key')
+    MAIL_SETTINGS_PATH = os.path.join(DESKTOP_DATA_ROOT, 'settings', 'mail.json')
 
 class TestingConfig(Config):
     TESTING = True

@@ -112,7 +112,12 @@ def test_mail_service_covers_local_log_smtp_tls_ssl_and_failure(monkeypatch):
     app.logger = Logger()
 
     assert mail_service.send_email(app, '', 'Assunto', 'Corpo')['reason'] == 'missing_recipient'
-    assert mail_service.send_email(app, 'dest@example.com', 'Assunto', 'Corpo')['delivery'] == 'log'
+    disabled = mail_service.send_email(app, 'dest@example.com', 'Assunto', 'Corpo')
+    assert disabled == {
+        'ok': False,
+        'delivery': 'disabled',
+        'reason': 'not_configured',
+    }
     assert 'info' in logged
     assert logged['info'][-1] == len('Corpo')
 

@@ -28,10 +28,8 @@
     <nav class="navbar navbar-expand-md navbar-dark navbar-premium">
       <div class="container navbar-shell">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('dashboard.index') if current_user.is_authenticated else url_for('public.welcome') }}">
-          <svg class="brand-mark me-2" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M21.21 15.89A10 10 0 1 1 8.11 2.79"></path>
-            <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
-          </svg>FINORA
+          <img class="brand-mark-image me-2" src="{{ url_for('brand_mark') }}" alt="" aria-hidden="true" />
+          <span>FINORA</span>
         </a>
 
         <button class="navbar-toggler navbar-toggler-premium" id="mainNavbarToggle" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="{{ _('Alternar navegação') }}">

@@ -100,6 +100,10 @@ jobs:
           - Hardened installer/update pipeline with checksums, release metadata, and provenance attestation.
           - Accessibility, dark-mode contrast, translations, dependency, and reliability refinements.
           - Fixed packaged database migrations, Windows shortcut icons, and cleanup of running processes during reinstall/uninstall.
+          - Added a native desktop window with taskbar integration and single-instance focus behavior.
+          - Added encrypted local SMTP configuration with a built-in test and truthful delivery status.
+          - Added the official Finora navigation mark and fixed the repository icon without Lucide console errors.
+          - Hardened Docker/MySQL deployment with health checks, non-root execution, migrations, and persistent data volumes.
 
           ### Verification
 

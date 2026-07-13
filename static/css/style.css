@@ -260,14 +260,15 @@ h6 {
   color: #f8fafc !important;
 }
 
-.brand-mark {
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.brand-mark-image {
+  width: 27px;
+  height: 27px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.github-mark {
+  fill: currentColor;
   flex-shrink: 0;
 }
 

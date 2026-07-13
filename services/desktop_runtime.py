@@ -111,6 +111,36 @@ class DesktopInstanceGuard:
     def open_existing(url):
         return webbrowser.open(url, new=0, autoraise=True)
 
+    def focus_existing_window(self):
+        if os.name != 'nt':
+            return False
+        state = self.read_state()
+        target_pid = int(state.get('pid') or 0)
+        if target_pid <= 0:
+            return False
+
+        import ctypes
+        from ctypes import wintypes
+
+        user32 = ctypes.windll.user32
+        matching_windows = []
+
+        @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        def enum_window(window_handle, _lparam):
+            process_id = wintypes.DWORD()
+            user32.GetWindowThreadProcessId(window_handle, ctypes.byref(process_id))
+            if process_id.value == target_pid and user32.IsWindowVisible(window_handle):
+                matching_windows.append(window_handle)
+                return False
+            return True
+
+        user32.EnumWindows(enum_window, 0)
+        if not matching_windows:
+            return False
+        window_handle = matching_windows[0]
+        user32.ShowWindow(window_handle, 9)  # SW_RESTORE
+        return bool(user32.SetForegroundWindow(window_handle))
+
     def release(self):
         if not self._owns_lock:
             return

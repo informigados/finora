@@ -1,3 +1,4 @@
+import ctypes
 import io
 import json
 import sys
@@ -50,6 +51,27 @@ def test_base_template_uses_only_bundled_frontend_dependencies():
     assert "vendor/bootstrap/bootstrap.min.css" in template
     assert "vendor/chartjs/chart.umd.min.js" in template
     assert "vendor/lucide/lucide.min.js" in template
+
+
+def test_official_brand_mark_and_repository_icon_are_packaged_without_lucide_gap():
+    base_template = Path('templates/base.html').read_text(encoding='utf-8')
+    about_template = Path('templates/about.html').read_text(encoding='utf-8')
+    spec = Path('Finora.spec').read_text(encoding='utf-8')
+    assert "url_for('brand_mark')" in base_template
+    assert 'data-lucide="github"' not in about_template
+    assert 'github-mark' in about_template
+    assert Path('icons/finora-icone-branco-transparente.png').exists()
+    assert "('icons/finora-icone-branco-transparente.png', 'icons')" in spec
+
+
+def test_native_desktop_shell_is_included_in_windows_bundle():
+    requirements = Path('requirements.txt').read_text(encoding='utf-8')
+    spec = Path('Finora.spec').read_text(encoding='utf-8')
+    desktop_entrypoint = Path('desktop.py').read_text(encoding='utf-8')
+    assert 'pywebview==6.2.1' in requirements
+    assert "'webview.platforms.edgechromium'" in spec
+    assert 'open_native_window' in desktop_entrypoint
+    assert 'Thread(target=server.run' in desktop_entrypoint
 
 
 def test_windows_icon_is_visible_multiresolution_and_wired_into_builds():
@@ -317,6 +339,65 @@ def test_desktop_runtime_windows_mutex_paths(tmp_path, monkeypatch):
         unavailable._acquire_windows_mutex()
 
     assert closed_handles == [101, 202]
+
+
+def test_desktop_runtime_focuses_existing_native_window(tmp_path, monkeypatch):
+    guard = DesktopInstanceGuard(tmp_path)
+    guard.data_root.mkdir(parents=True, exist_ok=True)
+    guard.state_path.write_text(
+        json.dumps({'pid': 4242, 'url': 'http://127.0.0.1:5000/'}),
+        encoding='utf-8',
+    )
+    calls = []
+
+    class User32:
+        @staticmethod
+        def GetWindowThreadProcessId(_handle, process_pointer):
+            process_pointer._obj.value = 4242
+            return 1
+
+        @staticmethod
+        def IsWindowVisible(_handle):
+            return True
+
+        @staticmethod
+        def EnumWindows(callback, _lparam):
+            callback(777, 0)
+            return 1
+
+        @staticmethod
+        def ShowWindow(handle, command):
+            calls.append(('show', handle, command))
+            return 1
+
+        @staticmethod
+        def SetForegroundWindow(handle):
+            calls.append(('foreground', handle))
+            return 1
+
+    monkeypatch.setattr(ctypes.windll, 'user32', User32())
+
+    assert guard.focus_existing_window() is True
+    assert calls == [('show', 777, 9), ('foreground', 777)]
+
+
+def test_desktop_runtime_focus_returns_false_without_native_window(tmp_path, monkeypatch):
+    guard = DesktopInstanceGuard(tmp_path)
+    assert guard.focus_existing_window() is False
+
+    guard.data_root.mkdir(parents=True, exist_ok=True)
+    guard.state_path.write_text(
+        json.dumps({'pid': 4242, 'url': 'http://127.0.0.1:5000/'}),
+        encoding='utf-8',
+    )
+
+    class User32:
+        @staticmethod
+        def EnumWindows(_callback, _lparam):
+            return 1
+
+    monkeypatch.setattr(ctypes.windll, 'user32', User32())
+    assert guard.focus_existing_window() is False
 
 
 def test_legacy_migration_fresh_and_failure_paths(tmp_path):

@@ -36,8 +36,9 @@ Current stable version: `1.4.0`
 - Recovery key display, resend, regeneration, and e-mail delivery
 - Profile hub with sessions, activity history, system status, and support shortcuts
 - Guided update system on `/about` with version check, pre-update backup, and migration-safe apply flow
-- Fully offline desktop interface with bundled fonts, icons, charts, and UI runtime
-- Single-instance desktop launcher that reopens the active local session
+- Native desktop window with minimize, maximize, close, taskbar presence, and bundled UI resources
+- Single-instance desktop launcher that focuses the active Finora window
+- Encrypted local SMTP settings under `Meu Perfil > E-mail`, with an integrated delivery test
 - Internationalization: Portuguese (default), English, Spanish
 
 ## 📁 Project Structure
@@ -175,7 +176,8 @@ DEFAULT_USER_PASSWORD=admin123
 - Source deployments retain the protected ZIP update flow and automatic `flask db upgrade` behavior.
 - Local packages referenced by a local manifest stay blocked by default. Only enable `UPDATE_ALLOW_LOCAL_ASSETS=1` for trusted offline update workflows.
 - Recovery keys can be copied from the profile, re-emailed, or regenerated.
-- When SMTP is not configured, e-mail delivery falls back to local log mode for development.
+- In the desktop app, configure SMTP under `Meu Perfil > E-mail`; the password is encrypted and stored only in the user's local application-data directory.
+- When SMTP is unavailable, Finora explicitly reports that delivery did not occur and keeps offline recovery available instead of claiming a successful send.
 
 ## 👤 Profile Hub and Backups
 
@@ -201,8 +203,28 @@ DEFAULT_USER_PASSWORD=admin123
 Example MySQL URL:
 
 ```ini
-DATABASE_URL=mysql+pymysql://user:password@host:3306/finora
+DATABASE_URL=mysql+mysqldb://user:password@host:3306/finora
 ```
+
+## 🌐 Online deployment with Docker and MySQL
+
+The repository includes a production profile with MySQL 8.4, automatic Alembic migrations, persistent volumes, container health checks, and a non-root application user.
+
+```bash
+cp .env.example .env
+# Replace every placeholder and URL-encode special characters in the DATABASE_URL password.
+docker compose up -d --build
+docker compose ps
+```
+
+Required production values:
+
+- `SECRET_KEY`: unique random value with at least 48 characters
+- `APP_BASE_URL`: final HTTPS address used in password-reset links
+- `DATABASE_URL`: MySQL connection using `mysql+mysqldb` (the driver already included in the project)
+- `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD`: unique database passwords
+
+Keep `TRUST_PROXY_HEADERS=0` when Finora is exposed directly. Enable it only behind a reverse proxy you control. SMTP remains optional, but password recovery by e-mail is available only when the `MAIL_*` values are configured.
 
 ## 🪵 Production Logs
 
