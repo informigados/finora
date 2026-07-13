@@ -110,11 +110,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create $env:GITHUB_REF_NAME `
-            dist_setup/Finora_Setup_*.exe `
-            dist_setup/SHA256SUMS.txt `
-            dist_setup/release-metadata.json `
-            dist_setup/manifest.json `
-            --verify-tag `
-            --notes-file dist_setup/RELEASE_NOTES.md `
-            --title "Finora $env:GITHUB_REF_NAME"
+          $assets = @(
+            "dist_setup/Finora_Setup_*.exe",
+            "dist_setup/SHA256SUMS.txt",
+            "dist_setup/release-metadata.json",
+            "dist_setup/manifest.json"
+          )
+          gh release view $env:GITHUB_REF_NAME *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:GITHUB_REF_NAME @assets --clobber
+            gh release edit $env:GITHUB_REF_NAME `
+              --notes-file dist_setup/RELEASE_NOTES.md `
+              --title "Finora $env:GITHUB_REF_NAME"
+          } else {
+            gh release create $env:GITHUB_REF_NAME @assets `
+              --verify-tag `
+              --notes-file dist_setup/RELEASE_NOTES.md `
+              --title "Finora $env:GITHUB_REF_NAME"
+          }
