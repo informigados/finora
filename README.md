@@ -249,16 +249,6 @@ Or:
 
 ## 📝 Changelog
 
-### 2026-07-13 (1.4.0)
-
-- Added a dedicated desktop runtime profile with debug disabled, Waitress serving on localhost, and a cookie policy compatible with local HTTP.
-- Moved desktop database, logs, backups, updates, profile images, and the persisted local secret to the user's local application-data directory.
-- Replaced the deterministic local secret fallback with an encrypted, randomly generated secret that survives application upgrades.
-- Included migrations, the update manifest, the version file, and the complete multi-size Windows icon in packaged builds.
-- Updated vulnerable runtime dependencies and restored the Bandit security scan on Python 3.14.
-- Completed and rebuilt Portuguese, English, and Spanish catalogs with validated placeholders and no fuzzy or missing entries.
-- Refined dashboard wording, singular/plural item counts, and dark-mode chart contrast.
-
 ### 2026-03-02 (1.0.0)
 
 - Initial release.
@@ -291,6 +281,16 @@ Or:
 - Expanded the finance domain with category and subcategory hierarchy plus payment/receiving method support across create, edit, import, export, and reports.
 - Improved top navigation behavior and mobile layout polish.
 - Expanded observability with audit events for core business actions and richer operational status visibility.
+
+### 2026-07-13 (1.4.0)
+
+- Added a dedicated desktop runtime profile with debug disabled, Waitress serving on localhost, and a cookie policy compatible with local HTTP.
+- Moved desktop database, logs, backups, updates, profile images, and the persisted local secret to the user's local application-data directory.
+- Replaced the deterministic local secret fallback with an encrypted, randomly generated secret that survives application upgrades.
+- Included migrations, the update manifest, the version file, and the complete multi-size Windows icon in packaged builds.
+- Updated vulnerable runtime dependencies and restored the Bandit security scan on Python 3.14.
+- Completed and rebuilt Portuguese, English, and Spanish catalogs with validated placeholders and no fuzzy or missing entries.
+- Refined dashboard wording, singular/plural item counts, and dark-mode chart contrast.
 
 ## 👥 Authors
 
