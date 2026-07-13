@@ -69,6 +69,17 @@ def test_windows_icon_is_visible_multiresolution_and_wired_into_builds():
     assert installer.count('IconIndex: 0') == 2
     builder = Path('create_installer.py').read_text(encoding='utf-8')
     assert 'scripts/generate_windows_icon.py' in builder
+    generator = Path('scripts/generate_windows_icon.py').read_text(encoding='utf-8')
+    assert 'ROOT / "icons" / "finora-icone-fundo-azul.png"' in generator
+    assert Path('icons/finora-icone-fundo-azul.png').exists()
+
+
+def test_base_template_uses_svg_favicon_with_ico_fallback():
+    template = Path('templates/base.html').read_text(encoding='utf-8')
+    assert "filename='favicon.svg'" in template
+    assert 'type="image/svg+xml"' in template
+    assert "filename='favicon.ico'" in template
+    assert 'rel="alternate icon"' in template
 
 
 def test_desktop_asset_filename_requires_executable():

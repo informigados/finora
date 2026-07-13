@@ -87,7 +87,7 @@ Output:
 
 Notes:
 
-- The executable icon is set from the multi-size `static\favicon.ico`.
+- The executable icon is set from the multi-size `static\favicon.ico`, regenerated from the official source in `icons\finora-icone-fundo-azul.png`.
 - Packaged runs automatically use the `desktop` configuration: Waitress on `127.0.0.1`, debug disabled, and writable data under `%LOCALAPPDATA%\Finora` by default.
 - Set `FINORA_DATA_DIR` before starting the application only when a custom desktop data location is required.
 - The script compiles translations and removes old `build/`, `dist/`, and `dist_setup/` folders first.

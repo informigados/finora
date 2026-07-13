@@ -7,7 +7,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "static" / "favicon.ico"
-SOURCE = ROOT / "finora-icon" / "finora-icone-fundo-azul.png"
+SOURCE = ROOT / "icons" / "finora-icone-fundo-azul.png"
 ICON_SIZES = (16, 20, 24, 32, 40, 48, 64, 128, 256)
 
 

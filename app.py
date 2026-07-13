@@ -665,7 +665,7 @@ def create_app(config_name='default'):
 
     @app.route('/favicon.ico')
     def favicon():
-        return redirect(url_for('static', filename='favicon.ico', v='20260713'))
+        return redirect(url_for('static', filename='favicon.ico', v='20260713b'))
 
     @app.route('/health')
     def health():

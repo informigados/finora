@@ -41,7 +41,7 @@ def test_favicon_redirects_to_versioned_asset(client):
     response = client.get('/favicon.ico', follow_redirects=False)
 
     assert response.status_code == 302
-    assert response.headers['Location'].endswith('/static/favicon.ico?v=20260713')
+    assert response.headers['Location'].endswith('/static/favicon.ico?v=20260713b')
 
 
 def test_session_timeout_redirects_to_login_when_inactive(client, app):
