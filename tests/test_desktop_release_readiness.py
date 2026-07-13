@@ -241,6 +241,38 @@ def test_desktop_runtime_portable_file_lock_path(tmp_path, monkeypatch):
     assert [operation for _descriptor, operation in lock_operations] == [3, 4]
 
 
+def test_desktop_runtime_windows_mutex_paths(tmp_path, monkeypatch):
+    handles = iter((101, 202, 0))
+    last_errors = iter((0, desktop_runtime.WINDOWS_ALREADY_EXISTS))
+    closed_handles = []
+    kernel32 = SimpleNamespace(
+        SetLastError=lambda _value: None,
+        CreateMutexW=lambda *_args: next(handles),
+        GetLastError=lambda: next(last_errors),
+        CloseHandle=closed_handles.append,
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        'ctypes',
+        SimpleNamespace(windll=SimpleNamespace(kernel32=kernel32)),
+    )
+
+    owner = DesktopInstanceGuard(tmp_path / 'owner')
+    assert owner._acquire_windows_mutex() is True
+    assert owner._mutex_handle == 101
+    owner.release()
+    assert owner._mutex_handle is None
+
+    duplicate = DesktopInstanceGuard(tmp_path / 'duplicate')
+    assert duplicate._acquire_windows_mutex() is False
+
+    unavailable = DesktopInstanceGuard(tmp_path / 'unavailable')
+    with pytest.raises(OSError, match='criar a trava'):
+        unavailable._acquire_windows_mutex()
+
+    assert closed_handles == [101, 202]
+
+
 def test_legacy_migration_fresh_and_failure_paths(tmp_path):
     data_root = tmp_path / 'data'
     executable = tmp_path / 'Finora' / 'Finora.exe'
@@ -329,6 +361,11 @@ def test_powershell_resolution_prefers_system_binary(tmp_path, monkeypatch):
 
 def test_desktop_installer_staging_and_shutdown_helpers(monkeypatch):
     popen_calls = []
+    monkeypatch.setattr(
+        update_service,
+        '_get_powershell_executable',
+        lambda: 'powershell.exe',
+    )
     monkeypatch.setattr(update_service.subprocess, 'Popen', lambda *args, **kwargs: popen_calls.append((args, kwargs)))
     monkeypatch.setattr(update_service.subprocess, 'CREATE_NO_WINDOW', 8, raising=False)
     update_service._stage_desktop_installer('C:\\Updates\\Finora_Setup.exe')
