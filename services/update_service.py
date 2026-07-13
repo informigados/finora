@@ -16,20 +16,14 @@ from config import DEFAULT_APP_VERSION
 from database.db import db
 from models.system import AppUpdateState
 from models.time_utils import utcnow_naive
-from services.profile_service import record_activity, record_system_event
+from services.profile_service import (
+    get_translated_update_status_label,
+    record_activity,
+    record_system_event,
+)
 
 
 UPDATE_REQUIRED_TABLES = frozenset({'app_update_state'})
-UPDATE_STATUS_LABELS = {
-    'idle': 'Pronto',
-    'checking': 'Verificando',
-    'available': 'Atualização disponível',
-    'up_to_date': 'Atualizado',
-    'not_configured': 'Não configurado',
-    'applying': 'Aplicando atualização',
-    'applied': 'Atualização aplicada',
-    'error': 'Falha na atualização',
-}
 UPDATE_RUNTIME_EXCLUDES = frozenset({
     '.git',
     '.pytest_cache',
@@ -128,7 +122,7 @@ def get_or_create_update_state(app):
 
 
 def get_update_status_label(status):
-    return UPDATE_STATUS_LABELS.get(status or 'idle', 'Desconhecido')
+    return get_translated_update_status_label(status)
 
 
 def _open_source_stream(location, timeout_seconds):

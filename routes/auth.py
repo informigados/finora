@@ -1,6 +1,7 @@
+import os
 import time
 
-from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, current_app, flash, jsonify, redirect, render_template, request, send_from_directory, session, url_for
 from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
 from flask_login import current_user, login_required, login_user, logout_user
@@ -44,6 +45,19 @@ from services.profile_service import (
 )
 
 auth_bp = Blueprint('auth', __name__)
+
+
+@auth_bp.route('/profile-image/<path:filename>')
+@login_required
+def profile_image(filename):
+    if filename != current_user.profile_image or filename in {'default_profile.svg', 'default_profile.png'}:
+        abort(404)
+    profile_directory = os.path.join(
+        current_app.config.get('PROFILE_STORAGE_ROOT', current_app.root_path),
+        'static',
+        'profile_pics',
+    )
+    return send_from_directory(profile_directory, filename, conditional=True)
 
 def _generic_recovery_notice() -> str:
     return _(
@@ -372,7 +386,7 @@ def profile() -> ResponseReturnValue:
                 user=current_user,
                 form=request.form,
                 files=request.files,
-                root_path=current_app.root_path,
+                root_path=current_app.config.get('PROFILE_STORAGE_ROOT', current_app.root_path),
                 max_image_size=current_app.config.get('MAX_PROFILE_IMAGE_SIZE', 2 * 1024 * 1024),
             )
 
@@ -460,7 +474,10 @@ def profile() -> ResponseReturnValue:
                 user = current_user._get_current_object()
                 end_user_session(user, session, 'account_deleted')
                 logout_user()
-                error_code = delete_user_account(user, current_app.root_path)
+                error_code = delete_user_account(
+                    user,
+                    current_app.config.get('PROFILE_STORAGE_ROOT', current_app.root_path),
+                )
                 if not error_code:
                     flash(_('Sua conta foi excluída permanentemente.'), 'info')
                     return redirect(url_for('public.welcome'))

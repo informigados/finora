@@ -3,6 +3,8 @@ import base64
 import getpass
 import hashlib
 import platform
+import secrets
+import tempfile
 
 from cryptography.fernet import Fernet, InvalidToken
 from dotenv import load_dotenv
@@ -13,7 +15,21 @@ LOCAL_SECRET_KEY_PATH = os.path.join(basedir, 'database', '.finora_secret_key')
 LOCAL_SECRET_KEY_PREFIX = 'finora-local:v1:'  # nosec B105
 LEGACY_LOCAL_SECRET_KEY_PREFIX = 'finora-key:v1:'  # nosec B105
 DEFAULT_UPDATE_MANIFEST_PATH = os.path.join(basedir, 'updates', 'manifest.json')
-DEFAULT_APP_VERSION = '1.3.0'
+DEFAULT_APP_VERSION = '1.4.0'
+
+
+def _desktop_data_root():
+    configured_root = (os.environ.get('FINORA_DATA_DIR') or '').strip()
+    if configured_root:
+        return os.path.abspath(os.path.expanduser(configured_root))
+
+    local_app_data = os.environ.get('LOCALAPPDATA')
+    if local_app_data:
+        return os.path.join(local_app_data, 'Finora')
+    return os.path.join(os.path.expanduser('~'), '.finora')
+
+
+DESKTOP_DATA_ROOT = _desktop_data_root()
 
 
 def _env_flag(name, default=False):
@@ -33,19 +49,20 @@ def _env_int(name, default):
         return default
 
 
-def _get_local_secret_cipher():
+def _get_local_secret_cipher(secret_path=None):
+    secret_path = secret_path or LOCAL_SECRET_KEY_PATH
     fingerprint = '|'.join(
         (
             platform.node() or 'unknown-host',
             getpass.getuser() or 'unknown-user',
-            os.path.abspath(LOCAL_SECRET_KEY_PATH),
+            os.path.abspath(secret_path),
         )
     ).encode('utf-8')
     derived_key = base64.urlsafe_b64encode(hashlib.sha256(fingerprint).digest())
     return Fernet(derived_key)
 
 
-def _decrypt_persisted_local_secret(persisted_value):
+def _decrypt_persisted_local_secret(persisted_value, secret_path=None):
     persisted_value = (persisted_value or '').strip()
     if not persisted_value:
         return ''
@@ -59,7 +76,7 @@ def _decrypt_persisted_local_secret(persisted_value):
         return persisted_value
 
     encrypted_payload = persisted_value[len(matched_prefix):].encode('utf-8')
-    decrypted_secret = _get_local_secret_cipher().decrypt(encrypted_payload)
+    decrypted_secret = _get_local_secret_cipher(secret_path).decrypt(encrypted_payload)
     return decrypted_secret.decode('utf-8')
 
 
@@ -74,22 +91,53 @@ def _derive_local_secret_key():
     return hashlib.sha256(b'finora-local-secret|' + fingerprint).hexdigest()
 
 
-def get_or_create_local_secret_key():
+def get_or_create_local_secret_key(secret_path=None):
     secret_key = os.environ.get('SECRET_KEY')
     if secret_key:
         return secret_key
 
+    secret_path = secret_path or LOCAL_SECRET_KEY_PATH
+
     try:
-        if os.path.exists(LOCAL_SECRET_KEY_PATH):
-            with open(LOCAL_SECRET_KEY_PATH, encoding='utf-8') as secret_file:
-                existing_secret = _decrypt_persisted_local_secret(secret_file.read())
+        if os.path.exists(secret_path):
+            with open(secret_path, encoding='utf-8') as secret_file:
+                existing_secret = _decrypt_persisted_local_secret(
+                    secret_file.read(),
+                    secret_path,
+                )
                 if existing_secret:
                     return existing_secret
     except (OSError, InvalidToken):
-        # If the persisted local key cannot be read or decrypted, fall back to a derived local key.
+        # A damaged legacy key must not prevent local startup.
         pass
 
-    return _derive_local_secret_key()
+    generated_secret = secrets.token_urlsafe(48)
+    temp_path = None
+    try:
+        secret_dir = os.path.dirname(os.path.abspath(secret_path))
+        os.makedirs(secret_dir, exist_ok=True)
+        encrypted_payload = _get_local_secret_cipher(secret_path).encrypt(
+            generated_secret.encode('utf-8')
+        ).decode('utf-8')
+        with tempfile.NamedTemporaryFile(
+            mode='w',
+            encoding='utf-8',
+            dir=secret_dir,
+            prefix='.finora_secret_',
+            delete=False,
+        ) as temp_file:
+            temp_path = temp_file.name
+            temp_file.write(f'{LOCAL_SECRET_KEY_PREFIX}{encrypted_payload}')
+        os.replace(temp_path, secret_path)
+    except OSError:
+        if temp_path:
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
+        return _derive_local_secret_key()
+
+    return generated_secret
 
 
 class Config:
@@ -165,6 +213,8 @@ class Config:
     PROFILE_ACTIVITIES_PAGE_SIZE = _env_int('PROFILE_ACTIVITIES_PAGE_SIZE', 15)
     PROFILE_SYSTEM_EVENTS_PAGE_SIZE = _env_int('PROFILE_SYSTEM_EVENTS_PAGE_SIZE', 12)
     PDF_EXPORT_MAX_ROWS = _env_int('PDF_EXPORT_MAX_ROWS', 5000)
+    LOCAL_SECRET_KEY_PATH = LOCAL_SECRET_KEY_PATH
+    PROFILE_STORAGE_ROOT = basedir
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -182,6 +232,26 @@ class ProductionConfig(Config):
     SESSION_COOKIE_SECURE = True
     REMEMBER_COOKIE_SECURE = True
 
+
+class DesktopConfig(Config):
+    DEBUG = False
+    DESKTOP_MODE = True
+    DESKTOP_DATA_ROOT = DESKTOP_DATA_ROOT
+    SESSION_COOKIE_SECURE = False
+    REMEMBER_COOKIE_SECURE = False
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(DESKTOP_DATA_ROOT, 'database', 'finora.db')
+    LOG_TO_FILE = _env_flag('LOG_TO_FILE', default=True)
+    LOG_DIRECTORY = os.environ.get('LOG_DIRECTORY') or os.path.join(DESKTOP_DATA_ROOT, 'logs')
+    BACKUP_STORAGE_DIR = os.environ.get('BACKUP_STORAGE_DIR') or os.path.join(
+        DESKTOP_DATA_ROOT, 'backups'
+    )
+    UPDATE_DOWNLOAD_DIR = os.environ.get('UPDATE_DOWNLOAD_DIR') or os.path.join(
+        DESKTOP_DATA_ROOT, 'updates'
+    )
+    PROFILE_STORAGE_ROOT = DESKTOP_DATA_ROOT
+    LOCAL_SECRET_KEY_PATH = os.path.join(DESKTOP_DATA_ROOT, 'database', '.finora_secret_key')
+
 class TestingConfig(Config):
     TESTING = True
     SECRET_KEY = 'test_secret_key'  # nosec B105
@@ -197,6 +267,7 @@ class TestingConfig(Config):
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'desktop': DesktopConfig,
     'testing': TestingConfig,
     'default': DevelopmentConfig
 }

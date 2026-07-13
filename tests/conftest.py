@@ -1,6 +1,12 @@
 import pytest
 from app import create_app
-from config import Config, DEFAULT_UPDATE_MANIFEST_PATH, DevelopmentConfig, ProductionConfig
+from config import (
+    Config,
+    DEFAULT_UPDATE_MANIFEST_PATH,
+    DesktopConfig,
+    DevelopmentConfig,
+    ProductionConfig,
+)
 from database.db import db
 from models.user import User
 
@@ -23,8 +29,20 @@ def isolate_runtime_config(tmp_path, monkeypatch):
         'SQLALCHEMY_DATABASE_URI',
         f'sqlite:///{temp_db_path}',
     )
+    monkeypatch.setattr(
+        DesktopConfig,
+        'SQLALCHEMY_DATABASE_URI',
+        f'sqlite:///{temp_db_path}',
+    )
+    monkeypatch.setattr(DesktopConfig, 'DESKTOP_DATA_ROOT', str(tmp_path / 'desktop-data'))
+    monkeypatch.setattr(DesktopConfig, 'PROFILE_STORAGE_ROOT', str(tmp_path / 'desktop-data'))
+    monkeypatch.setattr(
+        DesktopConfig,
+        'LOCAL_SECRET_KEY_PATH',
+        str(tmp_path / 'desktop-data' / 'database' / '.finora_secret_key'),
+    )
 
-    for cfg in (Config, DevelopmentConfig, ProductionConfig):
+    for cfg in (Config, DevelopmentConfig, ProductionConfig, DesktopConfig):
         monkeypatch.setattr(cfg, 'ENABLE_DEFAULT_USER_SEED', False, raising=False)
         monkeypatch.setattr(cfg, 'ENABLE_RECURRING_SCHEDULER', False, raising=False)
         monkeypatch.setattr(cfg, 'ENABLE_BACKUP_SCHEDULER', False, raising=False)

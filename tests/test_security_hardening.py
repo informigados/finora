@@ -30,6 +30,70 @@ def test_security_headers_are_present(client):
     assert b'<script nonce="' in response.data
 
 
+def test_desktop_runtime_uses_local_transport_cookie_policy():
+    import os
+
+    from config import DesktopConfig
+
+    assert DesktopConfig.DEBUG is False
+    assert DesktopConfig.DESKTOP_MODE is True
+    assert DesktopConfig.SESSION_COOKIE_SECURE is False
+    assert DesktopConfig.REMEMBER_COOKIE_SECURE is False
+    assert os.path.isabs(DesktopConfig.DESKTOP_DATA_ROOT)
+
+
+def test_profile_image_is_private_and_served_from_runtime_storage(client, app):
+    from pathlib import Path
+
+    with app.app_context():
+        user = User(
+            username='avatarowner',
+            email='avatarowner@example.com',
+            profile_image='private-avatar.png',
+        )
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.commit()
+
+    image_directory = Path(app.config['PROFILE_STORAGE_ROOT']) / 'static' / 'profile_pics'
+    image_directory.mkdir(parents=True, exist_ok=True)
+    (image_directory / 'private-avatar.png').write_bytes(b'private-image')
+
+    assert client.get('/profile-image/private-avatar.png').status_code == 302
+    client.post('/login', data={'identifier': 'avatarowner', 'password': 'Password123'})
+
+    response = client.get('/profile-image/private-avatar.png')
+    assert response.status_code == 200
+    assert response.data == b'private-image'
+    assert client.get('/profile-image/another-user.png').status_code == 404
+
+
+def test_dashboard_uses_singular_item_label(client, app):
+    with app.app_context():
+        user = User(username='singular', email='singular@example.com')
+        user.set_password('Password123')
+        db.session.add(user)
+        db.session.flush()
+        db.session.add(
+            Finance(
+                description='Single item',
+                value=10,
+                category='Outros',
+                type='Despesa',
+                status='Pago',
+                due_date=datetime.now().date(),
+                user_id=user.id,
+            )
+        )
+        db.session.commit()
+
+    client.post('/login', data={'identifier': 'singular', 'password': 'Password123'})
+    response = client.get('/dashboard', follow_redirects=True)
+
+    assert b'1 item' in response.data
+    assert b'1 itens' not in response.data
+
+
 def test_goal_and_budget_pages_render_without_inline_style_attributes(client, app):
     with app.app_context():
         user = User(username='stylecheck', email='stylecheck@example.com')

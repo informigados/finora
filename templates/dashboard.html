@@ -90,7 +90,7 @@
                         <span class="dashboard-metric-icon dashboard-metric-icon-success">
                             <i data-lucide="check-circle" class="icon-md"></i>
                         </span>
-                        <h6 class="text-muted text-uppercase small mb-3">{{ _('Total Pago (Desp)') }}</h6>
+                        <h6 class="text-muted text-uppercase small mb-3">{{ _('Despesas Pagas') }}</h6>
                         <h3 class="fw-bold text-success mb-0 dashboard-metric-value">R$ {{ "%.2f"|format(stats.total_pago) }}</h3>
                     </div>
                 </div>
@@ -128,7 +128,7 @@
             <div class="card-header card-header-premium dashboard-table-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
                 <div>
                     <i data-lucide="list" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Lançamentos do Mês') }}
-                    <span class="badge bg-secondary ms-2" id="itemCount" aria-live="polite" data-total-count="{{ entries|length }}">{{ entries|length }} {{ _('itens') }}</span>
+                    <span class="badge bg-secondary ms-2" id="itemCount" aria-live="polite" data-total-count="{{ entries|length }}">{{ entries|length }} {{ _('item') if entries|length == 1 else _('itens') }}</span>
                 </div>
                 <div class="position-relative search-container">
                     <i data-lucide="search" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted icon-sm"></i>
@@ -262,7 +262,7 @@
         </div>
         
         <div class="card card-premium">
-            <div class="card-header card-header-premium"><i data-lucide="download-cloud" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Exportar & Importar') }}</div>
+            <div class="card-header card-header-premium"><i data-lucide="download-cloud" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Exportar e Importar') }}</div>
             <div class="card-body card-body-premium d-grid gap-2">
                 <a href="{{ url_for('export.export_data', type='pdf', year=year, month=month) }}" class="btn btn-outline-danger d-flex justify-content-center align-items-center" data-loading-link="{{ _('Gerando PDF...') }}">
                     <i data-lucide="file-text" class="me-2 icon-sm"></i>{{ _('Relatório PDF') }}
@@ -419,6 +419,11 @@
         return ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4'];
     }
 
+    function getCategoryChartTextColor() {
+        const styles = getComputedStyle(document.documentElement);
+        return styles.getPropertyValue('--text-muted').trim() || '#64748B';
+    }
+
     // Chart
     const chartCanvas = document.getElementById('catChart');
     if (chartCanvas) {
@@ -444,7 +449,10 @@
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { position: 'bottom' }
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: getCategoryChartTextColor() }
+                        }
                     }
                 }
             });
@@ -454,6 +462,7 @@
     document.addEventListener('finora:theme-change', () => {
         if (!categoryChart) return;
         categoryChart.data.datasets[0].backgroundColor = getCategoryChartColors();
+        categoryChart.options.plugins.legend.labels.color = getCategoryChartTextColor();
         categoryChart.update();
     });
 
@@ -686,7 +695,9 @@
         const badge = document.getElementById("itemCount");
         if (badge) {
             const totalCount = Number(badge.dataset.totalCount || visibleCount);
-            badge.innerText = `${filter ? visibleCount : totalCount} {{ _('itens') }}`;
+            const count = filter ? visibleCount : totalCount;
+            const itemLabel = count === 1 ? "{{ _('item') }}" : "{{ _('itens') }}";
+            badge.innerText = `${count} ${itemLabel}`;
         }
 
         if (noResultsRow) {

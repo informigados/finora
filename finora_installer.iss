@@ -3,7 +3,7 @@
 #endif
 
 #ifndef MyAppVersion
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "1.4.0"
 #endif
 
 [Setup]
@@ -19,12 +19,11 @@ AppPublisher=Finora
 AppPublisherURL=https://github.com/informigados/finora/
 AppSupportURL=https://github.com/informigados/finora/issues
 AppUpdatesURL=https://github.com/informigados/finora/releases
-DefaultDirName={autopf}\Finora
+DefaultDirName={localappdata}\Programs\Finora
 DisableProgramGroupPage=yes
+PrivilegesRequired=lowest
 SetupIconFile=static\favicon.ico
 UninstallDisplayIcon={app}\Finora.exe
-; Uncomment the following line to run in non administrative install mode (install for current user only.)
-;PrivilegesRequired=lowest
 OutputDir=dist_setup
 OutputBaseFilename=Finora_Setup_v{#MyAppVersion}
 Compression=lzma2/ultra64

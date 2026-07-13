@@ -29,7 +29,7 @@ Release version is centralized in the `VERSION` file at project root.
 Example:
 
 ```text
-1.3.0
+1.4.0
 ```
 
 Before generating a release, update this file to the target version.
@@ -68,7 +68,9 @@ Output:
 
 Notes:
 
-- The executable icon is set from `static\favicon.ico`.
+- The executable icon is set from the multi-size `static\favicon.ico`.
+- Packaged runs automatically use the `desktop` configuration: Waitress on `127.0.0.1`, debug disabled, and writable data under `%LOCALAPPDATA%\Finora` by default.
+- Set `FINORA_DATA_DIR` before starting the application only when a custom desktop data location is required.
 - The script compiles translations and removes old `build/`, `dist/`, and `dist_setup/` folders first.
 
 ## 5. Full Installer Build (Executable + Setup)
@@ -97,7 +99,7 @@ Expected output:
 If you already generated `dist\Finora`, you can compile manually:
 
 ```powershell
-"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.3.0 finora_installer.iss
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.4.0 finora_installer.iss
 ```
 
 ## 7. Database Migration Requirement

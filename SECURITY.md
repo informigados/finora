@@ -6,8 +6,8 @@ Finora is a local-first personal finance application. Security issues can affect
 
 | Version | Supported |
 | --- | --- |
-| `1.3.x` | ✅ Yes |
-| `1.2.x` | ❌ No |
+| `1.4.x` | ✅ Yes |
+| `1.3.x` | ❌ No |
 | `< 1.2` | ❌ No |
 
 Only the latest stable release line receives security fixes.
@@ -54,6 +54,8 @@ Finora already includes several baseline protections:
 - 🗃️ Backup management supports retention, automatic routines, persisted history, and warnings for unsupported database file backup scenarios.
 - 🔄 Guided update flow creates a pre-update backup and runs database migrations after package application.
 - 🌐 The built-in server flow binds to `127.0.0.1`, reducing accidental LAN exposure in default usage.
+- 🖥️ Packaged desktop runs use a hardened profile with debug disabled and store writable private data outside the installation directory.
+- 🎲 Local session and encryption secrets are randomly generated, machine-bound at rest, and persisted across upgrades.
 
 ## ✅ Deployment and Hardening Notes
 

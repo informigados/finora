@@ -74,7 +74,7 @@
                 <button class="btn btn-link text-white text-decoration-none dropdown-toggle border-0 d-flex align-items-center gap-2 navbar-user-trigger navbar-tool-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                   {% if current_user.profile_image and current_user.profile_image != 'default_profile.svg' and current_user.profile_image != 'default_profile.png' %}
                   <img
-                    src="{{ url_for('static', filename='profile_pics/' + current_user.profile_image) }}"
+                    src="{{ url_for('auth.profile_image', filename=current_user.profile_image) }}"
                     alt="{{ _('Foto de perfil') }}"
                     class="navbar-user-avatar"
                     data-avatar-fallback="true"
@@ -183,8 +183,8 @@
 
     <footer class="app-footer border-top">
       <div class="container text-center py-4">
-        <p class="mb-1">{{ current_year }} &copy; Finora - {{ _('Simples, Poderoso, Local.') }}</p>
-        <p class="mb-1">{{ _('Todos os Direitos Reservados.') }}</p>
+        <p class="mb-1">{{ current_year }} &copy; Finora - {{ _('Simples, poderoso e local.') }}</p>
+        <p class="mb-1">{{ _('Todos os direitos reservados.') }}</p>
         <p class="mb-0">{{ _('Projetado por') }} <a href="https://informigados.com.br/" target="_blank" rel="noopener noreferrer">INformigados</a>.</p>
       </div>
     </footer>

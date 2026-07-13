@@ -4,7 +4,7 @@ import json
 import hashlib
 import time
 
-from flask import current_app
+from flask import current_app, has_request_context
 from flask_babel import gettext as _
 from PIL import Image
 from sqlalchemy import case, func, text
@@ -94,7 +94,7 @@ ACTIVITY_TYPE_LABELS = {
     'session_timeout': 'Sessão expirada',
     'account_created': 'Conta criada',
     'profile_updated': 'Perfil atualizado',
-    'password_changed': 'Senha alterada',
+    'password_changed': 'Senha alterada',  # nosec B105
     'recovery_key_emailed': 'Chave reenviada',
     'recovery_key_regenerated': 'Chave regenerada',
     'entry_created': 'Lançamento criado',
@@ -122,16 +122,33 @@ SYSTEM_SOURCE_LABELS = {
     'update': 'Atualizações',
     'backup': 'Backups',
 }
-SYSTEM_UPDATE_STATUS_LABELS = {
-    'idle': 'Pronto',
-    'checking': 'Verificando',
-    'available': 'Atualização disponível',
-    'up_to_date': 'Atualizado',
-    'not_configured': 'Não configurado',
-    'applying': 'Aplicando atualização',
-    'applied': 'Atualização aplicada',
-    'error': 'Falha na atualização',
-}
+
+
+def get_translated_update_status_label(status):
+    raw_labels = {
+        'idle': 'Pronto',
+        'checking': 'Verificando',
+        'available': 'Atualização disponível',
+        'up_to_date': 'Atualizado',
+        'not_configured': 'Não configurado',
+        'applying': 'Aplicando atualização',
+        'applied': 'Atualização aplicada',
+        'error': 'Falha na atualização',
+    }
+    if not has_request_context():
+        return raw_labels.get(status or 'idle', 'Desconhecido')
+
+    labels = {
+        'idle': _('Pronto'),
+        'checking': _('Verificando'),
+        'available': _('Atualização disponível'),
+        'up_to_date': _('Atualizado'),
+        'not_configured': _('Não configurado'),
+        'applying': _('Aplicando atualização'),
+        'applied': _('Atualização aplicada'),
+        'error': _('Falha na atualização'),
+    }
+    return labels.get(status or 'idle', _('Desconhecido'))
 
 
 def _hash_session_token(raw_token):
@@ -689,11 +706,8 @@ def _build_system_health_summary(
         'backup_storage_ready': os.path.isdir(current_app.config.get('BACKUP_STORAGE_DIR') or ''),
         'update_manifest_configured': bool(current_app.config.get('UPDATE_MANIFEST_URL') or ''),
         'update_status': getattr(app_update_state, 'status', 'idle') if app_update_state else 'idle',
-        'update_status_label': _(
-            SYSTEM_UPDATE_STATUS_LABELS.get(
-                getattr(app_update_state, 'status', 'idle') if app_update_state else 'idle',
-                'Desconhecido',
-            )
+        'update_status_label': get_translated_update_status_label(
+            getattr(app_update_state, 'status', 'idle') if app_update_state else 'idle'
         ),
         'recent_error_count': unresolved_system_events_count,
         'latest_backup_at': latest_backup.created_at if latest_backup else None,

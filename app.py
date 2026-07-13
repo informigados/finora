@@ -1,6 +1,7 @@
 from datetime import datetime
 from urllib.parse import urlparse
 import secrets
+import sys
 
 import click
 import shutil
@@ -444,9 +445,21 @@ def create_app(config_name='default'):
     
     # Load configuration
     app.config.from_object(config[config_name])
+    if app.config.get('DESKTOP_MODE'):
+        data_root = app.config['DESKTOP_DATA_ROOT']
+        for relative_directory in (
+            'database',
+            'backups',
+            'logs',
+            'updates',
+            os.path.join('static', 'profile_pics'),
+        ):
+            os.makedirs(os.path.join(data_root, relative_directory), exist_ok=True)
     if not app.config.get('SECRET_KEY'):
-        if config_name in {'development', 'default'}:
-            app.config['SECRET_KEY'] = get_or_create_local_secret_key()
+        if config_name in {'development', 'desktop', 'default'}:
+            app.config['SECRET_KEY'] = get_or_create_local_secret_key(
+                app.config.get('LOCAL_SECRET_KEY_PATH')
+            )
         else:
             raise RuntimeError(
                 'SECRET_KEY não configurada. Defina SECRET_KEY para iniciar em produção.'
@@ -737,17 +750,18 @@ def schedule_browser_open(port, delay_seconds=1.5):
 if __name__ == '__main__':
     from waitress import serve
     
-    # Production mode check (simple heuristic or env var)
-    env_config = os.environ.get('FLASK_ENV', 'development')
-    app = create_app(env_config if env_config in config else 'default')
+    is_frozen = bool(getattr(sys, 'frozen', False))
+    env_config = os.environ.get('FLASK_ENV') or ('desktop' if is_frozen else 'development')
+    runtime_config = env_config if env_config in config else ('desktop' if is_frozen else 'default')
+    app = create_app(runtime_config)
     port = find_free_port(5000)
 
-    if env_config == 'production':
+    if runtime_config in {'production', 'desktop'}:
         run_recurring_maintenance(app)
         start_recurring_scheduler(app)
         run_backup_maintenance(app)
         start_backup_scheduler(app)
-        print(f"Starting FINORA in PRODUCTION mode on port {port}...")
+        print(f"Starting FINORA in {runtime_config.upper()} mode on port {port}...")
         print(f"Access at http://127.0.0.1:{port}")
         schedule_browser_open(port)
         serve(app, host='127.0.0.1', port=port)

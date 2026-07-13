@@ -58,15 +58,18 @@ def test_config_secret_key_generation_handles_read_and_write_oserror(tmp_path, m
     assert len(generated) > 20
 
 
-def test_config_generated_secret_is_derived_without_persisting(tmp_path, monkeypatch):
+def test_config_generated_secret_is_random_and_persisted_encrypted(tmp_path, monkeypatch):
     monkeypatch.delenv('SECRET_KEY', raising=False)
     secret_path = tmp_path / '.finora_secret_key'
     monkeypatch.setattr(config_module, 'LOCAL_SECRET_KEY_PATH', str(secret_path))
 
     generated = config_module.get_or_create_local_secret_key()
 
-    assert generated == config_module._derive_local_secret_key()
-    assert secret_path.exists() is False
+    persisted = secret_path.read_text(encoding='utf-8')
+    assert generated != config_module._derive_local_secret_key()
+    assert persisted.startswith(config_module.LOCAL_SECRET_KEY_PREFIX)
+    assert generated not in persisted
+    assert config_module.get_or_create_local_secret_key() == generated
 
 
 def test_time_utils_format_and_timezone_fallbacks(app):
