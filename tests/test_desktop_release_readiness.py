@@ -1,4 +1,3 @@
-import ctypes
 import io
 import json
 import sys
@@ -353,7 +352,7 @@ def test_desktop_runtime_focuses_existing_native_window(tmp_path, monkeypatch):
     class User32:
         @staticmethod
         def GetWindowThreadProcessId(_handle, process_pointer):
-            process_pointer._obj.value = 4242
+            process_pointer.value = 4242
             return 1
 
         @staticmethod
@@ -375,7 +374,18 @@ def test_desktop_runtime_focuses_existing_native_window(tmp_path, monkeypatch):
             calls.append(('foreground', handle))
             return 1
 
-    monkeypatch.setattr(ctypes.windll, 'user32', User32())
+    class FakeDWORD:
+        def __init__(self):
+            self.value = 0
+
+    fake_ctypes = SimpleNamespace(
+        windll=SimpleNamespace(user32=User32()),
+        wintypes=SimpleNamespace(BOOL=int, HWND=int, LPARAM=int, DWORD=FakeDWORD),
+        WINFUNCTYPE=lambda *_args: lambda function: function,
+        byref=lambda value: value,
+    )
+    monkeypatch.setattr(desktop_runtime.os, 'name', 'nt')
+    monkeypatch.setitem(sys.modules, 'ctypes', fake_ctypes)
 
     assert guard.focus_existing_window() is True
     assert calls == [('show', 777, 9), ('foreground', 777)]
@@ -383,6 +393,7 @@ def test_desktop_runtime_focuses_existing_native_window(tmp_path, monkeypatch):
 
 def test_desktop_runtime_focus_returns_false_without_native_window(tmp_path, monkeypatch):
     guard = DesktopInstanceGuard(tmp_path)
+    monkeypatch.setattr(desktop_runtime.os, 'name', 'nt')
     assert guard.focus_existing_window() is False
 
     guard.data_root.mkdir(parents=True, exist_ok=True)
@@ -396,7 +407,13 @@ def test_desktop_runtime_focus_returns_false_without_native_window(tmp_path, mon
         def EnumWindows(_callback, _lparam):
             return 1
 
-    monkeypatch.setattr(ctypes.windll, 'user32', User32())
+    fake_ctypes = SimpleNamespace(
+        windll=SimpleNamespace(user32=User32()),
+        wintypes=SimpleNamespace(BOOL=int, HWND=int, LPARAM=int, DWORD=int),
+        WINFUNCTYPE=lambda *_args: lambda function: function,
+        byref=lambda value: value,
+    )
+    monkeypatch.setitem(sys.modules, 'ctypes', fake_ctypes)
     assert guard.focus_existing_window() is False
 
 
