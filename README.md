@@ -297,6 +297,16 @@ Or:
 - Added single-instance enforcement, safe migration of legacy 1.3 desktop data, and an installer-based update flow with SHA-256 and Authenticode validation.
 - Added signed GitHub Release automation with checksums, release metadata, update manifest, and build provenance attestation.
 
+## Code signing policy
+
+Free code signing is provided by [SignPath.io](https://signpath.io/), with a certificate
+issued by the [SignPath Foundation](https://signpath.org/).
+
+- Source repository and trusted build system: [GitHub repository and Actions](https://github.com/informigados/finora)
+- Committers and reviewers: [INformigados maintainers](https://github.com/informigados) and [Alex Brito](https://github.com/alexbritodev)
+- Release and signing approver: [Alex Brito](https://github.com/alexbritodev)
+- Privacy: Finora stores personal financial information locally. It does not transfer personal or financial information to networked systems. Network access occurs only when the user explicitly requests a networked feature, such as checking for or downloading an update.
+
 ## 👥 Authors
 
 - INformigados: https://github.com/informigados/
