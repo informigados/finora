@@ -41,7 +41,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
         run: |
           bandit -q -r app.py desktop.py config.py database models routes services extensions.py
-          pip-audit -r requirements.txt
+          pip-audit -r requirements-dev.txt
 
       - name: Run tests
         run: python -m pytest tests -q --cov=app --cov=config --cov=database --cov=extensions --cov=models --cov=routes --cov=services --cov-report=term-missing --cov-report=xml --cov-fail-under=90

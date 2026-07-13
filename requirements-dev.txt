@@ -4,6 +4,6 @@ pip-audit==2.9.0
 pyinstaller==6.19.0
 pyinstaller-hooks-contrib==2026.1
 pre-commit==4.3.0
-pytest==9.0.2
+pytest==9.0.3
 pytest-cov==7.0.0
 ruff==0.13.1

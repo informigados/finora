@@ -56,7 +56,7 @@ jobs:
           }
           ruff check .
           bandit -q -r app.py desktop.py config.py database models routes services extensions.py
-          pip-audit -r requirements.txt
+          pip-audit -r requirements-dev.txt
           python -m pytest tests -q --cov=app --cov=config --cov=database --cov=extensions --cov=models --cov=routes --cov=services --cov-fail-under=90
 
       - name: Build and sign installer
