@@ -67,13 +67,19 @@ def about_apply_update() -> ResponseReturnValue:
         flash(_('Nenhuma atualização aplicável foi encontrada no momento.'), 'warning')
         return redirect(url_for('public.about'))
 
-    flash(
-        _(
-            'Atualização aplicada com sucesso. Versão instalada: %(version)s. Reinicie o Finora para carregar todos os componentes atualizados.',
-            version=result['manifest']['version'],
-        ),
-        'success',
-    )
+    if result.get('desktop_staged'):
+        flash(
+            _('Instalador verificado com segurança. O Finora será fechado e atualizado automaticamente.'),
+            'success',
+        )
+    else:
+        flash(
+            _(
+                'Atualização aplicada com sucesso. Versão instalada: %(version)s. Reinicie o Finora para carregar todos os componentes atualizados.',
+                version=result['manifest']['version'],
+            ),
+            'success',
+        )
     return redirect(url_for('public.about'))
 
 

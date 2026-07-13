@@ -5,6 +5,7 @@ import shutil
 import subprocess  # nosec B404
 import sys
 import tempfile
+import threading
 import zipfile
 from pathlib import Path
 from urllib.parse import urlparse
@@ -197,6 +198,7 @@ def fetch_update_manifest(app, channel=None):
         'version': version,
         'asset_url': asset_url,
         'sha256': (update_payload.get('sha256') or '').strip().lower() or None,
+        'publisher': (update_payload.get('publisher') or '').strip() or None,
         'notes': update_payload.get('notes') or '',
         'requires_migration': bool(update_payload.get('requires_migration', True)),
         'manifest_is_local': manifest_is_local,
@@ -258,7 +260,11 @@ def check_for_updates(app):
 
 
 def _build_pre_update_backup(app, installed_version):
-    target_root = _get_update_target_root(app)
+    target_root = (
+        os.path.abspath(app.config.get('DESKTOP_DATA_ROOT'))
+        if app.config.get('DESKTOP_MODE') and app.config.get('DESKTOP_DATA_ROOT')
+        else _get_update_target_root(app)
+    )
     backup_dir = os.path.join(_get_update_download_dir(app), 'pre_update_backups')
     os.makedirs(backup_dir, exist_ok=True)
 
@@ -289,10 +295,13 @@ def _restore_pre_update_backup(target_root, backup_path):
         _sync_update_tree(restore_dir, target_root)
 
 
-def _derive_asset_filename(asset_url, version):
+def _derive_asset_filename(asset_url, version, desktop_mode=False):
     parsed = urlparse(asset_url)
-    file_name = os.path.basename(parsed.path or '') or f'finora_update_{version}.zip'
-    if not file_name.lower().endswith('.zip'):
+    default_extension = '.exe' if desktop_mode else '.zip'
+    file_name = os.path.basename(parsed.path or '') or f'finora_update_{version}{default_extension}'
+    if desktop_mode and not file_name.lower().endswith('.exe'):
+        raise ValueError('A atualização desktop deve apontar para um instalador EXE.')
+    if not desktop_mode and not file_name.lower().endswith('.zip'):
         file_name = f'{file_name}.zip'
     return file_name
 
@@ -304,13 +313,20 @@ def _download_update_asset(app, manifest):
 
     downloads_dir = os.path.join(_get_update_download_dir(app), 'downloads')
     os.makedirs(downloads_dir, exist_ok=True)
-    package_path = os.path.join(downloads_dir, _derive_asset_filename(asset_url, manifest['version']))
+    desktop_mode = bool(app.config.get('DESKTOP_MODE'))
+    package_path = os.path.join(
+        downloads_dir,
+        _derive_asset_filename(asset_url, manifest['version'], desktop_mode=desktop_mode),
+    )
 
     with _open_source_stream(asset_url, int(app.config.get('UPDATE_CHECK_TIMEOUT_SECONDS', 10) or 10)) as source_stream:
         with open(package_path, 'wb') as package_file:
             shutil.copyfileobj(source_stream, package_file)
 
     expected_sha = manifest.get('sha256')
+    if desktop_mode and not expected_sha:
+        os.remove(package_path)
+        raise ValueError('Atualizações desktop exigem checksum SHA-256 no manifesto.')
     if expected_sha:
         actual_sha = _calculate_sha256(package_path)
         if actual_sha.lower() != expected_sha.lower():
@@ -318,6 +334,94 @@ def _download_update_asset(app, manifest):
             raise ValueError('Checksum do pacote de atualização não confere.')
 
     return package_path
+
+
+def _verify_desktop_installer_signature(installer_path, expected_publisher=None):
+    if os.name != 'nt':
+        raise RuntimeError('A assinatura Authenticode só pode ser validada no Windows.')
+
+    powershell_script = (
+        '& { param([string]$InstallerPath) '
+        '$signature = Get-AuthenticodeSignature -LiteralPath $InstallerPath; '
+        '[pscustomobject]@{Status=$signature.Status.ToString(); '
+        'Subject=if ($signature.SignerCertificate) {$signature.SignerCertificate.Subject} else {""}} '
+        '| ConvertTo-Json -Compress }'
+    )
+    result = subprocess.run(  # nosec B603
+        [
+            _get_powershell_executable(),
+            '-NoProfile',
+            '-NonInteractive',
+            '-Command',
+            powershell_script,
+            installer_path,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError('Não foi possível validar a assinatura digital do instalador.')
+    try:
+        signature = json.loads((result.stdout or '').strip())
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError('Resposta inválida ao verificar a assinatura digital.') from exc
+    if signature.get('Status') != 'Valid':
+        raise ValueError('O instalador não possui uma assinatura Authenticode válida e confiável.')
+    subject = str(signature.get('Subject') or '')
+    if expected_publisher and expected_publisher.casefold() not in subject.casefold():
+        raise ValueError('O publicador da assinatura digital não corresponde ao manifesto.')
+    return signature
+
+
+def _stage_desktop_installer(installer_path):
+    powershell_script = (
+        '& { param([int]$FinoraPid, [string]$InstallerPath) '
+        'Wait-Process -Id $FinoraPid -ErrorAction SilentlyContinue; '
+        'Start-Process -FilePath $InstallerPath '
+        "-ArgumentList @('/SILENT','/CLOSEAPPLICATIONS','/RESTARTAPPLICATIONS') }"
+    )
+    creation_flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+    subprocess.Popen(  # nosec B603
+        [
+            _get_powershell_executable(),
+            '-NoProfile',
+            '-NonInteractive',
+            '-WindowStyle',
+            'Hidden',
+            '-Command',
+            powershell_script,
+            str(os.getpid()),
+            installer_path,
+        ],
+        close_fds=True,
+        creationflags=creation_flags,
+    )
+
+
+def _get_powershell_executable():
+    system_root = os.environ.get('SYSTEMROOT') or os.environ.get('WINDIR')
+    if system_root:
+        system_powershell = os.path.join(
+            system_root,
+            'System32',
+            'WindowsPowerShell',
+            'v1.0',
+            'powershell.exe',
+        )
+        if os.path.isfile(system_powershell):
+            return system_powershell
+    resolved_powershell = shutil.which('powershell.exe')
+    if not resolved_powershell:
+        raise RuntimeError('Windows PowerShell não está disponível para validar a atualização.')
+    return resolved_powershell
+
+
+def _schedule_desktop_shutdown(delay_seconds=2.0):
+    shutdown_timer = threading.Timer(delay_seconds, lambda: os._exit(0))
+    shutdown_timer.daemon = True
+    shutdown_timer.start()
 
 
 def _safe_extract_zip(zip_path, target_dir):
@@ -473,6 +577,45 @@ def apply_update(app, user=None):
     try:
         backup_path = _build_pre_update_backup(app, state.installed_version)
         package_path = _download_update_asset(app, manifest)
+
+        if app.config.get('DESKTOP_MODE'):
+            signature = _verify_desktop_installer_signature(
+                package_path,
+                expected_publisher=manifest.get('publisher'),
+            )
+            _stage_desktop_installer(package_path)
+
+            state = get_or_create_update_state(app)
+            state.status = 'applying'
+            state.latest_known_version = manifest['version']
+            state.last_downloaded_at = utcnow_naive()
+            state.downloaded_asset_path = package_path
+            state.last_error = None
+            record_system_event(
+                'info',
+                'update',
+                'Instalador desktop validado e preparado para aplicação.',
+                user=user,
+                event_code='desktop_update_staged',
+                details={
+                    'target_version': manifest['version'],
+                    'channel': manifest['channel'],
+                    'backup_path': backup_path,
+                    'signature_subject': signature.get('Subject'),
+                },
+                commit=False,
+            )
+            db.session.commit()
+            if not app.config.get('TESTING'):
+                _schedule_desktop_shutdown()
+            return {
+                'state': state,
+                'applied': True,
+                'desktop_staged': True,
+                'manifest': manifest,
+                'backup_path': backup_path,
+                'package_path': package_path,
+            }
 
         with tempfile.TemporaryDirectory(prefix='finora-update-') as extracted_dir:
             _safe_extract_zip(package_path, extracted_dir)

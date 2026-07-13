@@ -34,7 +34,7 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3 mb-4">
         <div>
             <h2 class="h4 mb-2">{{ _('Atualizações do Sistema') }}</h2>
-            <p class="text-muted mb-0">{{ _('Verifique a versão instalada, acompanhe o canal atual e aplique atualizações com backup prévio e migração segura do banco de dados.') }}</p>
+            <p class="text-muted mb-0">{{ _('Verifique a versão instalada e aplique atualizações validadas com backup prévio, checksum e assinatura digital.') }}</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <form action="{{ url_for('public.about_check_update') }}" method="POST" data-loading-text="{{ _('Verificando') }}">
@@ -42,7 +42,7 @@
                 <button type="submit" class="btn btn-outline-primary">{{ _('Verificar atualizações') }}</button>
             </form>
             {% if current_user.is_authenticated and update_available %}
-            <form action="{{ url_for('public.about_apply_update') }}" method="POST" data-loading-text="{{ _('Aplicando atualização') }}" data-confirm="{{ _('Deseja aplicar esta atualização agora? O sistema fará um backup prévio antes de substituir os arquivos.') }}">
+            <form action="{{ url_for('public.about_apply_update') }}" method="POST" data-loading-text="{{ _('Preparando atualização') }}" data-confirm="{{ _('Deseja instalar esta atualização agora? O Finora validará o arquivo, fará um backup e será reiniciado.') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 <button type="submit" class="btn btn-primary">{{ _('Atualizar agora') }}</button>
             </form>

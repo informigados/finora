@@ -1,0 +1,94 @@
+name: Signed Windows Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      FINORA_REQUIRE_SIGNING: "1"
+
+    steps:
+      - name: Checkout tagged source
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements-dev.txt
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress --yes
+
+      - name: Import Authenticode certificate
+        shell: pwsh
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          if (-not $env:CERTIFICATE_BASE64 -or -not $env:CERTIFICATE_PASSWORD) {
+            throw "Windows signing certificate secrets are required."
+          }
+          $certificatePath = Join-Path $env:RUNNER_TEMP "finora-signing.pfx"
+          [IO.File]::WriteAllBytes($certificatePath, [Convert]::FromBase64String($env:CERTIFICATE_BASE64))
+          $password = ConvertTo-SecureString $env:CERTIFICATE_PASSWORD -AsPlainText -Force
+          $certificate = Import-PfxCertificate -FilePath $certificatePath -CertStoreLocation Cert:\CurrentUser\My -Password $password
+          "FINORA_SIGNING_CERT_SHA1=$($certificate.Thumbprint)" >> $env:GITHUB_ENV
+
+      - name: Validate release gates
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          if ($env:GITHUB_REF_NAME -ne "v$version") {
+            throw "Tag $env:GITHUB_REF_NAME does not match VERSION $version."
+          }
+          ruff check .
+          bandit -q -r app.py desktop.py config.py database models routes services extensions.py
+          pip-audit -r requirements.txt
+          python -m pytest tests -q --cov=app --cov=config --cov=database --cov=extensions --cov=models --cov=routes --cov=services --cov-fail-under=90
+
+      - name: Build and sign installer
+        run: python create_installer.py
+
+      - name: Verify Authenticode signatures
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $files = @("dist\Finora\Finora.exe", "dist_setup\Finora_Setup_v$version.exe")
+          foreach ($file in $files) {
+            $signature = Get-AuthenticodeSignature -LiteralPath $file
+            if ($signature.Status -ne "Valid") {
+              throw "Invalid Authenticode signature: $file ($($signature.Status))"
+            }
+          }
+
+      - name: Attest installer provenance
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: dist_setup/Finora_Setup_*.exe
+
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create $env:GITHUB_REF_NAME `
+            dist_setup/Finora_Setup_*.exe `
+            dist_setup/SHA256SUMS.txt `
+            dist_setup/release-metadata.json `
+            dist_setup/manifest.json `
+            --verify-tag `
+            --generate-notes `
+            --title "Finora $env:GITHUB_REF_NAME"

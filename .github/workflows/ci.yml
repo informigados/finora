@@ -40,7 +40,7 @@ jobs:
       - name: Security scan
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
         run: |
-          bandit -q -r app.py config.py database models routes services extensions.py
+          bandit -q -r app.py desktop.py config.py database models routes services extensions.py
           pip-audit -r requirements.txt
 
       - name: Run tests

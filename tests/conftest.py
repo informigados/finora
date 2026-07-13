@@ -50,8 +50,12 @@ def isolate_runtime_config(tmp_path, monkeypatch):
         monkeypatch.setattr(cfg, 'BACKUP_STORAGE_DIR', temp_backup_dir, raising=False)
         monkeypatch.setattr(cfg, 'UPDATE_DOWNLOAD_DIR', temp_update_dir, raising=False)
         monkeypatch.setattr(cfg, 'UPDATE_TARGET_ROOT', temp_target_root, raising=False)
-        monkeypatch.setattr(cfg, 'UPDATE_MANIFEST_URL', DEFAULT_UPDATE_MANIFEST_PATH, raising=False)
         monkeypatch.setattr(cfg, 'LOG_DIRECTORY', temp_log_dir, raising=False)
+
+    # Keep the desktop channel pointed at the published, HTTPS-only manifest.
+    # Tests that exercise update downloads provide their own explicit manifest.
+    for cfg in (Config, DevelopmentConfig, ProductionConfig):
+        monkeypatch.setattr(cfg, 'UPDATE_MANIFEST_URL', DEFAULT_UPDATE_MANIFEST_PATH, raising=False)
 
 @pytest.fixture
 def app():

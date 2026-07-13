@@ -10,12 +10,18 @@ Create a clean environment and install dependencies:
 python -m venv .venv
 .\.venv\Scripts\activate
 pip install -r requirements.txt
-pip install pyinstaller pyinstaller-hooks-contrib
+pip install -r requirements-dev.txt
 ```
 
 Install Inno Setup 6:
 
 - https://jrsoftware.org/isinfo.php
+
+Official public releases also require:
+
+- Windows SDK (for `signtool.exe`)
+- A trusted Authenticode code-signing certificate in `Cert:\CurrentUser\My`
+- RFC 3161 timestamp access (DigiCert is the default)
 
 Linux/macOS note:
 
@@ -53,6 +59,19 @@ Expected output:
 
 - `dist\Finora\Finora.exe`
 - `dist_setup\Finora_Setup_v<version>.exe`
+- `dist_setup\SHA256SUMS.txt`
+- `dist_setup\release-metadata.json`
+- `dist_setup\manifest.json`
+
+Local builds may be unsigned for development. A public release build must set:
+
+```powershell
+$env:FINORA_REQUIRE_SIGNING = "1"
+$env:FINORA_SIGNING_CERT_SHA1 = "CERTIFICATE_THUMBPRINT"
+.\release.bat
+```
+
+The builder signs and verifies `Finora.exe` before packaging, then signs and verifies the final installer. Do not publish artifacts produced with signing disabled.
 
 ## 4. PyInstaller Build (Executable Only)
 
@@ -88,6 +107,8 @@ This command will:
 3. Compile translations
 4. Build executable via PyInstaller (`Finora.spec`)
 5. Compile `finora_installer.iss` with `MyAppVersion`
+6. Sign and verify the application and installer when release signing is enabled
+7. Generate checksum, provenance metadata, and remote update manifest files
 
 Expected output:
 
@@ -117,7 +138,7 @@ The migration chain is also expected to bootstrap a fresh local SQLite database 
 
 1. `python -m pip install -r requirements-dev.txt`
 2. `ruff check .`
-3. `bandit -q -r app.py config.py database models routes services extensions.py`
+3. `bandit -q -r app.py desktop.py config.py database models routes services extensions.py`
 4. `pip-audit -r requirements.txt`
 5. `python -m pytest tests -q --cov=app --cov=config --cov=database --cov=extensions --cov=models --cov=routes --cov=services --cov-fail-under=90`
 6. `flask db upgrade` executed successfully
@@ -128,6 +149,11 @@ The migration chain is also expected to bootstrap a fresh local SQLite database 
 11. Smoke test login, dashboard, import/export, backup center, recovery key actions, `/about` update check, and profile observability
 12. Confirm production log output is being written to `logs/finora.log` (or the configured log path)
 13. If `UPDATE_MANIFEST_URL` is configured, validate version check and pre-update backup flow in a controlled environment
+14. Confirm every frontend asset is served locally with external network requests blocked
+15. Launch the executable twice and confirm the second process reopens the existing instance instead of starting another server
+16. Install over a populated 1.3 profile and confirm database, secret, profile images, and backups migrate to `%LOCALAPPDATA%\Finora`
+17. Verify both EXE files with `Get-AuthenticodeSignature` and require `Status = Valid`
+18. Install and uninstall in a clean Windows user profile; confirm user data is preserved unless explicitly removed
 
 ## 9. Rollback Checklist
 
@@ -147,3 +173,15 @@ If a release must be rolled back, use this sequence:
 - Changelog
 - Upgrade notes (especially migration requirements)
 - Update manifest notes when the release is intended to be consumed by the built-in updater
+- `SHA256SUMS.txt`
+- `release-metadata.json`
+- `manifest.json`
+
+## 11. Automated Signed Release
+
+The `Signed Windows Release` workflow runs when a `v*` tag is pushed. Configure these repository secrets first:
+
+- `WINDOWS_CERTIFICATE_BASE64`: Base64-encoded PFX certificate
+- `WINDOWS_CERTIFICATE_PASSWORD`: PFX password
+
+The tag must match `VERSION` exactly (for example, `v1.4.0`). The workflow reruns lint, security auditing, tests, signs both executables, verifies Authenticode, generates a GitHub artifact attestation, and publishes the GitHub Release. If the certificate is absent or invalid, publication fails closed.

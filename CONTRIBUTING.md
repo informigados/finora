@@ -97,7 +97,7 @@ For changes that touch application code, also run:
 
 ```powershell
 ruff check .
-bandit -q -r app.py config.py database models routes services extensions.py
+bandit -q -r app.py desktop.py config.py database models routes services extensions.py
 pip-audit -r requirements.txt
 ```
 

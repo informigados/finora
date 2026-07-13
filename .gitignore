@@ -48,6 +48,10 @@ backups/
 dist_setup/
 *.log
 *.tmp
+*.pfx
+*.p12
+*.cer
+*.key
 
 # IDEs / OS
 .vscode/

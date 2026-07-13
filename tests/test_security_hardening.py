@@ -24,7 +24,11 @@ def test_security_headers_are_present(client):
     csp = response.headers['Content-Security-Policy']
     assert "default-src 'self'" in csp
     assert "script-src 'self' 'nonce-" in csp
-    assert "style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com" in csp
+    assert "style-src 'self'" in csp
+    assert "font-src 'self' data:" in csp
+    assert 'cdn.jsdelivr.net' not in csp
+    assert 'fonts.googleapis.com' not in csp
+    assert 'unpkg.com' not in csp
     assert "'unsafe-inline'" not in csp.split('script-src', 1)[1].split(';', 1)[0]
     assert "'unsafe-inline'" not in csp.split('style-src', 1)[1].split(';', 1)[0]
     assert b'<script nonce="' in response.data
@@ -40,6 +44,7 @@ def test_desktop_runtime_uses_local_transport_cookie_policy():
     assert DesktopConfig.SESSION_COOKIE_SECURE is False
     assert DesktopConfig.REMEMBER_COOKIE_SECURE is False
     assert os.path.isabs(DesktopConfig.DESKTOP_DATA_ROOT)
+    assert DesktopConfig.UPDATE_MANIFEST_URL.startswith('https://github.com/informigados/finora/releases/')
 
 
 def test_profile_image_is_private_and_served_from_runtime_storage(client, app):

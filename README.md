@@ -36,6 +36,8 @@ Current stable version: `1.4.0`
 - Recovery key display, resend, regeneration, and e-mail delivery
 - Profile hub with sessions, activity history, system status, and support shortcuts
 - Guided update system on `/about` with version check, pre-update backup, and migration-safe apply flow
+- Fully offline desktop interface with bundled fonts, icons, charts, and UI runtime
+- Single-instance desktop launcher that reopens the active local session
 - Internationalization: Portuguese (default), English, Spanish
 
 ## 📁 Project Structure
@@ -154,12 +156,12 @@ DEFAULT_USER_PASSWORD=admin123
 ## 🔄 Updates and Recovery
 
 - The `/about` page shows the installed version, latest known version, channel, and update status.
-- Finora ships with a local read-only manifest in `updates/manifest.json` so the update area can report status even before a remote channel is configured.
-- If `UPDATE_MANIFEST_URL` is configured, Finora can check for a newer package and apply it with:
-  - pre-update backup snapshot
-  - package staging and validation
-  - protected copy that preserves runtime folders such as `database/`
-  - automatic `flask db upgrade` after file replacement
+- Source runs ship with a local read-only manifest in `updates/manifest.json` for safe development checks.
+- Desktop runs use the signed manifest attached to the latest GitHub Release by default.
+- Desktop updates require an HTTPS installer URL, SHA-256 checksum, and a trusted Authenticode signature before they can be staged.
+- After validation, Finora creates a data backup, exits safely, launches the installer, and lets the next startup run bundled database migrations.
+- The first 1.4 desktop startup automatically migrates pre-1.4 packaged databases, profile images, backups, and the persisted local secret into `%LOCALAPPDATA%\Finora`.
+- Source deployments retain the protected ZIP update flow and automatic `flask db upgrade` behavior.
 - Local packages referenced by a local manifest stay blocked by default. Only enable `UPDATE_ALLOW_LOCAL_ASSETS=1` for trusted offline update workflows.
 - Recovery keys can be copied from the profile, re-emailed, or regenerated.
 - When SMTP is not configured, e-mail delivery falls back to local log mode for development.
@@ -291,6 +293,9 @@ Or:
 - Updated vulnerable runtime dependencies and restored the Bandit security scan on Python 3.14.
 - Completed and rebuilt Portuguese, English, and Spanish catalogs with validated placeholders and no fuzzy or missing entries.
 - Refined dashboard wording, singular/plural item counts, and dark-mode chart contrast.
+- Bundled all frontend runtime assets so the installed application works without internet access.
+- Added single-instance enforcement, safe migration of legacy 1.3 desktop data, and an installer-based update flow with SHA-256 and Authenticode validation.
+- Added signed GitHub Release automation with checksums, release metadata, update manifest, and build provenance attestation.
 
 ## 👥 Authors
 

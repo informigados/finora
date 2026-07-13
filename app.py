@@ -16,7 +16,7 @@ from alembic.config import Config as AlembicConfig
 from alembic import command as alembic_command
 from alembic.script import ScriptDirectory
 from database.db import db
-from config import config, get_or_create_local_secret_key
+from config import DESKTOP_DATA_ROOT, config, get_or_create_local_secret_key
 from extensions import limiter
 from models.time_utils import format_app_date, format_app_datetime
 from routes.dashboard import dashboard_bp
@@ -74,9 +74,9 @@ def _build_content_security_policy(nonce):
         "frame-ancestors 'none'",
         "object-src 'none'",
         "img-src 'self' data:",
-        "style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com",
-        "font-src 'self' data: https://fonts.gstatic.com",
-        f"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net https://unpkg.com",
+        "style-src 'self'",
+        "font-src 'self' data:",
+        f"script-src 'self' 'nonce-{nonce}'",
         "connect-src 'self'",
     ])
 
@@ -749,10 +749,21 @@ def schedule_browser_open(port, delay_seconds=1.5):
 
 if __name__ == '__main__':
     from waitress import serve
+    from services.desktop_runtime import DesktopInstanceGuard
     
     is_frozen = bool(getattr(sys, 'frozen', False))
     env_config = os.environ.get('FLASK_ENV') or ('desktop' if is_frozen else 'development')
     runtime_config = env_config if env_config in config else ('desktop' if is_frozen else 'default')
+    instance_guard = None
+    if runtime_config == 'desktop':
+        instance_guard = DesktopInstanceGuard(DESKTOP_DATA_ROOT)
+        if not instance_guard.acquire():
+            existing_url = instance_guard.wait_for_existing_url()
+            auto_open_enabled = os.environ.get('FINORA_AUTO_OPEN_BROWSER', '1').strip().lower()
+            if existing_url and auto_open_enabled in {'1', 'true', 'yes', 'on'}:
+                instance_guard.open_existing(existing_url)
+            raise SystemExit(0)
+
     app = create_app(runtime_config)
     port = find_free_port(5000)
 
@@ -763,8 +774,14 @@ if __name__ == '__main__':
         start_backup_scheduler(app)
         print(f"Starting FINORA in {runtime_config.upper()} mode on port {port}...")
         print(f"Access at http://127.0.0.1:{port}")
+        if instance_guard is not None:
+            instance_guard.publish(port)
         schedule_browser_open(port)
-        serve(app, host='127.0.0.1', port=port)
+        try:
+            serve(app, host='127.0.0.1', port=port)
+        finally:
+            if instance_guard is not None:
+                instance_guard.release()
     else:
         if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
             run_recurring_maintenance(app)

@@ -52,9 +52,12 @@ Finora already includes several baseline protections:
 - 📏 Import limits are enforced for file size and row count.
 - 🖼️ Profile image uploads are size-limited and validated as image files.
 - 🗃️ Backup management supports retention, automatic routines, persisted history, and warnings for unsupported database file backup scenarios.
-- 🔄 Guided update flow creates a pre-update backup and runs database migrations after package application.
+- 🔄 Desktop updates require HTTPS, SHA-256, and a trusted Authenticode signature before the installer is staged; source updates retain protected ZIP extraction and migration handling.
 - 🌐 The built-in server flow binds to `127.0.0.1`, reducing accidental LAN exposure in default usage.
 - 🖥️ Packaged desktop runs use a hardened profile with debug disabled and store writable private data outside the installation directory.
+- 📦 Frontend dependencies are bundled locally so security and core functionality do not depend on third-party CDNs at runtime.
+- 🧍 A per-user instance lock prevents concurrent desktop processes from sharing the same SQLite database and schedulers.
+- 🧾 Public release automation produces SHA-256 checksums, signed binaries, release metadata, and GitHub provenance attestation.
 - 🎲 Local session and encryption secrets are randomly generated, machine-bound at rest, and persisted across upgrades.
 
 ## ✅ Deployment and Hardening Notes

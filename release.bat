@@ -56,13 +56,6 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-pip install -q pyinstaller pyinstaller-hooks-contrib
-if %errorlevel% neq 0 (
-    echo [ERROR] Failed to install build dependencies.
-    pause
-    exit /b 1
-)
-
 echo [INFO] Running tests...
 python -m pytest tests -q
 if %errorlevel% neq 0 (

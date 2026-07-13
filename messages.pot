@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 09:41-0300\n"
+"POT-Creation-Date: 2026-07-13 10:19-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -580,6 +580,12 @@ msgid "Nenhuma atualização aplicável foi encontrada no momento."
 msgstr ""
 
 #: routes/public.py:72
+msgid ""
+"Instalador verificado com segurança. O Finora será fechado e atualizado "
+"automaticamente."
+msgstr ""
+
+#: routes/public.py:78
 #, python-format
 msgid ""
 "Atualização aplicada com sucesso. Versão instalada: %(version)s. Reinicie"
@@ -606,7 +612,7 @@ msgstr ""
 msgid "Olá"
 msgstr ""
 
-#: services/auth_service.py:67 services/profile_service.py:543
+#: services/auth_service.py:67 services/profile_service.py:556
 msgid "Usuário"
 msgstr ""
 
@@ -651,84 +657,84 @@ msgstr ""
 msgid "Este link expira em %(minutes)s minutos."
 msgstr ""
 
-#: services/profile_service.py:129
+#: services/profile_service.py:142
 msgid "Pronto"
 msgstr ""
 
-#: services/profile_service.py:130 templates/about.html:40
+#: services/profile_service.py:143 templates/about.html:40
 msgid "Verificando"
 msgstr ""
 
-#: services/profile_service.py:131
+#: services/profile_service.py:144
 msgid "Atualização disponível"
 msgstr ""
 
-#: services/profile_service.py:132
+#: services/profile_service.py:145
 msgid "Atualizado"
 msgstr ""
 
-#: services/profile_service.py:133 templates/auth/profile.html:533
+#: services/profile_service.py:146 templates/auth/profile.html:533
 msgid "Não configurado"
 msgstr ""
 
-#: services/profile_service.py:134 templates/about.html:45
+#: services/profile_service.py:147
 msgid "Aplicando atualização"
 msgstr ""
 
-#: services/profile_service.py:135
+#: services/profile_service.py:148
 msgid "Atualização aplicada"
 msgstr ""
 
-#: services/profile_service.py:136
+#: services/profile_service.py:149
 msgid "Falha na atualização"
 msgstr ""
 
-#: services/profile_service.py:138
+#: services/profile_service.py:151
 msgid "Desconhecido"
 msgstr ""
 
-#: services/profile_service.py:544 templates/auth/profile.html:155
+#: services/profile_service.py:557 templates/auth/profile.html:155
 #: templates/auth/register.html:32
 msgid "E-mail"
 msgstr ""
 
-#: services/profile_service.py:545
+#: services/profile_service.py:558
 msgid "Versão"
 msgstr ""
 
-#: services/profile_service.py:568 services/profile_service.py:576
+#: services/profile_service.py:581 services/profile_service.py:589
 msgid "Não informado"
 msgstr ""
 
-#: services/profile_service.py:570 templates/auth/profile.html:510
+#: services/profile_service.py:583 templates/auth/profile.html:510
 msgid "Sim"
 msgstr ""
 
-#: services/profile_service.py:570 templates/auth/profile.html:510
+#: services/profile_service.py:583 templates/auth/profile.html:510
 msgid "Não"
 msgstr ""
 
-#: services/profile_service.py:596
+#: services/profile_service.py:609
 msgid "Item"
 msgstr ""
 
-#: services/profile_service.py:597
+#: services/profile_service.py:610
 msgid "Detalhe"
 msgstr ""
 
-#: services/profile_service.py:894
+#: services/profile_service.py:907
 msgid "Finora - Sugestão"
 msgstr ""
 
-#: services/profile_service.py:895
+#: services/profile_service.py:908
 msgid "Descreva sua sugestão abaixo:"
 msgstr ""
 
-#: services/profile_service.py:900
+#: services/profile_service.py:913
 msgid "Finora - Comunicar erro"
 msgstr ""
 
-#: services/profile_service.py:901
+#: services/profile_service.py:914
 msgid "Descreva o erro encontrado abaixo:"
 msgstr ""
 
@@ -834,8 +840,8 @@ msgstr ""
 
 #: templates/about.html:37
 msgid ""
-"Verifique a versão instalada, acompanhe o canal atual e aplique "
-"atualizações com backup prévio e migração segura do banco de dados."
+"Verifique a versão instalada e aplique atualizações validadas com backup "
+"prévio, checksum e assinatura digital."
 msgstr ""
 
 #: templates/about.html:42
@@ -843,9 +849,13 @@ msgid "Verificar atualizações"
 msgstr ""
 
 #: templates/about.html:45
+msgid "Preparando atualização"
+msgstr ""
+
+#: templates/about.html:45
 msgid ""
-"Deseja aplicar esta atualização agora? O sistema fará um backup prévio "
-"antes de substituir os arquivos."
+"Deseja instalar esta atualização agora? O Finora validará o arquivo, fará"
+" um backup e será reiniciado."
 msgstr ""
 
 #: templates/about.html:47
@@ -930,130 +940,130 @@ msgid ""
 "privacidade, clareza e operação segura."
 msgstr ""
 
-#: templates/base.html:29
+#: templates/base.html:26
 msgid "Pular para o conteúdo principal"
 msgstr ""
 
-#: templates/base.html:39
+#: templates/base.html:36
 msgid "Alternar navegação"
 msgstr ""
 
-#: templates/base.html:58
+#: templates/base.html:55
 msgid "Painel"
 msgstr ""
 
-#: templates/base.html:59
+#: templates/base.html:56
 msgid "Metas"
 msgstr ""
 
-#: templates/base.html:60 templates/budgets.html:3 templates/budgets.html:8
+#: templates/base.html:57 templates/budgets.html:3 templates/budgets.html:8
 msgid "Orçamentos"
 msgstr ""
 
-#: templates/base.html:61 templates/base.html:66
+#: templates/base.html:58 templates/base.html:63
 msgid "Sobre"
 msgstr ""
 
-#: templates/base.html:63
+#: templates/base.html:60
 msgid "Início"
 msgstr ""
 
 #: templates/auth/login.html:3 templates/auth/login.html:10
 #: templates/auth/login.html:32 templates/auth/register.html:58
-#: templates/base.html:64 templates/welcome.html:16
+#: templates/base.html:61 templates/welcome.html:16
 msgid "Entrar"
 msgstr ""
 
-#: templates/auth/register.html:54 templates/base.html:65
+#: templates/auth/register.html:54 templates/base.html:62
 msgid "Cadastrar"
 msgstr ""
 
-#: templates/auth/profile.html:36 templates/base.html:78
+#: templates/auth/profile.html:36 templates/base.html:75
 msgid "Foto de perfil"
 msgstr ""
 
-#: templates/auth/profile.html:3 templates/base.html:93
+#: templates/auth/profile.html:3 templates/base.html:90
 msgid "Meu Perfil"
 msgstr ""
 
 #: templates/auth/profile.html:120 templates/auth/profile.html:283
-#: templates/base.html:94
+#: templates/base.html:91
 msgid "Meus Backups"
 msgstr ""
 
-#: templates/base.html:96
+#: templates/base.html:93
 msgid "Sair"
 msgstr ""
 
-#: templates/base.html:102
+#: templates/base.html:99
 msgid "Alterar idioma"
 msgstr ""
 
-#: templates/base.html:104
+#: templates/base.html:101
 msgid "Idioma"
 msgstr ""
 
-#: templates/base.html:113
+#: templates/base.html:110
 msgid "Alternar tema"
 msgstr ""
 
-#: templates/base.html:128
+#: templates/base.html:125
 msgid "Tema"
 msgstr ""
 
-#: templates/base.html:146
+#: templates/base.html:143
 msgid "Notificação"
 msgstr ""
 
-#: templates/auth/profile.html:615 templates/base.html:147
-#: templates/base.html:169 templates/budgets.html:90 templates/budgets.html:129
+#: templates/auth/profile.html:615 templates/base.html:144
+#: templates/base.html:166 templates/budgets.html:90 templates/budgets.html:129
 #: templates/dashboard.html:303 templates/goals.html:92
 #: templates/goals.html:129
 msgid "Fechar"
 msgstr ""
 
-#: templates/base.html:158
+#: templates/base.html:155
 msgid "Sua sessão está prestes a expirar."
 msgstr ""
 
-#: templates/base.html:159
+#: templates/base.html:156
 msgid "Tempo restante:"
 msgstr ""
 
-#: templates/base.html:160
+#: templates/base.html:157
 msgid "Renovar sessão"
 msgstr ""
 
-#: templates/base.html:168
+#: templates/base.html:165
 msgid "Confirmar ação"
 msgstr ""
 
-#: templates/base.html:172
+#: templates/base.html:169
 msgid "Deseja continuar?"
 msgstr ""
 
 #: templates/auth/forgot_password.html:39 templates/auth/profile.html:625
 #: templates/auth/reset_password_offline.html:40
-#: templates/auth/reset_password_token.html:29 templates/base.html:175
+#: templates/auth/reset_password_token.html:29 templates/base.html:172
 #: templates/budgets.html:113 templates/budgets.html:149
 #: templates/dashboard.html:394 templates/goals.html:113
 #: templates/goals.html:150
 msgid "Cancelar"
 msgstr ""
 
-#: templates/base.html:176
+#: templates/base.html:173
 msgid "Confirmar"
 msgstr ""
 
-#: templates/base.html:186
+#: templates/base.html:183
 msgid "Simples, poderoso e local."
 msgstr ""
 
-#: templates/base.html:187
+#: templates/base.html:184
 msgid "Todos os direitos reservados."
 msgstr ""
 
-#: templates/base.html:188
+#: templates/base.html:185
 msgid "Projetado por"
 msgstr ""
 

@@ -3,6 +3,7 @@
     "stable": {
       "version": "1.4.0",
       "asset_url": "",
+      "publisher": "INformigados",
       "notes": "Manifesto local padrão do Finora. Configure UPDATE_MANIFEST_URL para usar um canal remoto de atualização.",
       "requires_migration": true
     }

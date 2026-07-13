@@ -15,6 +15,9 @@ LOCAL_SECRET_KEY_PATH = os.path.join(basedir, 'database', '.finora_secret_key')
 LOCAL_SECRET_KEY_PREFIX = 'finora-local:v1:'  # nosec B105
 LEGACY_LOCAL_SECRET_KEY_PREFIX = 'finora-key:v1:'  # nosec B105
 DEFAULT_UPDATE_MANIFEST_PATH = os.path.join(basedir, 'updates', 'manifest.json')
+DEFAULT_DESKTOP_UPDATE_MANIFEST_URL = (
+    'https://github.com/informigados/finora/releases/latest/download/manifest.json'
+)
 DEFAULT_APP_VERSION = '1.4.0'
 
 
@@ -140,6 +143,30 @@ def get_or_create_local_secret_key(secret_path=None):
     return generated_secret
 
 
+def migrate_local_secret_key(source_path, target_path):
+    """Re-encrypts a legacy persisted secret for its new machine-bound path."""
+    with open(source_path, encoding='utf-8') as secret_file:
+        plain_secret = _decrypt_persisted_local_secret(secret_file.read(), source_path)
+    if not plain_secret:
+        raise ValueError('A chave secreta local legada está vazia.')
+
+    target_dir = os.path.dirname(os.path.abspath(target_path))
+    os.makedirs(target_dir, exist_ok=True)
+    encrypted_payload = _get_local_secret_cipher(target_path).encrypt(
+        plain_secret.encode('utf-8')
+    )
+    persisted_value = LOCAL_SECRET_KEY_PREFIX + encrypted_payload.decode('utf-8')
+    file_descriptor, temporary_path = tempfile.mkstemp(prefix='.finora-secret-', dir=target_dir)
+    try:
+        with os.fdopen(file_descriptor, 'w', encoding='utf-8') as temporary_file:
+            temporary_file.write(persisted_value)
+        os.replace(temporary_path, target_path)
+    finally:
+        if os.path.exists(temporary_path):
+            os.remove(temporary_path)
+    return plain_secret
+
+
 class Config:
     APP_VERSION = os.environ.get('APP_VERSION', DEFAULT_APP_VERSION)
     APP_BASE_URL = os.environ.get('APP_BASE_URL', '')
@@ -248,6 +275,9 @@ class DesktopConfig(Config):
     )
     UPDATE_DOWNLOAD_DIR = os.environ.get('UPDATE_DOWNLOAD_DIR') or os.path.join(
         DESKTOP_DATA_ROOT, 'updates'
+    )
+    UPDATE_MANIFEST_URL = (
+        os.environ.get('UPDATE_MANIFEST_URL') or DEFAULT_DESKTOP_UPDATE_MANIFEST_URL
     )
     PROFILE_STORAGE_ROOT = DESKTOP_DATA_ROOT
     LOCAL_SECRET_KEY_PATH = os.path.join(DESKTOP_DATA_ROOT, 'database', '.finora_secret_key')
