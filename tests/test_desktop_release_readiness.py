@@ -142,6 +142,49 @@ def test_entry_modal_scrolls_inside_compact_desktop_windows():
     assert 'overscroll-behavior: contain' in stylesheet
 
 
+def test_desktop_pre_update_backup_excludes_locked_webview_runtime(app, tmp_path, monkeypatch):
+    data_root = tmp_path / 'desktop-data'
+    (data_root / 'database').mkdir(parents=True)
+    (data_root / 'settings').mkdir()
+    (data_root / 'static' / 'profile_pics').mkdir(parents=True)
+    locked_webview_file = data_root / 'webview' / 'EBWebView' / 'lockfile'
+    locked_webview_file.parent.mkdir(parents=True)
+
+    (data_root / 'database' / 'finora.db').write_bytes(b'persistent-database')
+    (data_root / 'settings' / 'mail.json').write_text('{}', encoding='utf-8')
+    (data_root / 'static' / 'profile_pics' / 'avatar.png').write_bytes(b'avatar')
+    locked_webview_file.write_bytes(b'locked-runtime-data')
+    (data_root / 'runtime.json').write_text('{}', encoding='utf-8')
+    (data_root / 'finora.instance.lock').write_text('', encoding='utf-8')
+
+    app.config.update(
+        DESKTOP_MODE=True,
+        DESKTOP_DATA_ROOT=str(data_root),
+        UPDATE_DOWNLOAD_DIR=str(tmp_path / 'updates'),
+    )
+
+    original_write = update_service.zipfile.ZipFile.write
+
+    def reject_locked_webview_file(archive, filename, *args, **kwargs):
+        if Path(filename) == locked_webview_file:
+            raise PermissionError(13, 'Permission denied', str(filename))
+        return original_write(archive, filename, *args, **kwargs)
+
+    monkeypatch.setattr(update_service.zipfile.ZipFile, 'write', reject_locked_webview_file)
+
+    backup_path = update_service._build_pre_update_backup(app, '1.4.1')
+
+    with update_service.zipfile.ZipFile(backup_path, 'r') as archive:
+        names = {name.replace('\\', '/') for name in archive.namelist()}
+
+    assert 'database/finora.db' in names
+    assert 'settings/mail.json' in names
+    assert 'static/profile_pics/avatar.png' in names
+    assert not any(name.startswith('webview/') for name in names)
+    assert 'runtime.json' not in names
+    assert 'finora.instance.lock' not in names
+
+
 def test_desktop_update_stages_checksum_verified_installer_without_source_sync(app, tmp_path, monkeypatch):
     installer_path = tmp_path / 'Finora_Setup_v1.5.0.exe'
     installer_path.write_bytes(b'checksum-verified-installer')

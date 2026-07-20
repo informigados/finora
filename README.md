@@ -10,7 +10,7 @@
 Finora is a local-first personal finance application built with Flask.  
 It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, managed backups, profile observability, guided updates, and multilingual UI.
 
-Current stable version: `1.4.1`
+Current stable version: `1.4.2`
 
 ## 🧱 Tech Stack
 
@@ -106,7 +106,7 @@ Optional update and mail settings:
 
 ```ini
 # App metadata
-APP_VERSION=1.4.1
+APP_VERSION=1.4.2
 APP_BASE_URL=http://127.0.0.1:5000
 
 # Automatic update
@@ -173,6 +173,10 @@ DEFAULT_USER_PASSWORD=admin123
 - Recovery keys can be copied from the profile, re-emailed, or regenerated.
 - In the desktop app, configure SMTP under `Meu Perfil > E-mail`; the password is encrypted and stored only in the user's local application-data directory.
 - When SMTP is unavailable, Finora explicitly reports that delivery did not occur and keeps offline recovery available instead of claiming a successful send.
+
+### Updating from 1.4.0 or 1.4.1
+
+Finora 1.4.0 and 1.4.1 may fail while creating their pre-update backup if the embedded WebView2 runtime keeps `webview/EBWebView/lockfile` open. If the `/about` page reports `Permission denied` for that file, download and run the current installer manually from the official GitHub Release once. The installer preserves the data stored under `%LOCALAPPDATA%\Finora`. From version 1.4.2 onward, transient WebView2 files and runtime locks are excluded from pre-update backups, so future in-app updates can proceed normally.
 
 ## 👤 Profile Hub and Backups
 
@@ -332,6 +336,13 @@ Or:
 - Preserved the modal header and action footer while the long form content scrolls naturally with mouse, touchpad, touch, and keyboard.
 - Simplified Windows distribution and in-app updates around official HTTPS downloads, SHA-256 verification, pre-update backups, and GitHub provenance attestations.
 - Updated the executable, installer, update manifest, release metadata, documentation, and automated release pipeline for version 1.4.1.
+
+### 2026-07-20 (1.4.2)
+
+- Fixed in-app updates failing with `Permission denied` when WebView2 kept its runtime `lockfile` open.
+- Excluded transient WebView2 storage, instance locks, runtime state, and temporary files from pre-update backups while preserving the database, local mail settings, and profile images.
+- Added regression coverage that simulates a locked WebView2 file during the desktop update flow.
+- Documented the one-time manual installer path required for affected 1.4.0 and 1.4.1 installations.
 
 ## 👥 Authors
 

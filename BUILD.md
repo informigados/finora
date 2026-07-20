@@ -29,7 +29,7 @@ Release version is centralized in the `VERSION` file at project root.
 Example:
 
 ```text
-1.4.1
+1.4.2
 ```
 
 Before generating a release, update this file to the target version.
@@ -105,7 +105,7 @@ Expected output:
 If you already generated `dist\Finora`, you can compile manually:
 
 ```powershell
-"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.4.1 finora_installer.iss
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.4.2 finora_installer.iss
 ```
 
 ## 7. Database Migration Requirement
@@ -164,4 +164,4 @@ If a release must be rolled back, use this sequence:
 
 ## 11. Automated Windows Release
 
-The `Windows Release` workflow runs when a `v*` tag is pushed. The tag must match `VERSION` exactly (for example, `v1.4.1`). The workflow reruns lint, security auditing, tests, builds the installer, generates a GitHub artifact attestation, and publishes the GitHub Release with SHA-256 verification material.
+The `Windows Release` workflow runs when a `v*` tag is pushed. The tag must match `VERSION` exactly (for example, `v1.4.2`). The workflow reruns lint, security auditing, tests, builds the installer, generates a GitHub artifact attestation, and publishes the GitHub Release with SHA-256 verification material.

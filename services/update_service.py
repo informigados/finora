@@ -39,6 +39,14 @@ UPDATE_SYNC_EXCLUDES = UPDATE_RUNTIME_EXCLUDES.union({'database'})
 UPDATE_FILE_EXCLUDES = frozenset({
     '.env',
 })
+PRE_UPDATE_RUNTIME_EXCLUDES = UPDATE_RUNTIME_EXCLUDES.union({
+    'webview',
+})
+PRE_UPDATE_FILE_EXCLUDES = UPDATE_FILE_EXCLUDES.union({
+    'finora.instance.lock',
+    'lockfile',
+    'runtime.json',
+})
 
 
 def update_schema_is_ready() -> bool:
@@ -273,10 +281,19 @@ def _build_pre_update_backup(app, installed_version):
 
     with zipfile.ZipFile(backup_path, 'w', zipfile.ZIP_DEFLATED) as backup_zip:
         for root_dir, dir_names, file_names in os.walk(target_root):
-            dir_names[:] = [name for name in dir_names if name not in UPDATE_RUNTIME_EXCLUDES]
+            dir_names[:] = [
+                name
+                for name in dir_names
+                if name.casefold() not in PRE_UPDATE_RUNTIME_EXCLUDES
+            ]
             relative_root = os.path.relpath(root_dir, target_root)
             for file_name in file_names:
-                if file_name in UPDATE_FILE_EXCLUDES:
+                normalized_name = file_name.casefold()
+                if (
+                    normalized_name in PRE_UPDATE_FILE_EXCLUDES
+                    or normalized_name.endswith(('.lock', '.tmp'))
+                    or normalized_name.startswith('.mail-settings-')
+                ):
                     continue
                 source_path = os.path.join(root_dir, file_name)
                 archive_name = file_name if relative_root == '.' else os.path.join(relative_root, file_name)

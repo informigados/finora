@@ -60,10 +60,13 @@ jobs:
 
           ### Highlights
 
-          - Fixed the new/edit entry modal in compact desktop windows, keeping every field and action accessible through internal scrolling.
-          - Preserved the modal header and footer while the form scrolls naturally with mouse, touchpad, touch, and keyboard.
-          - Updated the native executable, Windows installer, update manifest, documentation, and release automation for 1.4.1.
-          - Maintained official HTTPS delivery, SHA-256 checksums, pre-update backups, release metadata, and GitHub provenance attestation.
+          - Fixed in-app updates failing when WebView2 keeps its runtime ``lockfile`` open.
+          - Excluded transient WebView2 storage, instance locks, runtime state, and temporary files from pre-update backups.
+          - Preserved the user database, local mail settings, profile images, and other persistent desktop data.
+          - Retained the compact-window entry modal fix introduced in 1.4.1.
+
+          > [!IMPORTANT]
+          > Finora 1.4.0 and 1.4.1 cannot repair their already-installed updater. If either reports ``Permission denied`` for ``webview\EBWebView\lockfile``, download and run this installer manually once. Existing data under ``%LOCALAPPDATA%\Finora`` is preserved. Future in-app updates will work normally after installing 1.4.2 or later.
 
           ### Verification
 
