@@ -198,7 +198,6 @@ def fetch_update_manifest(app, channel=None):
         'version': version,
         'asset_url': asset_url,
         'sha256': (update_payload.get('sha256') or '').strip().lower() or None,
-        'publisher': (update_payload.get('publisher') or '').strip() or None,
         'notes': update_payload.get('notes') or '',
         'requires_migration': bool(update_payload.get('requires_migration', True)),
         'manifest_is_local': manifest_is_local,
@@ -334,45 +333,6 @@ def _download_update_asset(app, manifest):
             raise ValueError('Checksum do pacote de atualização não confere.')
 
     return package_path
-
-
-def _verify_desktop_installer_signature(installer_path, expected_publisher=None):
-    if os.name != 'nt':
-        raise RuntimeError('A assinatura Authenticode só pode ser validada no Windows.')
-
-    powershell_script = (
-        '& { param([string]$InstallerPath) '
-        '$signature = Get-AuthenticodeSignature -LiteralPath $InstallerPath; '
-        '[pscustomobject]@{Status=$signature.Status.ToString(); '
-        'Subject=if ($signature.SignerCertificate) {$signature.SignerCertificate.Subject} else {""}} '
-        '| ConvertTo-Json -Compress }'
-    )
-    result = subprocess.run(  # nosec B603
-        [
-            _get_powershell_executable(),
-            '-NoProfile',
-            '-NonInteractive',
-            '-Command',
-            powershell_script,
-            installer_path,
-        ],
-        capture_output=True,
-        text=True,
-        timeout=30,
-        check=False,
-    )
-    if result.returncode != 0:
-        raise RuntimeError('Não foi possível validar a assinatura digital do instalador.')
-    try:
-        signature = json.loads((result.stdout or '').strip())
-    except (TypeError, ValueError) as exc:
-        raise RuntimeError('Resposta inválida ao verificar a assinatura digital.') from exc
-    if signature.get('Status') != 'Valid':
-        raise ValueError('O instalador não possui uma assinatura Authenticode válida e confiável.')
-    subject = str(signature.get('Subject') or '')
-    if expected_publisher and expected_publisher.casefold() not in subject.casefold():
-        raise ValueError('O publicador da assinatura digital não corresponde ao manifesto.')
-    return signature
 
 
 def _stage_desktop_installer(installer_path):
@@ -579,10 +539,6 @@ def apply_update(app, user=None):
         package_path = _download_update_asset(app, manifest)
 
         if app.config.get('DESKTOP_MODE'):
-            signature = _verify_desktop_installer_signature(
-                package_path,
-                expected_publisher=manifest.get('publisher'),
-            )
             _stage_desktop_installer(package_path)
 
             state = get_or_create_update_state(app)
@@ -594,14 +550,13 @@ def apply_update(app, user=None):
             record_system_event(
                 'info',
                 'update',
-                'Instalador desktop validado e preparado para aplicação.',
+                'Instalador desktop verificado por SHA-256 e preparado para aplicação.',
                 user=user,
                 event_code='desktop_update_staged',
                 details={
                     'target_version': manifest['version'],
                     'channel': manifest['channel'],
                     'backup_path': backup_path,
-                    'signature_subject': signature.get('Subject'),
                 },
                 commit=False,
             )

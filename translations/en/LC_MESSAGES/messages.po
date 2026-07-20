@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 19:04-0300\n"
+"POT-Creation-Date: 2026-07-20 16:53-0300\n"
 "PO-Revision-Date: 2026-02-10 13:31-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -35,14 +35,16 @@ msgid ""
 "Se existir uma conta correspondente, as instruções de recuperação foram "
 "processadas. Use o método escolhido para concluir a redefinição de senha."
 msgstr ""
-"If a matching account exists, recovery instructions have been processed. Use"
-" your chosen method to complete the password reset."
+"If a matching account exists, recovery instructions have been processed. "
+"Use your chosen method to complete the password reset."
 
 #: routes/auth.py:78
 msgid ""
-"Muitas tentativas de acesso foram detectadas. Aguarde alguns minutos antes "
-"de tentar novamente."
-msgstr "Many access attempts were detected. Wait a few minutes before trying again."
+"Muitas tentativas de acesso foram detectadas. Aguarde alguns minutos "
+"antes de tentar novamente."
+msgstr ""
+"Many access attempts were detected. Wait a few minutes before trying "
+"again."
 
 #: routes/auth.py:89
 msgid "Nome de usuário inválido."
@@ -90,8 +92,8 @@ msgid ""
 "A senha deve ter ao menos %(length)d caracteres, incluindo letras "
 "maiúsculas, minúsculas e números."
 msgstr ""
-"The password must have at least %(length)d characters, including uppercase "
-"letters, lowercase letters and numbers."
+"The password must have at least %(length)d characters, including "
+"uppercase letters, lowercase letters and numbers."
 
 #: routes/auth.py:226
 msgid "Endereço de e-mail ou nome de usuário já existe."
@@ -107,8 +109,8 @@ msgstr "Invalid recovery method."
 
 #: routes/auth.py:299
 msgid ""
-"O envio por e-mail ainda não está configurado neste Finora. Use a chave de "
-"recuperação offline ou configure o SMTP no perfil."
+"O envio por e-mail ainda não está configurado neste Finora. Use a chave "
+"de recuperação offline ou configure o SMTP no perfil."
 msgstr ""
 "Email delivery is not configured in this Finora yet. Use the offline "
 "recovery key or configure SMTP in your profile."
@@ -131,7 +133,9 @@ msgid "Não foi possível atualizar a senha. Tente novamente."
 msgstr "Unable to update password. Please try again."
 
 #: routes/auth.py:353
-msgid "Dados de recuperação inválidos. Verifique as informações e tente novamente."
+msgid ""
+"Dados de recuperação inválidos. Verifique as informações e tente "
+"novamente."
 msgstr "Invalid recovery data. Please check the information and try again."
 
 #: routes/auth.py:362
@@ -156,8 +160,8 @@ msgid ""
 "O nome de usuário pode ser alterado a cada 90 dias. Nova alteração "
 "disponível em %(date)s."
 msgstr ""
-"The username can be changed every 90 days. Another change will be available "
-"on %(date)s."
+"The username can be changed every 90 days. Another change will be "
+"available on %(date)s."
 
 #: routes/auth.py:434
 msgid "Este endereço de e-mail já está em uso."
@@ -237,8 +241,8 @@ msgstr "Finora - Test email"
 
 #: routes/auth.py:533
 msgid ""
-"Este é um e-mail de teste do Finora. Sua configuração SMTP está funcionando "
-"corretamente."
+"Este é um e-mail de teste do Finora. Sua configuração SMTP está "
+"funcionando corretamente."
 msgstr "This is a Finora test email. Your SMTP configuration is working correctly."
 
 #: routes/auth.py:537
@@ -250,8 +254,8 @@ msgid ""
 "As configurações foram salvas, mas o e-mail de teste falhou. Revise "
 "servidor, porta, segurança, usuário e senha."
 msgstr ""
-"The settings were saved, but the test email failed. Review the server, port,"
-" security, username, and password."
+"The settings were saved, but the test email failed. Review the server, "
+"port, security, username, and password."
 
 #: routes/auth.py:547
 msgid "Configurações de e-mail salvas com segurança."
@@ -274,8 +278,8 @@ msgstr "Incorrect confirmation for account deletion. Enter %(token)s to confirm.
 
 #: routes/auth.py:583
 msgid ""
-"Sua chave atual não está disponível para reenvio. Gere uma nova chave para "
-"continuar."
+"Sua chave atual não está disponível para reenvio. Gere uma nova chave "
+"para continuar."
 msgstr ""
 "Your current key is not available for resending. Generate a new key to "
 "continue."
@@ -494,7 +498,7 @@ msgid "ID"
 msgstr "ID"
 
 #: routes/export.py:36 routes/export.py:89 services/reports.py:49
-#: templates/dashboard.html:145 templates/dashboard.html:308
+#: templates/dashboard.html:145 templates/dashboard.html:307
 msgid "Descrição"
 msgstr "Description"
 
@@ -505,38 +509,38 @@ msgstr "Value"
 
 #: routes/export.py:38 routes/export.py:89 services/reports.py:50
 #: templates/budgets.html:94 templates/budgets.html:133
-#: templates/dashboard.html:147 templates/dashboard.html:326
+#: templates/dashboard.html:147 templates/dashboard.html:325
 msgid "Categoria"
 msgstr "Category"
 
-#: routes/export.py:39 templates/dashboard.html:330
+#: routes/export.py:39 templates/dashboard.html:329
 msgid "Subcategoria"
 msgstr "Subcategory"
 
 #: routes/export.py:40 services/reports.py:52 templates/dashboard.html:146
-#: templates/dashboard.html:317
+#: templates/dashboard.html:316
 msgid "Tipo"
 msgstr "Type"
 
 #: routes/export.py:41 routes/export.py:90 services/reports.py:54
 #: templates/about.html:76 templates/dashboard.html:149
-#: templates/dashboard.html:338
+#: templates/dashboard.html:337
 msgid "Status"
 msgstr "Status"
 
-#: routes/export.py:42 templates/dashboard.html:348
+#: routes/export.py:42 templates/dashboard.html:347
 msgid "Vencimento"
 msgstr "Due date"
 
-#: routes/export.py:43 templates/dashboard.html:352
+#: routes/export.py:43 templates/dashboard.html:351
 msgid "Pagamento"
 msgstr "Payment date"
 
-#: routes/export.py:44 templates/dashboard.html:357
+#: routes/export.py:44 templates/dashboard.html:356
 msgid "Forma de pagamento/recebimento"
 msgstr "Payment/receiving method"
 
-#: routes/export.py:45 templates/about.html:97 templates/dashboard.html:389
+#: routes/export.py:45 templates/about.html:97 templates/dashboard.html:388
 msgid "Observações"
 msgstr "Notes"
 
@@ -556,11 +560,11 @@ msgstr "Method"
 #: routes/export.py:128
 #, python-format
 msgid ""
-"O relatório PDF está limitado a %(limit)s lançamentos por exportação. Refine"
-" o período ou use CSV/TXT para volumes maiores."
+"O relatório PDF está limitado a %(limit)s lançamentos por exportação. "
+"Refine o período ou use CSV/TXT para volumes maiores."
 msgstr ""
-"The PDF report is limited to %(limit)s releases per export. Refine the date "
-"range or use CSV/TXT for higher volumes."
+"The PDF report is limited to %(limit)s releases per export. Refine the "
+"date range or use CSV/TXT for higher volumes."
 
 #: routes/export.py:154
 msgid "Tipo de exportação inválido."
@@ -626,7 +630,9 @@ msgstr "... and more %(count)d line(s)."
 
 #: routes/imports.py:67
 #, python-format
-msgid "%(count)d linha(s) foram ignoradas por inconsistência: %(preview)s%(suffix)s"
+msgid ""
+"%(count)d linha(s) foram ignoradas por inconsistência: "
+"%(preview)s%(suffix)s"
 msgstr "%(count)d line(s) were ignored due to inconsistency: %(preview)s%(suffix)s"
 
 #: routes/imports.py:96
@@ -640,8 +646,8 @@ msgstr "Unable to check for updates: %(error)s"
 
 #: routes/public.py:33
 msgid ""
-"Não foi possível verificar atualizações no momento. Faça login para ver os "
-"detalhes."
+"Não foi possível verificar atualizações no momento. Faça login para ver "
+"os detalhes."
 msgstr "Could not check for updates right now. Sign in to view the details."
 
 #: routes/public.py:44
@@ -650,8 +656,8 @@ msgid ""
 "Nova versão disponível: %(version)s. Revise os detalhes e escolha quando "
 "atualizar."
 msgstr ""
-"New version available: %(version)s. Review the details and choose when to "
-"update."
+"New version available: %(version)s. Review the details and choose when to"
+" update."
 
 #: routes/public.py:50
 msgid "Esta instalação já está atualizada."
@@ -671,17 +677,17 @@ msgid ""
 "Instalador verificado com segurança. O Finora será fechado e atualizado "
 "automaticamente."
 msgstr ""
-"Finora will close and update automatically after the installer is securely "
-"verified."
+"Finora will close and update automatically after the installer is "
+"securely verified."
 
 #: routes/public.py:78
 #, python-format
 msgid ""
-"Atualização aplicada com sucesso. Versão instalada: %(version)s. Reinicie o "
-"Finora para carregar todos os componentes atualizados."
+"Atualização aplicada com sucesso. Versão instalada: %(version)s. Reinicie"
+" o Finora para carregar todos os componentes atualizados."
 msgstr ""
-"Update applied successfully. Installed version: %(version)s. Restart Finora "
-"to load all updated components."
+"Update applied successfully. Installed version: %(version)s. Restart "
+"Finora to load all updated components."
 
 #: services/auth_service.py:59
 msgid "Sua conta foi criada com sucesso."
@@ -717,14 +723,14 @@ msgstr "Key version"
 
 #: services/auth_service.py:70
 msgid ""
-"Guarde esta chave em local seguro. Ela permite recuperar o acesso de forma "
-"offline."
+"Guarde esta chave em local seguro. Ela permite recuperar o acesso de "
+"forma offline."
 msgstr "Keep this key in a safe place. It allows you to recover access offline."
 
 #: services/auth_service.py:71
 msgid ""
-"Se você acreditar que a chave foi comprometida, gere uma nova dentro do seu "
-"perfil."
+"Se você acreditar que a chave foi comprometida, gere uma nova dentro do "
+"seu perfil."
 msgstr ""
 "If you believe the key has been compromised, generate a new one in your "
 "profile."
@@ -890,19 +896,19 @@ msgstr "About Finora"
 
 #: templates/about.html:4
 msgid ""
-"Conheça o Finora, acompanhe a versão instalada e aplique atualizações com "
-"backup prévio e migração segura."
+"Conheça o Finora, acompanhe a versão instalada e aplique atualizações com"
+" backup prévio e migração segura."
 msgstr ""
-"Learn about Finora, check the installed version, and apply updates with a "
-"prior backup and safe database migration."
+"Learn about Finora, check the installed version, and apply updates with a"
+" prior backup and safe database migration."
 
 #: templates/about.html:9 templates/welcome.html:13
 msgid ""
-"Organize receitas, despesas, metas e orçamentos em um fluxo simples, rápido "
-"e seguro."
+"Organize receitas, despesas, metas e orçamentos em um fluxo simples, "
+"rápido e seguro."
 msgstr ""
-"Organize income, expenses, goals and budgets in a simple, fast and secure "
-"flow."
+"Organize income, expenses, goals and budgets in a simple, fast and secure"
+" flow."
 
 #: templates/about.html:14
 msgid "Privacidade"
@@ -943,10 +949,10 @@ msgstr "System Updates"
 #: templates/about.html:37
 msgid ""
 "Verifique a versão instalada e aplique atualizações validadas com backup "
-"prévio, checksum e assinatura digital."
+"prévio e checksum SHA-256."
 msgstr ""
-"Check the installed version and apply validated updates with a prior backup,"
-" checksum, and digital signature."
+"Check the installed version and apply validated updates with a prior backup "
+"and SHA-256 checksum."
 
 #: templates/about.html:42
 msgid "Verificar atualizações"
@@ -958,8 +964,8 @@ msgstr "Preparing update"
 
 #: templates/about.html:45
 msgid ""
-"Deseja instalar esta atualização agora? O Finora validará o arquivo, fará um"
-" backup e será reiniciado."
+"Deseja instalar esta atualização agora? O Finora validará o arquivo, fará"
+" um backup e será reiniciado."
 msgstr ""
 "Do you want to install this update now? Finora will validate the file, "
 "create a backup, and restart."
@@ -998,9 +1004,11 @@ msgstr "Not performed yet"
 
 #: templates/about.html:102
 msgid ""
-"Ocorreu um erro na última verificação de atualização. Faça login para ver os"
-" detalhes."
-msgstr "An error occurred during the last update check. Sign in to view the details."
+"Ocorreu um erro na última verificação de atualização. Faça login para ver"
+" os detalhes."
+msgstr ""
+"An error occurred during the last update check. Sign in to view the "
+"details."
 
 #: templates/about.html:105
 msgid "Uma atualização está disponível e pode ser aplicada a partir desta tela."
@@ -1012,11 +1020,11 @@ msgstr "No pending updates were found in the last check."
 
 #: templates/about.html:109
 msgid ""
-"O manifesto local padrão está ativo para status e testes seguros. Configure "
-"UPDATE_MANIFEST_URL para usar um canal remoto de atualização."
+"O manifesto local padrão está ativo para status e testes seguros. "
+"Configure UPDATE_MANIFEST_URL para usar um canal remoto de atualização."
 msgstr ""
-"The bundled local manifest is active for status and safe testing. Configure "
-"UPDATE_MANIFEST_URL to use a remote update channel."
+"The bundled local manifest is active for status and safe testing. "
+"Configure UPDATE_MANIFEST_URL to use a remote update channel."
 
 #: templates/about.html:111
 msgid ""
@@ -1034,11 +1042,11 @@ msgstr "Space for collaborators"
 
 #: templates/about.html:144
 msgid ""
-"Contribuições futuras poderão ser destacadas aqui com créditos e histórico "
-"de participação."
+"Contribuições futuras poderão ser destacadas aqui com créditos e "
+"histórico de participação."
 msgstr ""
-"Future contributions may be highlighted here with credits and participation "
-"history."
+"Future contributions may be highlighted here with credits and "
+"participation history."
 
 #: templates/about.html:147
 msgid "Ver repositório"
@@ -1049,8 +1057,8 @@ msgid ""
 "Finora é um sistema local de controle financeiro pessoal com foco em "
 "privacidade, clareza e operação segura."
 msgstr ""
-"Finora is a local personal finance system focused on privacy, clarity, and "
-"safe operation."
+"Finora is a local personal finance system focused on privacy, clarity, "
+"and safe operation."
 
 #: templates/base.html:27
 msgid "Pular para o conteúdo principal"
@@ -1128,9 +1136,10 @@ msgstr "Theme"
 msgid "Notificação"
 msgstr "Notification"
 
-#: templates/auth/profile.html:707 templates/base.html:143 templates/base.html:165
-#: templates/budgets.html:90 templates/budgets.html:129
-#: templates/dashboard.html:303 templates/goals.html:92 templates/goals.html:129
+#: templates/auth/profile.html:707 templates/base.html:143
+#: templates/base.html:165 templates/budgets.html:90 templates/budgets.html:129
+#: templates/dashboard.html:302 templates/goals.html:92
+#: templates/goals.html:129
 msgid "Fechar"
 msgstr "To close"
 
@@ -1158,7 +1167,8 @@ msgstr "Do you want to continue?"
 #: templates/auth/reset_password_offline.html:40
 #: templates/auth/reset_password_token.html:29 templates/base.html:171
 #: templates/budgets.html:113 templates/budgets.html:149
-#: templates/dashboard.html:394 templates/goals.html:113 templates/goals.html:150
+#: templates/dashboard.html:393 templates/goals.html:113
+#: templates/goals.html:150
 msgid "Cancelar"
 msgstr "Cancel"
 
@@ -1186,8 +1196,8 @@ msgstr "New Budget"
 msgid "Opções"
 msgstr "Options"
 
-#: templates/budgets.html:29 templates/dashboard.html:189 templates/goals.html:29
-#: templates/goals.html:30
+#: templates/budgets.html:29 templates/dashboard.html:189
+#: templates/goals.html:29 templates/goals.html:30
 msgid "Editar"
 msgstr "Edit"
 
@@ -1200,7 +1210,8 @@ msgstr "Are you sure you want to delete this budget?"
 msgid "Excluir"
 msgstr "Delete"
 
-#: templates/budgets.html:41 templates/budgets.html:105 templates/budgets.html:141
+#: templates/budgets.html:41 templates/budgets.html:105
+#: templates/budgets.html:141
 msgid "Período"
 msgstr "Period"
 
@@ -1234,16 +1245,16 @@ msgid "Limite (R$)"
 msgstr "Limit ($)"
 
 #: templates/budgets.html:107 templates/budgets.html:143
-#: templates/dashboard.html:375
+#: templates/dashboard.html:374
 msgid "Mensal"
 msgstr "Monthly"
 
 #: templates/budgets.html:108 templates/budgets.html:144
-#: templates/dashboard.html:378
+#: templates/dashboard.html:377
 msgid "Anual"
 msgstr "Yearly"
 
-#: templates/budgets.html:114 templates/dashboard.html:395
+#: templates/budgets.html:114 templates/dashboard.html:394
 #: templates/goals.html:114
 msgid "Salvar"
 msgstr "Save"
@@ -1344,8 +1355,8 @@ msgstr "View Annual Summary"
 msgid "Resumo Anual"
 msgstr "Annual Summary"
 
-#: templates/dashboard.html:65 templates/dashboard.html:302
-#: templates/dashboard.html:580
+#: templates/dashboard.html:65 templates/dashboard.html:301
+#: templates/dashboard.html:578
 msgid "Novo Lançamento"
 msgstr "New Entry"
 
@@ -1373,11 +1384,11 @@ msgstr "Total Overdue"
 msgid "Lançamentos do Mês"
 msgstr "Monthly Entries"
 
-#: templates/dashboard.html:131 templates/dashboard.html:699
+#: templates/dashboard.html:131 templates/dashboard.html:697
 msgid "item"
 msgstr "item"
 
-#: templates/dashboard.html:131 templates/dashboard.html:699
+#: templates/dashboard.html:131 templates/dashboard.html:697
 msgid "itens"
 msgstr "items"
 
@@ -1401,15 +1412,15 @@ msgstr "Day"
 msgid "Ações"
 msgstr "Actions"
 
-#: templates/dashboard.html:179 templates/dashboard.html:341
+#: templates/dashboard.html:179 templates/dashboard.html:340
 msgid "Pago"
 msgstr "Paid"
 
-#: templates/dashboard.html:181 templates/dashboard.html:340
+#: templates/dashboard.html:181 templates/dashboard.html:339
 msgid "Pendente"
 msgstr "Pending"
 
-#: templates/dashboard.html:183 templates/dashboard.html:342
+#: templates/dashboard.html:183 templates/dashboard.html:341
 msgid "Atrasado"
 msgstr "Overdue"
 
@@ -1493,59 +1504,59 @@ msgstr "Import"
 msgid "CSV ou XLSX (máx. 10 MB)"
 msgstr "CSV or XLSX (max. 10 MB)"
 
-#: templates/dashboard.html:303
+#: templates/dashboard.html:302
 msgid "Fechar modal"
 msgstr "Close modal"
 
-#: templates/dashboard.html:306
+#: templates/dashboard.html:305
 msgid "Use este formulário para criar ou editar um lançamento financeiro."
 msgstr "Use this form to create or edit a financial entry."
 
-#: templates/dashboard.html:313
+#: templates/dashboard.html:312
 msgid "Valor (R$)"
 msgstr "Value (R$)"
 
-#: templates/dashboard.html:319
+#: templates/dashboard.html:318
 msgid "Despesa"
 msgstr "Expense"
 
-#: templates/dashboard.html:320
+#: templates/dashboard.html:319
 msgid "Receita"
 msgstr "Income"
 
-#: templates/dashboard.html:332 templates/dashboard.html:409
+#: templates/dashboard.html:331 templates/dashboard.html:407
 msgid "Selecione a subcategoria"
 msgstr "Select a subcategory"
 
-#: templates/dashboard.html:359 templates/dashboard.html:410
+#: templates/dashboard.html:358 templates/dashboard.html:408
 msgid "Selecione a forma"
 msgstr "Select a method"
 
-#: templates/dashboard.html:368
+#: templates/dashboard.html:367
 msgid "Repetir (Recorrência)"
 msgstr "Repeat (Recurrence)"
 
-#: templates/auth/profile.html:423 templates/dashboard.html:373
+#: templates/auth/profile.html:423 templates/dashboard.html:372
 msgid "Frequência"
 msgstr "Frequency"
 
-#: templates/dashboard.html:376
+#: templates/dashboard.html:375
 msgid "Semanal"
 msgstr "Weekly"
 
-#: templates/dashboard.html:377
+#: templates/dashboard.html:376
 msgid "Diário"
 msgstr "Daily"
 
-#: templates/dashboard.html:382
+#: templates/dashboard.html:381
 msgid "Data Final (Opcional)"
 msgstr "End Date (Optional)"
 
-#: templates/dashboard.html:408
+#: templates/dashboard.html:406
 msgid "Selecione a categoria"
 msgstr "Select a category"
 
-#: templates/dashboard.html:612
+#: templates/dashboard.html:610
 msgid "Editar Lançamento"
 msgstr "Edit Entry"
 
@@ -1624,8 +1635,8 @@ msgstr "Smart local financial control"
 
 #: templates/welcome.html:4
 msgid ""
-"Controle receitas, despesas, metas e orçamentos com um sistema local, seguro"
-" e inteligente."
+"Controle receitas, despesas, metas e orçamentos com um sistema local, "
+"seguro e inteligente."
 msgstr ""
 "Manage income, expenses, goals, and budgets with a local, secure, and "
 "intelligent system."
@@ -1697,8 +1708,8 @@ msgstr "There are still not enough movements this year."
 #: templates/year.html:54
 msgid "Assim que houver receitas ou despesas, a evolução anual aparecerá aqui."
 msgstr ""
-"As soon as there are income or expenses, the annual evolution will appear "
-"here."
+"As soon as there are income or expenses, the annual evolution will appear"
+" here."
 
 #: templates/year.html:59
 msgid "Gráfico de evolução financeira anual"
@@ -1755,8 +1766,8 @@ msgstr "Use Recovery Key (Offline)"
 
 #: templates/auth/forgot_password.html:39
 msgid ""
-"O envio por e-mail não está configurado. Entre na conta e configure o SMTP "
-"em Meu Perfil, ou use sua chave offline."
+"O envio por e-mail não está configurado. Entre na conta e configure o "
+"SMTP em Meu Perfil, ou use sua chave offline."
 msgstr ""
 "Email delivery is not configured. Sign in and configure SMTP under My "
 "Profile, or use your offline key."
@@ -1883,8 +1894,8 @@ msgstr "Username"
 
 #: templates/auth/profile.html:165
 msgid ""
-"Você pode alterar o nome de usuário agora. Depois de salvar, uma nova troca "
-"ficará disponível em 90 dias."
+"Você pode alterar o nome de usuário agora. Depois de salvar, uma nova "
+"troca ficará disponível em 90 dias."
 msgstr ""
 "You can change your username now. After saving, another change will be "
 "available in 90 days."
@@ -1904,11 +1915,11 @@ msgstr "Profile Picture"
 
 #: templates/auth/profile.html:185
 msgid ""
-"Clique também na foto ao lado para escolher uma imagem. Formatos JPG, PNG ou"
-" GIF, até 2 MB."
+"Clique também na foto ao lado para escolher uma imagem. Formatos JPG, PNG"
+" ou GIF, até 2 MB."
 msgstr ""
-"You can also click the picture to choose an image. JPG, PNG, or GIF, up to 2"
-" MB."
+"You can also click the picture to choose an image. JPG, PNG, or GIF, up "
+"to 2 MB."
 
 #: templates/auth/profile.html:191
 msgid "Remover foto atual"
@@ -1943,7 +1954,8 @@ msgstr "Save Changes"
 msgid "Senha Atual"
 msgstr "Current Password"
 
-#: templates/auth/profile.html:232 templates/auth/reset_password_offline.html:31
+#: templates/auth/profile.html:232
+#: templates/auth/reset_password_offline.html:31
 #: templates/auth/reset_password_token.html:18
 msgid "Nova Senha"
 msgstr "New Password"
@@ -1975,7 +1987,8 @@ msgid "Gere uma nova chave para disponibilizar a cópia nesta tela."
 msgstr "Generate a new key to make the copy available on this screen."
 
 #: templates/auth/profile.html:274 templates/auth/profile.html:771
-#: templates/auth/register_success.html:21 templates/auth/register_success.html:57
+#: templates/auth/register_success.html:21
+#: templates/auth/register_success.html:57
 msgid "Copiar"
 msgstr "Copy"
 
@@ -1989,11 +2002,11 @@ msgstr "No shipments registered so far."
 
 #: templates/auth/profile.html:285
 msgid ""
-"Mantenha esta chave em local seguro. Se você suspeitar de comprometimento, "
-"gere uma nova chave imediatamente."
+"Mantenha esta chave em local seguro. Se você suspeitar de "
+"comprometimento, gere uma nova chave imediatamente."
 msgstr ""
-"Keep this key in a safe place. If you suspect compromise, generate a new key"
-" immediately."
+"Keep this key in a safe place. If you suspect compromise, generate a new "
+"key immediately."
 
 #: templates/auth/profile.html:290
 msgid "Enviar por e-mail"
@@ -2004,8 +2017,8 @@ msgid ""
 "Deseja gerar uma nova chave de recuperação? A chave anterior deixará de "
 "valer imediatamente."
 msgstr ""
-"Do you want to generate a new recovery key? The previous key will cease to "
-"be valid immediately."
+"Do you want to generate a new recovery key? The previous key will cease "
+"to be valid immediately."
 
 #: templates/auth/profile.html:295
 msgid "Gerar nova chave"
@@ -2021,8 +2034,8 @@ msgstr "Email delivery"
 
 #: templates/auth/profile.html:309
 msgid ""
-"Configure o SMTP usado para chaves de recuperação, redefinição de senha e "
-"avisos do Finora."
+"Configure o SMTP usado para chaves de recuperação, redefinição de senha e"
+" avisos do Finora."
 msgstr ""
 "Configure the SMTP service used for recovery keys, password resets, and "
 "Finora notifications."
@@ -2080,7 +2093,9 @@ msgid "Salvar e enviar teste"
 msgstr "Save and send test"
 
 #: templates/auth/profile.html:376
-msgid "Centralize aqui os backups manuais, a rotina automática e o histórico salvo."
+msgid ""
+"Centralize aqui os backups manuais, a rotina automática e o histórico "
+"salvo."
 msgstr "Centralize manual backups, automatic routine and saved history here."
 
 #: templates/auth/profile.html:378
@@ -2308,8 +2323,8 @@ msgstr "No system events currently logged."
 
 #: templates/auth/profile.html:692
 msgid ""
-"A exclusão da sua conta é irreversível. Todos os seus dados financeiros e "
-"metas serão apagados permanentemente."
+"A exclusão da sua conta é irreversível. Todos os seus dados financeiros e"
+" metas serão apagados permanentemente."
 msgstr ""
 "Deleting your account is irreversible. All your financial data and goals "
 "will be permanently deleted."
@@ -2413,8 +2428,8 @@ msgstr "Account created successfully!"
 
 #: templates/auth/register_success.html:14
 msgid ""
-"Guarde sua chave de recuperação em um local seguro. Ela permite recuperar o "
-"acesso mesmo sem e-mail."
+"Guarde sua chave de recuperação em um local seguro. Ela permite recuperar"
+" o acesso mesmo sem e-mail."
 msgstr ""
 "Keep your recovery key in a safe place. It lets you recover access even "
 "without email."
@@ -2444,8 +2459,8 @@ msgstr "Reset Password"
 
 #: templates/auth/reset_password_offline.html:11
 msgid ""
-"Use seu identificador e a chave de recuperação para redefinir a senha com "
-"segurança."
+"Use seu identificador e a chave de recuperação para redefinir a senha com"
+" segurança."
 msgstr "Use your ID and recovery key to safely reset your password."
 
 #: templates/auth/reset_password_offline.html:23
@@ -2633,15 +2648,17 @@ msgstr "This link expires in 1 hour for security."
 
 #~ msgid ""
 #~ "Um link de recuperação foi enviado "
-#~ "para seu e-mail (Simulação: verifique o "
-#~ "console)."
+#~ "para seu e-mail (Simulação: verifique o"
+#~ " console)."
 #~ msgstr ""
-#~ "A recovery link has been sent to "
-#~ "your email (Simulation: check the console)."
+#~ "A recovery link has been sent to"
+#~ " your email (Simulation: check the "
+#~ "console)."
 
 #~ msgid ""
 #~ "Funcionalidade de token ainda não "
-#~ "implementada (use a chave de recuperação)."
+#~ "implementada (use a chave de "
+#~ "recuperação)."
 #~ msgstr "Token functionality not implemented yet (use recovery key)."
 
 #~ msgid "%(count)d lançamentos recorrentes foram gerados."
@@ -2660,11 +2677,12 @@ msgstr "This link expires in 1 hour for security."
 #~ msgstr "The current value cannot be negative."
 
 #~ msgid ""
-#~ "Um sistema financeiro pessoal com foco "
-#~ "em clareza, desempenho e segurança local."
+#~ "Um sistema financeiro pessoal com foco"
+#~ " em clareza, desempenho e segurança "
+#~ "local."
 #~ msgstr ""
-#~ "A personal financial system focused on "
-#~ "clarity, performance and local security."
+#~ "A personal financial system focused on"
+#~ " clarity, performance and local security."
 
 #~ msgid "Tem certeza?"
 #~ msgstr "Are you sure?"
@@ -2703,24 +2721,26 @@ msgstr "This link expires in 1 hour for security."
 #~ msgstr "User: "
 
 #~ msgid ""
-#~ "Verifique a versão instalada, acompanhe o"
-#~ " canal atual e aplique atualizações com"
-#~ " backup prévio e migração segura do "
-#~ "banco de dados."
+#~ "Verifique a versão instalada, acompanhe "
+#~ "o canal atual e aplique atualizações "
+#~ "com backup prévio e migração segura "
+#~ "do banco de dados."
 #~ msgstr ""
 #~ "Check the installed version, monitor the"
-#~ " current channel, and apply updates with"
-#~ " a pre-update backup and safe "
-#~ "database migration."
+#~ " current channel, and apply updates "
+#~ "with a pre-update backup and safe"
+#~ " database migration."
 
 #~ msgid "A disponibilidade definitiva será confirmada ao concluir o cadastro."
 #~ msgstr "Final availability will be confirmed when you complete sign-up."
 
 #~ msgid ""
 #~ "Conta criada com sucesso! Sua chave "
-#~ "de recuperação é: %(key)s. Guarde-a em "
-#~ "local seguro!"
-#~ msgstr "Account created successfully! Your recovery key is: %(key)s. Keep it safe!"
+#~ "de recuperação é: %(key)s. Guarde-a em"
+#~ " local seguro!"
+#~ msgstr ""
+#~ "Account created successfully! Your recovery"
+#~ " key is: %(key)s. Keep it safe!"
 
 #~ msgid ""
 #~ "O envio por e-mail da chave de "

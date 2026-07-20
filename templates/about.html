@@ -34,7 +34,7 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3 mb-4">
         <div>
             <h2 class="h4 mb-2">{{ _('Atualizações do Sistema') }}</h2>
-            <p class="text-muted mb-0">{{ _('Verifique a versão instalada e aplique atualizações validadas com backup prévio, checksum e assinatura digital.') }}</p>
+            <p class="text-muted mb-0">{{ _('Verifique a versão instalada e aplique atualizações validadas com backup prévio e checksum SHA-256.') }}</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <form action="{{ url_for('public.about_check_update') }}" method="POST" data-loading-text="{{ _('Verificando') }}">

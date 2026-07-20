@@ -132,37 +132,19 @@ def test_desktop_asset_filename_requires_executable():
         )
 
 
-def test_authenticode_validation_requires_valid_expected_publisher(monkeypatch):
-    monkeypatch.setattr(update_service.os, 'name', 'nt')
-    monkeypatch.setattr(
-        update_service,
-        '_get_powershell_executable',
-        lambda: 'powershell.exe',
-    )
-    monkeypatch.setattr(
-        update_service.subprocess,
-        'run',
-        lambda *_args, **_kwargs: SimpleNamespace(
-            returncode=0,
-            stdout=json.dumps({'Status': 'Valid', 'Subject': 'CN=INformigados'}),
-        ),
-    )
-    signature = update_service._verify_desktop_installer_signature(
-        'Finora_Setup.exe',
-        expected_publisher='INformigados',
-    )
-    assert signature['Status'] == 'Valid'
-
-    with pytest.raises(ValueError, match='publicador'):
-        update_service._verify_desktop_installer_signature(
-            'Finora_Setup.exe',
-            expected_publisher='Outro Publicador',
-        )
+def test_entry_modal_scrolls_inside_compact_desktop_windows():
+    template = Path('templates/dashboard.html').read_text(encoding='utf-8')
+    stylesheet = Path('static/css/style.css').read_text(encoding='utf-8')
+    assert 'modal-dialog-scrollable entry-modal-dialog' in template
+    assert 'id="entryForm" class="modal-content modal-content-premium"' in template
+    assert '#entryModal .modal-content' in stylesheet
+    assert 'max-height: calc(100dvh - 1rem)' in stylesheet
+    assert 'overscroll-behavior: contain' in stylesheet
 
 
-def test_desktop_update_stages_verified_installer_without_source_sync(app, tmp_path, monkeypatch):
+def test_desktop_update_stages_checksum_verified_installer_without_source_sync(app, tmp_path, monkeypatch):
     installer_path = tmp_path / 'Finora_Setup_v1.5.0.exe'
-    installer_path.write_bytes(b'signed-installer')
+    installer_path.write_bytes(b'checksum-verified-installer')
     staged = []
 
     manifest = {
@@ -170,7 +152,6 @@ def test_desktop_update_stages_verified_installer_without_source_sync(app, tmp_p
         'version': '1.5.0',
         'asset_url': 'https://example.com/Finora_Setup_v1.5.0.exe',
         'sha256': 'a' * 64,
-        'publisher': 'INformigados',
         'requires_migration': True,
     }
     app.config.update(
@@ -192,11 +173,6 @@ def test_desktop_update_stages_verified_installer_without_source_sync(app, tmp_p
         update_service,
         '_download_update_asset',
         lambda *_args: str(installer_path),
-    )
-    monkeypatch.setattr(
-        update_service,
-        '_verify_desktop_installer_signature',
-        lambda *_args, **_kwargs: {'Status': 'Valid', 'Subject': 'CN=INformigados'},
     )
     monkeypatch.setattr(update_service, '_stage_desktop_installer', staged.append)
     monkeypatch.setattr(update_service, 'record_system_event', lambda *_args, **_kwargs: None)
@@ -455,33 +431,6 @@ def test_desktop_download_requires_hash_and_valid_checksum(app, tmp_path):
     manifest['asset_url'] = ''
     with pytest.raises(ValueError, match='sem pacote'):
         update_service._download_update_asset(app, manifest)
-
-
-def test_authenticode_validation_failure_paths(monkeypatch):
-    monkeypatch.setattr(update_service.os, 'name', 'posix')
-    with pytest.raises(RuntimeError, match='só pode'):
-        update_service._verify_desktop_installer_signature('installer.exe')
-
-    monkeypatch.setattr(update_service.os, 'name', 'nt')
-    monkeypatch.setattr(
-        update_service,
-        '_get_powershell_executable',
-        lambda: 'powershell.exe',
-    )
-    responses = iter(
-        (
-            SimpleNamespace(returncode=1, stdout=''),
-            SimpleNamespace(returncode=0, stdout='not-json'),
-            SimpleNamespace(returncode=0, stdout=json.dumps({'Status': 'NotSigned'})),
-        )
-    )
-    monkeypatch.setattr(update_service.subprocess, 'run', lambda *_args, **_kwargs: next(responses))
-    with pytest.raises(RuntimeError, match='Não foi possível'):
-        update_service._verify_desktop_installer_signature('installer.exe')
-    with pytest.raises(RuntimeError, match='Resposta inválida'):
-        update_service._verify_desktop_installer_signature('installer.exe')
-    with pytest.raises(ValueError, match='não possui'):
-        update_service._verify_desktop_installer_signature('installer.exe')
 
 
 def test_powershell_resolution_prefers_system_binary(tmp_path, monkeypatch):

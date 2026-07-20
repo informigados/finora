@@ -541,6 +541,43 @@ h6 {
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
+/* Keep long entry forms usable in compact desktop windows. */
+#entryModal .entry-modal-dialog {
+  height: calc(100% - 1rem);
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+#entryModal .modal-content {
+  max-height: calc(100vh - 1rem);
+  max-height: calc(100dvh - 1rem);
+}
+
+#entryModal .modal-body {
+  min-height: 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+#entryModal .modal-header,
+#entryModal .modal-footer {
+  flex: 0 0 auto;
+}
+
+@media (min-width: 576px) {
+  #entryModal .entry-modal-dialog {
+    height: calc(100% - 2rem);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  #entryModal .modal-content {
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+  }
+}
+
 /* Glass effect utility */
 .glass-effect {
   background: rgba(255, 255, 255, 0.7);

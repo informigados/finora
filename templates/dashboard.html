@@ -291,9 +291,8 @@
 
 <!-- Entry Modal -->
 <div class="modal fade" id="entryModal" tabindex="-1" aria-labelledby="modalTitle" aria-describedby="entryModalHelp" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content modal-content-premium">
-            <form action="{{ url_for('entries.add_entry') }}" method="POST" id="entryForm" data-edit-action-template="{{ url_for('entries.edit_entry', id=0) }}">
+    <div class="modal-dialog modal-dialog-scrollable entry-modal-dialog">
+        <form action="{{ url_for('entries.add_entry') }}" method="POST" id="entryForm" class="modal-content modal-content-premium" data-edit-action-template="{{ url_for('entries.edit_entry', id=0) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="redirect_year" value="{{ year }}"/>
                 <input type="hidden" name="redirect_month" value="{{ month }}"/>
@@ -394,8 +393,7 @@
                     <button type="button" class="btn btn-secondary d-inline-flex align-items-center gap-2" data-bs-dismiss="modal"><i data-lucide="x" class="icon-sm"></i><span>{{ _('Cancelar') }}</span></button>
                     <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2"><i data-lucide="save" class="icon-sm"></i><span>{{ _('Salvar') }}</span></button>
                 </div>
-            </form>
-        </div>
+        </form>
     </div>
 </div>
 </div>

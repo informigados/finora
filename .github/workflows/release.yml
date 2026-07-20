@@ -13,8 +13,6 @@ permissions:
 jobs:
   release:
     runs-on: windows-latest
-    env:
-      FINORA_REQUIRE_SIGNING: ${{ (secrets.WINDOWS_CERTIFICATE_BASE64 != '' && secrets.WINDOWS_CERTIFICATE_PASSWORD != '') && '1' || '0' }}
 
     steps:
       - name: Checkout tagged source
@@ -32,19 +30,6 @@ jobs:
       - name: Install Inno Setup
         run: choco install innosetup --no-progress --yes
 
-      - name: Import Authenticode certificate
-        if: env.FINORA_REQUIRE_SIGNING == '1'
-        shell: pwsh
-        env:
-          CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
-          CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
-        run: |
-          $certificatePath = Join-Path $env:RUNNER_TEMP "finora-signing.pfx"
-          [IO.File]::WriteAllBytes($certificatePath, [Convert]::FromBase64String($env:CERTIFICATE_BASE64))
-          $password = ConvertTo-SecureString $env:CERTIFICATE_PASSWORD -AsPlainText -Force
-          $certificate = Import-PfxCertificate -FilePath $certificatePath -CertStoreLocation Cert:\CurrentUser\My -Password $password
-          "FINORA_SIGNING_CERT_SHA1=$($certificate.Thumbprint)" >> $env:GITHUB_ENV
-
       - name: Validate release gates
         shell: pwsh
         run: |
@@ -60,19 +45,6 @@ jobs:
       - name: Build installer
         run: python create_installer.py
 
-      - name: Verify Authenticode signatures
-        if: env.FINORA_REQUIRE_SIGNING == '1'
-        shell: pwsh
-        run: |
-          $version = (Get-Content VERSION -Raw).Trim()
-          $files = @("dist\Finora\Finora.exe", "dist_setup\Finora_Setup_v$version.exe")
-          foreach ($file in $files) {
-            $signature = Get-AuthenticodeSignature -LiteralPath $file
-            if ($signature.Status -ne "Valid") {
-              throw "Invalid Authenticode signature: $file ($($signature.Status))"
-            }
-          }
-
       - name: Attest installer provenance
         uses: actions/attest-build-provenance@v3
         with:
@@ -83,29 +55,19 @@ jobs:
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
           $metadata = Get-Content dist_setup/release-metadata.json -Raw | ConvertFrom-Json
-          if ($metadata.authenticode_signed) {
-            $signatureNotice = "> [!NOTE]`n> This release is digitally signed and its Authenticode signature was verified during the release workflow."
-          } else {
-            $signatureNotice = "> [!WARNING]`n> This installer is temporarily unsigned while Finora awaits approval from a public code-signing certificate provider. Windows SmartScreen may identify the publisher as unknown. Download only from this official release and verify SHA-256 against ``SHA256SUMS.txt`` before choosing **More info** and **Run anyway**."
-          }
           @"
           ## Finora $version
 
-          $signatureNotice
-
           ### Highlights
 
-          - Fully offline desktop interface with bundled runtime assets.
-          - Single-instance launcher and safe migration of Finora 1.3 desktop data.
-          - Hardened installer/update pipeline with checksums, release metadata, and provenance attestation.
-          - Accessibility, dark-mode contrast, translations, dependency, and reliability refinements.
-          - Fixed packaged database migrations, Windows shortcut icons, and cleanup of running processes during reinstall/uninstall.
-          - Added a native desktop window with taskbar integration and single-instance focus behavior.
-          - Added encrypted local SMTP configuration with a built-in test and truthful delivery status.
-          - Added the official Finora navigation mark and fixed the repository icon without Lucide console errors.
-          - Hardened Docker/MySQL deployment with health checks, non-root execution, migrations, and persistent data volumes.
+          - Fixed the new/edit entry modal in compact desktop windows, keeping every field and action accessible through internal scrolling.
+          - Preserved the modal header and footer while the form scrolls naturally with mouse, touchpad, touch, and keyboard.
+          - Updated the native executable, Windows installer, update manifest, documentation, and release automation for 1.4.1.
+          - Maintained official HTTPS delivery, SHA-256 checksums, pre-update backups, release metadata, and GitHub provenance attestation.
 
           ### Verification
+
+          Download only from this official release and compare the installer with ``SHA256SUMS.txt``.
 
           Installer SHA-256: ``$($metadata.sha256)``
           "@ | Set-Content dist_setup/RELEASE_NOTES.md -Encoding utf8

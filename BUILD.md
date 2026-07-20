@@ -17,12 +17,6 @@ Install Inno Setup 6:
 
 - https://jrsoftware.org/isinfo.php
 
-Official public releases also require:
-
-- Windows SDK (for `signtool.exe`)
-- A trusted Authenticode code-signing certificate in `Cert:\CurrentUser\My`
-- RFC 3161 timestamp access (DigiCert is the default)
-
 Linux/macOS note:
 
 - `gunicorn` is included only for non-Windows environments and is not used in the official Windows executable/installer flow.
@@ -35,7 +29,7 @@ Release version is centralized in the `VERSION` file at project root.
 Example:
 
 ```text
-1.4.0
+1.4.1
 ```
 
 Before generating a release, update this file to the target version.
@@ -63,15 +57,7 @@ Expected output:
 - `dist_setup\release-metadata.json`
 - `dist_setup\manifest.json`
 
-Local builds may be unsigned for development. When a trusted certificate is available, set:
-
-```powershell
-$env:FINORA_REQUIRE_SIGNING = "1"
-$env:FINORA_SIGNING_CERT_SHA1 = "CERTIFICATE_THUMBPRINT"
-.\release.bat
-```
-
-The builder signs and verifies `Finora.exe` before packaging, then signs and verifies the final installer. A temporary unsigned public release is permitted only while certificate enrollment is pending, must be clearly identified in the release notes and README, and must include the generated checksum and provenance attestation.
+The generated installer is accompanied by a SHA-256 checksum, release metadata, and an update manifest. Public GitHub releases also receive a build-provenance attestation from the release workflow.
 
 ## 4. PyInstaller Build (Executable Only)
 
@@ -107,8 +93,7 @@ This command will:
 3. Compile translations
 4. Build executable via PyInstaller (`Finora.spec`)
 5. Compile `finora_installer.iss` with `MyAppVersion`
-6. Sign and verify the application and installer when release signing is enabled
-7. Generate checksum, provenance metadata, and remote update manifest files
+6. Generate checksum, provenance metadata, and remote update manifest files
 
 Expected output:
 
@@ -120,7 +105,7 @@ Expected output:
 If you already generated `dist\Finora`, you can compile manually:
 
 ```powershell
-"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.4.0 finora_installer.iss
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=1.4.1 finora_installer.iss
 ```
 
 ## 7. Database Migration Requirement
@@ -152,7 +137,7 @@ The migration chain is also expected to bootstrap a fresh local SQLite database 
 14. Confirm every frontend asset is served locally with external network requests blocked
 15. Launch the executable twice and confirm the second process reopens the existing instance instead of starting another server
 16. Install over a populated 1.3 profile and confirm database, secret, profile images, and backups migrate to `%LOCALAPPDATA%\Finora`
-17. Verify both EXE files with `Get-AuthenticodeSignature` and require `Status = Valid`
+17. Recalculate the installer SHA-256 and confirm it matches `SHA256SUMS.txt`
 18. Install and uninstall in a clean Windows user profile; confirm user data is preserved unless explicitly removed
 
 ## 9. Rollback Checklist
@@ -179,9 +164,4 @@ If a release must be rolled back, use this sequence:
 
 ## 11. Automated Windows Release
 
-The `Windows Release` workflow runs when a `v*` tag is pushed. To enable Authenticode signing, configure these repository secrets:
-
-- `WINDOWS_CERTIFICATE_BASE64`: Base64-encoded PFX certificate
-- `WINDOWS_CERTIFICATE_PASSWORD`: PFX password
-
-The tag must match `VERSION` exactly (for example, `v1.4.0`). The workflow reruns lint, security auditing, tests, generates a GitHub artifact attestation, and publishes the GitHub Release. When both certificate secrets exist, it signs and verifies both executables and fails closed on any signing error. Without the secrets, it publishes an explicitly labeled unsigned installer with checksum verification.
+The `Windows Release` workflow runs when a `v*` tag is pushed. The tag must match `VERSION` exactly (for example, `v1.4.1`). The workflow reruns lint, security auditing, tests, builds the installer, generates a GitHub artifact attestation, and publishes the GitHub Release with SHA-256 verification material.

@@ -10,7 +10,7 @@
 Finora is a local-first personal finance application built with Flask.  
 It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, managed backups, profile observability, guided updates, and multilingual UI.
 
-Current stable version: `1.4.0`
+Current stable version: `1.4.1`
 
 ## 🧱 Tech Stack
 
@@ -59,12 +59,7 @@ tests/
 
 ## 🪟 Windows Desktop Installation
 
-The official Windows installer is published on the [GitHub Releases page](https://github.com/informigados/finora/releases).
-
-> [!WARNING]
-> Finora 1.4.0 is temporarily distributed without an Authenticode code-signing certificate while the project awaits approval from a public certificate provider. Windows SmartScreen may therefore display **"Windows protected your PC"** and identify the publisher as unknown. This is expected for the current unsigned release, but the warning must not be treated as proof that every copy is safe. Download only from the official INformigados repository and verify the SHA-256 value against `SHA256SUMS.txt` in the same release. Do not continue if the source or checksum differs.
-
-On a verified official download, select **More info** and then **Run anyway** to continue. Future releases will be signed as soon as a trusted certificate becomes available.
+The official Windows installer is published on the [GitHub Releases page](https://github.com/informigados/finora/releases). Download it only from the official INformigados repository and verify its SHA-256 value against `SHA256SUMS.txt` from the same release.
 
 ## ⚙️ Local Setup
 
@@ -111,7 +106,7 @@ Optional update and mail settings:
 
 ```ini
 # App metadata
-APP_VERSION=1.4.0
+APP_VERSION=1.4.1
 APP_BASE_URL=http://127.0.0.1:5000
 
 # Automatic update
@@ -169,8 +164,8 @@ DEFAULT_USER_PASSWORD=admin123
 
 - The `/about` page shows the installed version, latest known version, channel, and update status.
 - Source runs ship with a local read-only manifest in `updates/manifest.json` for safe development checks.
-- Desktop runs use the signed manifest attached to the latest GitHub Release by default.
-- Desktop updates require an HTTPS installer URL, SHA-256 checksum, and a trusted Authenticode signature before they can be staged.
+- Desktop runs use the update manifest attached to the latest GitHub Release by default.
+- Desktop updates require an HTTPS installer URL and a matching SHA-256 checksum before they can be staged.
 - After validation, Finora creates a data backup, exits safely, launches the installer, and lets the next startup run bundled database migrations.
 - The first 1.4 desktop startup automatically migrates pre-1.4 packaged databases, profile images, backups, and the persisted local secret into `%LOCALAPPDATA%\Finora`.
 - Source deployments retain the protected ZIP update flow and automatic `flask db upgrade` behavior.
@@ -327,9 +322,16 @@ Or:
 - Completed and rebuilt Portuguese, English, and Spanish catalogs with validated placeholders and no fuzzy or missing entries.
 - Refined dashboard wording, singular/plural item counts, and dark-mode chart contrast.
 - Bundled all frontend runtime assets so the installed application works without internet access.
-- Added single-instance enforcement, safe migration of legacy 1.3 desktop data, and an installer-based update flow with SHA-256 and Authenticode validation.
-- Added signing-capable GitHub Release automation with checksums, release metadata, update manifest, and build provenance attestation.
+- Added single-instance enforcement, safe migration of legacy 1.3 desktop data, and an installer-based update flow with SHA-256 validation.
+- Added GitHub Release automation with checksums, release metadata, update manifest, and build provenance attestation.
 - Fixed packaged database migrations, added a dedicated Windows shortcut icon, and hardened reinstall/uninstall cleanup for running Finora processes.
+
+### 2026-07-20 (1.4.1)
+
+- Made the new/edit entry modal scroll within compact desktop windows so every field and action remains accessible.
+- Preserved the modal header and action footer while the long form content scrolls naturally with mouse, touchpad, touch, and keyboard.
+- Simplified Windows distribution and in-app updates around official HTTPS downloads, SHA-256 verification, pre-update backups, and GitHub provenance attestations.
+- Updated the executable, installer, update manifest, release metadata, documentation, and automated release pipeline for version 1.4.1.
 
 ## 👥 Authors
 

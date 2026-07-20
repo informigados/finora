@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-13 19:04-0300\n"
+"POT-Creation-Date: 2026-07-20 16:53-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -481,7 +481,7 @@ msgid "ID"
 msgstr ""
 
 #: routes/export.py:36 routes/export.py:89 services/reports.py:49
-#: templates/dashboard.html:145 templates/dashboard.html:308
+#: templates/dashboard.html:145 templates/dashboard.html:307
 msgid "Descrição"
 msgstr ""
 
@@ -492,38 +492,38 @@ msgstr ""
 
 #: routes/export.py:38 routes/export.py:89 services/reports.py:50
 #: templates/budgets.html:94 templates/budgets.html:133
-#: templates/dashboard.html:147 templates/dashboard.html:326
+#: templates/dashboard.html:147 templates/dashboard.html:325
 msgid "Categoria"
 msgstr ""
 
-#: routes/export.py:39 templates/dashboard.html:330
+#: routes/export.py:39 templates/dashboard.html:329
 msgid "Subcategoria"
 msgstr ""
 
 #: routes/export.py:40 services/reports.py:52 templates/dashboard.html:146
-#: templates/dashboard.html:317
+#: templates/dashboard.html:316
 msgid "Tipo"
 msgstr ""
 
 #: routes/export.py:41 routes/export.py:90 services/reports.py:54
 #: templates/about.html:76 templates/dashboard.html:149
-#: templates/dashboard.html:338
+#: templates/dashboard.html:337
 msgid "Status"
 msgstr ""
 
-#: routes/export.py:42 templates/dashboard.html:348
+#: routes/export.py:42 templates/dashboard.html:347
 msgid "Vencimento"
 msgstr ""
 
-#: routes/export.py:43 templates/dashboard.html:352
+#: routes/export.py:43 templates/dashboard.html:351
 msgid "Pagamento"
 msgstr ""
 
-#: routes/export.py:44 templates/dashboard.html:357
+#: routes/export.py:44 templates/dashboard.html:356
 msgid "Forma de pagamento/recebimento"
 msgstr ""
 
-#: routes/export.py:45 templates/about.html:97 templates/dashboard.html:389
+#: routes/export.py:45 templates/about.html:97 templates/dashboard.html:388
 msgid "Observações"
 msgstr ""
 
@@ -914,7 +914,7 @@ msgstr ""
 #: templates/about.html:37
 msgid ""
 "Verifique a versão instalada e aplique atualizações validadas com backup "
-"prévio, checksum e assinatura digital."
+"prévio e checksum SHA-256."
 msgstr ""
 
 #: templates/about.html:42
@@ -1091,7 +1091,7 @@ msgstr ""
 
 #: templates/auth/profile.html:707 templates/base.html:143
 #: templates/base.html:165 templates/budgets.html:90 templates/budgets.html:129
-#: templates/dashboard.html:303 templates/goals.html:92
+#: templates/dashboard.html:302 templates/goals.html:92
 #: templates/goals.html:129
 msgid "Fechar"
 msgstr ""
@@ -1120,7 +1120,7 @@ msgstr ""
 #: templates/auth/reset_password_offline.html:40
 #: templates/auth/reset_password_token.html:29 templates/base.html:171
 #: templates/budgets.html:113 templates/budgets.html:149
-#: templates/dashboard.html:394 templates/goals.html:113
+#: templates/dashboard.html:393 templates/goals.html:113
 #: templates/goals.html:150
 msgid "Cancelar"
 msgstr ""
@@ -1198,16 +1198,16 @@ msgid "Limite (R$)"
 msgstr ""
 
 #: templates/budgets.html:107 templates/budgets.html:143
-#: templates/dashboard.html:375
+#: templates/dashboard.html:374
 msgid "Mensal"
 msgstr ""
 
 #: templates/budgets.html:108 templates/budgets.html:144
-#: templates/dashboard.html:378
+#: templates/dashboard.html:377
 msgid "Anual"
 msgstr ""
 
-#: templates/budgets.html:114 templates/dashboard.html:395
+#: templates/budgets.html:114 templates/dashboard.html:394
 #: templates/goals.html:114
 msgid "Salvar"
 msgstr ""
@@ -1308,8 +1308,8 @@ msgstr ""
 msgid "Resumo Anual"
 msgstr ""
 
-#: templates/dashboard.html:65 templates/dashboard.html:302
-#: templates/dashboard.html:580
+#: templates/dashboard.html:65 templates/dashboard.html:301
+#: templates/dashboard.html:578
 msgid "Novo Lançamento"
 msgstr ""
 
@@ -1337,11 +1337,11 @@ msgstr ""
 msgid "Lançamentos do Mês"
 msgstr ""
 
-#: templates/dashboard.html:131 templates/dashboard.html:699
+#: templates/dashboard.html:131 templates/dashboard.html:697
 msgid "item"
 msgstr ""
 
-#: templates/dashboard.html:131 templates/dashboard.html:699
+#: templates/dashboard.html:131 templates/dashboard.html:697
 msgid "itens"
 msgstr ""
 
@@ -1365,15 +1365,15 @@ msgstr ""
 msgid "Ações"
 msgstr ""
 
-#: templates/dashboard.html:179 templates/dashboard.html:341
+#: templates/dashboard.html:179 templates/dashboard.html:340
 msgid "Pago"
 msgstr ""
 
-#: templates/dashboard.html:181 templates/dashboard.html:340
+#: templates/dashboard.html:181 templates/dashboard.html:339
 msgid "Pendente"
 msgstr ""
 
-#: templates/dashboard.html:183 templates/dashboard.html:342
+#: templates/dashboard.html:183 templates/dashboard.html:341
 msgid "Atrasado"
 msgstr ""
 
@@ -1457,59 +1457,59 @@ msgstr ""
 msgid "CSV ou XLSX (máx. 10 MB)"
 msgstr ""
 
-#: templates/dashboard.html:303
+#: templates/dashboard.html:302
 msgid "Fechar modal"
 msgstr ""
 
-#: templates/dashboard.html:306
+#: templates/dashboard.html:305
 msgid "Use este formulário para criar ou editar um lançamento financeiro."
 msgstr ""
 
-#: templates/dashboard.html:313
+#: templates/dashboard.html:312
 msgid "Valor (R$)"
 msgstr ""
 
-#: templates/dashboard.html:319
+#: templates/dashboard.html:318
 msgid "Despesa"
 msgstr ""
 
-#: templates/dashboard.html:320
+#: templates/dashboard.html:319
 msgid "Receita"
 msgstr ""
 
-#: templates/dashboard.html:332 templates/dashboard.html:409
+#: templates/dashboard.html:331 templates/dashboard.html:407
 msgid "Selecione a subcategoria"
 msgstr ""
 
-#: templates/dashboard.html:359 templates/dashboard.html:410
+#: templates/dashboard.html:358 templates/dashboard.html:408
 msgid "Selecione a forma"
 msgstr ""
 
-#: templates/dashboard.html:368
+#: templates/dashboard.html:367
 msgid "Repetir (Recorrência)"
 msgstr ""
 
-#: templates/auth/profile.html:423 templates/dashboard.html:373
+#: templates/auth/profile.html:423 templates/dashboard.html:372
 msgid "Frequência"
 msgstr ""
 
-#: templates/dashboard.html:376
+#: templates/dashboard.html:375
 msgid "Semanal"
 msgstr ""
 
-#: templates/dashboard.html:377
+#: templates/dashboard.html:376
 msgid "Diário"
 msgstr ""
 
-#: templates/dashboard.html:382
+#: templates/dashboard.html:381
 msgid "Data Final (Opcional)"
 msgstr ""
 
-#: templates/dashboard.html:408
+#: templates/dashboard.html:406
 msgid "Selecione a categoria"
 msgstr ""
 
-#: templates/dashboard.html:612
+#: templates/dashboard.html:610
 msgid "Editar Lançamento"
 msgstr ""
 

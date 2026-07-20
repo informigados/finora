@@ -1,6 +1,5 @@
 import hashlib
 import json
-import os
 import shutil
 import subprocess
 import sys
@@ -19,10 +18,6 @@ INNO_CANDIDATES = [
     Path(r"C:\Program Files (x86)\Inno Setup 5\ISCC.exe"),
     Path(r"C:\Program Files\Inno Setup 5\ISCC.exe"),
 ]
-SIGNTOOL_ROOT = Path(r"C:\Program Files (x86)\Windows Kits\10\bin")
-DEFAULT_TIMESTAMP_URL = "http://timestamp.digicert.com"
-
-
 def run_command(cmd: list[str], cwd: Path | None = None) -> None:
     printable = " ".join(f'"{part}"' if " " in part else part for part in cmd)
     print(f"[RUN] {printable}")
@@ -49,38 +44,6 @@ def find_iscc() -> Path:
     )
 
 
-def find_signtool() -> Path:
-    candidates = sorted(SIGNTOOL_ROOT.glob("*\\x64\\signtool.exe"), reverse=True)
-    if candidates:
-        return candidates[0]
-    raise RuntimeError("SignTool not found. Install the Windows SDK and retry.")
-
-
-def sign_file(file_path: Path) -> bool:
-    certificate_sha1 = os.environ.get("FINORA_SIGNING_CERT_SHA1", "").strip()
-    require_signing = os.environ.get("FINORA_REQUIRE_SIGNING", "0").strip().lower() in {
-        "1", "true", "yes", "on"
-    }
-    if not certificate_sha1:
-        if require_signing:
-            raise RuntimeError("FINORA_SIGNING_CERT_SHA1 is required for this release build.")
-        print(f"[WARNING] Unsigned development build: {file_path.name}")
-        return False
-
-    signtool = find_signtool()
-    timestamp_url = os.environ.get("FINORA_TIMESTAMP_URL", DEFAULT_TIMESTAMP_URL).strip()
-    run_command(
-        [
-            str(signtool), "sign", "/sha1", certificate_sha1,
-            "/fd", "SHA256", "/tr", timestamp_url, "/td", "SHA256",
-            "/d", "Finora", "/du", "https://github.com/informigados/finora",
-            str(file_path),
-        ]
-    )
-    run_command([str(signtool), "verify", "/pa", "/all", "/v", str(file_path)])
-    return True
-
-
 def calculate_sha256(file_path: Path) -> str:
     digest = hashlib.sha256()
     with file_path.open("rb") as release_file:
@@ -89,7 +52,7 @@ def calculate_sha256(file_path: Path) -> str:
     return digest.hexdigest()
 
 
-def write_release_metadata(version: str, installer_path: Path, signed: bool) -> None:
+def write_release_metadata(version: str, installer_path: Path) -> None:
     installer_hash = calculate_sha256(installer_path)
     checksum_path = installer_path.parent / "SHA256SUMS.txt"
     checksum_path.write_text(
@@ -110,7 +73,6 @@ def write_release_metadata(version: str, installer_path: Path, signed: bool) -> 
         "commit": commit or None,
         "installer": installer_path.name,
         "sha256": installer_hash,
-        "authenticode_signed": signed,
         "built_at": datetime.now(timezone.utc).isoformat(),
     }
     (installer_path.parent / "release-metadata.json").write_text(
@@ -126,7 +88,6 @@ def write_release_metadata(version: str, installer_path: Path, signed: bool) -> 
                     f"v{version}/{installer_path.name}"
                 ),
                 "sha256": installer_hash,
-                "publisher": "INformigados",
                 "notes": f"Finora {version} - canal estável para Windows.",
                 "requires_migration": True,
             }
@@ -170,8 +131,6 @@ def main() -> int:
         if not DIST_EXE.exists():
             raise RuntimeError(f"Executable not generated: {DIST_EXE}")
 
-        executable_signed = sign_file(DIST_EXE)
-
         if not INNO_SCRIPT.exists():
             raise RuntimeError(f"Inno script not found: {INNO_SCRIPT}")
 
@@ -182,8 +141,7 @@ def main() -> int:
         if not setup_file.exists():
             raise RuntimeError(f"Installer not generated: {setup_file}")
 
-        installer_signed = sign_file(setup_file)
-        write_release_metadata(version, setup_file, executable_signed and installer_signed)
+        write_release_metadata(version, setup_file)
 
         print("=" * 60)
         print("[SUCCESS] Build and installer generated.")
