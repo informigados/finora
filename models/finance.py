@@ -6,6 +6,7 @@ class Finance(db.Model):
     __table_args__ = (
         db.Index('ix_finances_user_due_date', 'user_id', 'due_date'),
         db.Index('ix_finances_user_type_status', 'user_id', 'type', 'status'),
+        db.Index('ix_finances_user_account', 'user_id', 'account_id'),
     )
 
     id = db.Column(db.Integer, primary_key=True)
@@ -20,9 +21,19 @@ class Finance(db.Model):
     payment_method = db.Column(db.String(40), nullable=True)
     observations = db.Column(db.Text, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    account_id = db.Column(
+        db.Integer,
+        db.ForeignKey(
+            'financial_accounts.id',
+            name='fk_finances_account_id_financial_accounts',
+        ),
+        nullable=True,
+    )
     
     created_at = db.Column(db.DateTime, default=utcnow_naive)
     updated_at = db.Column(db.DateTime, default=utcnow_naive, onupdate=utcnow_naive)
+
+    account = db.relationship('FinancialAccount', back_populates='finances')
 
     def to_dict(self):
         return {
@@ -36,5 +47,6 @@ class Finance(db.Model):
             'due_date': self.due_date.isoformat() if self.due_date else None,
             'payment_date': self.payment_date.isoformat() if self.payment_date else None,
             'payment_method': self.payment_method,
-            'observations': self.observations
+            'observations': self.observations,
+            'account_id': self.account_id,
         }

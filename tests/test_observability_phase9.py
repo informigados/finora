@@ -145,10 +145,11 @@ def test_profile_hub_shows_session_labels_and_system_status_details(client, app)
     assert b'Tipos de atividade' in response.data
     assert b'Total de falhas' in response.data
     assert b'Tipos de falha' in response.data
+    assert b'Falha inesperada na importa\xc3\xa7\xc3\xa3o' in response.data
     assert b'data-profile-tab-target="#sessions-pane"' in response.data
     assert b'data-profile-tab-target="#activity-pane"' in response.data
     assert b'data-profile-tab-target="#status-pane"' in response.data
-    assert b'navbar-expand-lg' in response.data
+    assert b'navbar-expand-xl' in response.data
 
 
 def test_profile_history_deletion_is_scoped_and_preserves_active_or_global_records(client, app):

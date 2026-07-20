@@ -9,6 +9,8 @@ from services.import_service import (
     import_finances_from_file,
 )
 from services.profile_service import record_activity, record_system_event
+from models.account import FinancialAccount
+from services.ownership import get_owned_or_none
 
 import_bp = Blueprint('import', __name__)
 
@@ -25,9 +27,16 @@ def import_file() -> ResponseReturnValue:
         return redirect(url_for('dashboard.index'))
 
     try:
+        account_id = request.form.get('account_id', type=int)
+        if account_id:
+            account = get_owned_or_none(FinancialAccount, account_id, current_user.id)
+            if not account or not account.is_active:
+                flash(_('Conta financeira inválida.'), 'error')
+                return redirect(url_for('dashboard.index'))
         result = import_finances_from_file(
             uploaded_file=file,
             user_id=current_user.id,
+            account_id=account_id,
             max_rows=current_app.config.get('MAX_IMPORT_ROWS', 20000),
             max_file_size=current_app.config.get('MAX_CONTENT_LENGTH', 10 * 1024 * 1024),
         )

@@ -68,67 +68,65 @@
 </div>
 
 <!-- Dashboard Cards -->
-<div class="row g-3 mb-4">
-    <!-- Balance Card -->
-    <div class="col-12 col-lg-4">
-        <div class="balance-card-premium h-100 p-4 d-flex flex-column justify-content-center">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="text-uppercase small mb-0 opacity-75">{{ _('Saldo Geral') }}</h6>
-                <i data-lucide="wallet" class="opacity-75 icon-md"></i>
+<div class="dashboard-overview-grid mb-4">
+    <div class="balance-card-premium dashboard-realized-card p-4 d-flex flex-column justify-content-between">
+        <div class="d-flex justify-content-between align-items-center gap-3">
+            <div>
+                <h6 class="text-uppercase small mb-1 opacity-75">{{ _('Saldo realizado') }}</h6>
+                <small class="opacity-75">{{ _('Recebido menos pago') }}</small>
             </div>
-            <h2 class="fw-bold mb-1 balance-amount {% if stats.total_geral < 0 %}balance-amount-negative{% endif %}">R$ {{ "%.2f"|format(stats.total_geral) }}</h2>
-            <small class="opacity-75">{{ _('* (Receitas - Despesas)') }}</small>
+            <i data-lucide="wallet" class="opacity-75 icon-md"></i>
+        </div>
+        <h2 class="fw-bold my-3 balance-amount {% if stats.saldo_realizado < 0 %}balance-amount-negative{% endif %}">R$ {{ "%.2f"|format(stats.saldo_realizado) }}</h2>
+        <div class="balance-projected-line">
+            <span>{{ _('Saldo projetado') }}</span>
+            <strong>R$ {{ "%.2f"|format(stats.saldo_projetado) }}</strong>
         </div>
     </div>
-    
-    <!-- Other metrics -->
-    <div class="col-12 col-lg-8">
-        <div class="row g-3 h-100">
-            <div class="col-md-4">
-                <div class="card card-premium h-100 border-top border-4 border-success dashboard-metric-card dashboard-metric-card-success">
-                    <div class="card-body position-relative">
-                        <span class="dashboard-metric-icon dashboard-metric-icon-success">
-                            <i data-lucide="check-circle" class="icon-md"></i>
-                        </span>
-                        <h6 class="text-muted text-uppercase small mb-3">{{ _('Despesas Pagas') }}</h6>
-                        <h3 class="fw-bold text-success mb-0 dashboard-metric-value">R$ {{ "%.2f"|format(stats.total_pago) }}</h3>
-                    </div>
-                </div>
+
+    <div class="dashboard-metrics-grid">
+        <div class="card card-premium dashboard-metric-card dashboard-metric-card-income">
+            <div class="card-body position-relative">
+                <span class="dashboard-metric-icon dashboard-metric-icon-income"><i data-lucide="arrow-down-left" class="icon-md"></i></span>
+                <h6 class="text-muted text-uppercase small mb-2">{{ _('Receitas recebidas') }}</h6>
+                <h3 class="fw-bold mb-0 dashboard-metric-value dashboard-value-income">R$ {{ "%.2f"|format(stats.receitas_recebidas) }}</h3>
             </div>
-            <div class="col-md-4">
-                <div class="card card-premium h-100 border-top border-4 border-warning dashboard-metric-card dashboard-metric-card-warning">
-                    <div class="card-body position-relative">
-                        <span class="dashboard-metric-icon dashboard-metric-icon-warning">
-                            <i data-lucide="clock" class="icon-md"></i>
-                        </span>
-                        <h6 class="text-muted text-uppercase small mb-3">{{ _('Total Pendente') }}</h6>
-                        <h3 class="fw-bold text-warning mb-0 dashboard-metric-value">R$ {{ "%.2f"|format(stats.total_pendente) }}</h3>
-                    </div>
-                </div>
+        </div>
+        <div class="card card-premium dashboard-metric-card dashboard-metric-card-expense">
+            <div class="card-body position-relative">
+                <span class="dashboard-metric-icon dashboard-metric-icon-expense"><i data-lucide="arrow-up-right" class="icon-md"></i></span>
+                <h6 class="text-muted text-uppercase small mb-2">{{ _('Despesas pagas') }}</h6>
+                <h3 class="fw-bold mb-0 dashboard-metric-value dashboard-value-expense">R$ {{ "%.2f"|format(stats.despesas_pagas) }}</h3>
             </div>
-            <div class="col-md-4">
-                <div class="card card-premium h-100 border-top border-4 border-danger dashboard-metric-card dashboard-metric-card-danger">
-                    <div class="card-body position-relative">
-                        <span class="dashboard-metric-icon dashboard-metric-icon-danger">
-                            <i data-lucide="alert-triangle" class="icon-md"></i>
-                        </span>
-                        <h6 class="text-muted text-uppercase small mb-3">{{ _('Total Atrasado') }}</h6>
-                        <h3 class="fw-bold text-danger mb-0 dashboard-metric-value">R$ {{ "%.2f"|format(stats.total_atrasado) }}</h3>
-                    </div>
-                </div>
+        </div>
+        <div class="card card-premium dashboard-metric-card dashboard-metric-card-receivable">
+            <div class="card-body position-relative">
+                <span class="dashboard-metric-icon dashboard-metric-icon-receivable"><i data-lucide="calendar-plus" class="icon-md"></i></span>
+                <h6 class="text-muted text-uppercase small mb-2">{{ _('A receber') }}</h6>
+                <h3 class="fw-bold mb-0 dashboard-metric-value dashboard-value-receivable">R$ {{ "%.2f"|format(stats.a_receber) }}</h3>
+            </div>
+        </div>
+        <div class="card card-premium dashboard-metric-card dashboard-metric-card-payable">
+            <div class="card-body position-relative">
+                <span class="dashboard-metric-icon dashboard-metric-icon-payable"><i data-lucide="calendar-minus" class="icon-md"></i></span>
+                <h6 class="text-muted text-uppercase small mb-2">{{ _('A pagar') }}</h6>
+                <h3 class="fw-bold mb-0 dashboard-metric-value dashboard-value-payable">R$ {{ "%.2f"|format(stats.a_pagar) }}</h3>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mb-4">
+<div class="dashboard-workspace-row mb-4" id="dashboardWorkspace">
     <!-- Main Table -->
-    <div class="col-lg-8">
+    <div class="dashboard-main-column">
         <div class="card card-premium h-100">
             <div class="card-header card-header-premium dashboard-table-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
-                <div>
+                <div class="d-flex align-items-center flex-wrap gap-2">
                     <i data-lucide="list" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Lançamentos do Mês') }}
                     <span class="badge bg-secondary ms-2" id="itemCount" aria-live="polite" data-total-count="{{ entries|length }}">{{ entries|length }} {{ _('item') if entries|length == 1 else _('itens') }}</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary dashboard-sidebar-toggle" id="dashboardSidebarToggle" aria-controls="dashboardSidePanel" aria-expanded="true" title="{{ _('Recolher painel lateral') }}">
+                        <i data-lucide="panel-right-close" class="icon-sm"></i><span>{{ _('Recolher lateral') }}</span>
+                    </button>
                 </div>
                 <div class="position-relative search-container">
                     <i data-lucide="search" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted icon-sm"></i>
@@ -159,6 +157,9 @@
                                     <div class="entry-meta-row">
                                         {% if entry.payment_method %}
                                         <span class="entry-meta-chip">{{ _(entry.payment_method) }}</span>
+                                        {% endif %}
+                                        {% if entry.account %}
+                                        <span class="entry-meta-chip"><i data-lucide="landmark" class="icon-xs"></i>{{ entry.account.name }}</span>
                                         {% endif %}
                                     </div>
                                 </td>
@@ -245,7 +246,7 @@
     </div>
 
     <!-- Chart & Summary -->
-    <div class="col-lg-4">
+    <aside class="dashboard-side-column" id="dashboardSidePanel" aria-label="{{ _('Painel lateral de análises') }}">
         <div class="card card-premium mb-3">
             <div class="card-header card-header-premium"><i data-lucide="pie-chart" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Despesas por Categoria') }}</div>
             <div class="card-body card-body-premium">
@@ -258,6 +259,21 @@
                         aria-label="{{ _('Gráfico de despesas por categoria') }}"
                         data-labels='{{ stats.chart_labels|tojson }}' 
                         data-values='{{ stats.chart_values|tojson }}'></canvas>
+            </div>
+        </div>
+
+        <div class="card card-premium mb-3">
+            <div class="card-header card-header-premium"><i data-lucide="pie-chart" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Receitas por Categoria') }}</div>
+            <div class="card-body card-body-premium">
+                <div id="incomeChartEmpty" class="text-center text-muted small py-5 d-none">
+                    <i data-lucide="pie-chart" class="icon-lg mb-2"></i>
+                    <div>{{ _('Ainda não há receitas suficientes para montar o gráfico deste período.') }}</div>
+                </div>
+                <canvas id="incomeChart"
+                        role="img"
+                        aria-label="{{ _('Gráfico de receitas por categoria') }}"
+                        data-labels='{{ stats.income_chart_labels|tojson }}'
+                        data-values='{{ stats.income_chart_values|tojson }}'></canvas>
             </div>
         </div>
         
@@ -282,11 +298,17 @@
                             <i data-lucide="upload" class="icon-sm me-1"></i><span>{{ _('Importar') }}</span>
                         </button>
                     </div>
+                    {% if financial_accounts %}
+                    <select name="account_id" class="form-select form-select-sm mt-2" aria-label="{{ _('Conta para lançamentos importados') }}">
+                        <option value="">{{ _('Sem conta associada') }}</option>
+                        {% for account in financial_accounts %}<option value="{{ account.id }}">{{ account.name }}</option>{% endfor %}
+                    </select>
+                    {% endif %}
                     <small class="text-muted">{{ _('CSV ou XLSX (máx. 10 MB)') }}</small>
                 </form>
             </div>
         </div>
-    </div>
+    </aside>
 </div>
 
 <!-- Entry Modal -->
@@ -317,6 +339,13 @@
                             <select id="typeInput" name="type" class="form-select">
                                 <option value="Despesa">{{ _('Despesa') }}</option>
                                 <option value="Receita">{{ _('Receita') }}</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label for="accountInput" class="form-label">{{ _('Conta') }}</label>
+                            <select id="accountInput" name="account_id" class="form-select">
+                                <option value="">{{ _('Sem conta associada') }}</option>
+                                {% for account in financial_accounts %}<option value="{{ account.id }}">{{ account.name }}</option>{% endfor %}
                             </select>
                         </div>
                     </div>
@@ -394,7 +423,7 @@
                     <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2"><i data-lucide="save" class="icon-sm"></i><span>{{ _('Salvar') }}</span></button>
                 </div>
         </form>
-    </div>
+    </aside>
 </div>
 </div>
 {% endblock %}
@@ -408,6 +437,7 @@
     const paymentMethodPlaceholder = "{{ _('Selecione a forma') }}";
 
     let categoryChart = null;
+    let incomeCategoryChart = null;
 
     function getCategoryChartColors() {
         const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -457,11 +487,83 @@
         }
     }
 
+    const incomeChartCanvas = document.getElementById('incomeChart');
+    if (incomeChartCanvas) {
+        const ctx = incomeChartCanvas.getContext('2d');
+        const labels = JSON.parse(incomeChartCanvas.dataset.labels || '[]');
+        const dataValues = JSON.parse(incomeChartCanvas.dataset.values || '[]');
+
+        if (!dataValues.length || dataValues.every((value) => Number(value) <= 0)) {
+            incomeChartCanvas.classList.add('d-none');
+            document.getElementById('incomeChartEmpty')?.classList.remove('d-none');
+        } else {
+            incomeCategoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: getCategoryChartColors().slice().reverse(),
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom', labels: { color: getCategoryChartTextColor() } } }
+                }
+            });
+        }
+    }
+
     document.addEventListener('finora:theme-change', () => {
-        if (!categoryChart) return;
-        categoryChart.data.datasets[0].backgroundColor = getCategoryChartColors();
-        categoryChart.options.plugins.legend.labels.color = getCategoryChartTextColor();
-        categoryChart.update();
+        if (categoryChart) {
+            categoryChart.data.datasets[0].backgroundColor = getCategoryChartColors();
+            categoryChart.options.plugins.legend.labels.color = getCategoryChartTextColor();
+            categoryChart.update();
+        }
+        if (incomeCategoryChart) {
+            incomeCategoryChart.data.datasets[0].backgroundColor = getCategoryChartColors().slice().reverse();
+            incomeCategoryChart.options.plugins.legend.labels.color = getCategoryChartTextColor();
+            incomeCategoryChart.update();
+        }
+    });
+
+    const dashboardWorkspace = document.getElementById('dashboardWorkspace');
+    const dashboardSidebarToggle = document.getElementById('dashboardSidebarToggle');
+    const sidebarPreferenceKey = 'finora.dashboard.sidebarCollapsed';
+
+    function syncDashboardSidebar(collapsed) {
+        if (!dashboardWorkspace || !dashboardSidebarToggle) return;
+        dashboardWorkspace.classList.toggle('dashboard-sidebar-collapsed', collapsed);
+        dashboardSidebarToggle.setAttribute('aria-expanded', String(!collapsed));
+        dashboardSidebarToggle.title = collapsed
+            ? "{{ _('Expandir painel lateral') }}"
+            : "{{ _('Recolher painel lateral') }}";
+        const icon = dashboardSidebarToggle.querySelector('svg');
+        if (icon) icon.setAttribute('data-lucide', collapsed ? 'panel-right-open' : 'panel-right-close');
+        const label = dashboardSidebarToggle.querySelector('span');
+        if (label) label.textContent = collapsed
+            ? "{{ _('Expandir lateral') }}"
+            : "{{ _('Recolher lateral') }}";
+        if (window.lucide) window.lucide.createIcons();
+        window.setTimeout(() => {
+            categoryChart?.resize();
+            incomeCategoryChart?.resize();
+        }, 220);
+    }
+
+    let sidebarCollapsed = false;
+    try {
+        sidebarCollapsed = window.localStorage.getItem(sidebarPreferenceKey) === 'true';
+    } catch (_error) {
+        sidebarCollapsed = false;
+    }
+    syncDashboardSidebar(sidebarCollapsed);
+    dashboardSidebarToggle?.addEventListener('click', () => {
+        sidebarCollapsed = !dashboardWorkspace.classList.contains('dashboard-sidebar-collapsed');
+        syncDashboardSidebar(sidebarCollapsed);
+        try { window.localStorage.setItem(sidebarPreferenceKey, String(sidebarCollapsed)); } catch (_error) {}
     });
 
     // Modal Handling
@@ -627,6 +729,9 @@
         
         const statusInput = entryForm.querySelector('[name="status"]');
         if (statusInput) statusInput.value = entry.status;
+
+        const accountInput = entryForm.querySelector('[name="account_id"]');
+        if (accountInput) accountInput.value = entry.account_id || '';
         
         const dueInput = entryForm.querySelector('[name="due_date"]');
         if (dueInput) dueInput.value = entry.due_date;

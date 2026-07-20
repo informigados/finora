@@ -226,6 +226,7 @@
             <form action="{{ url_for('auth.profile') }}" method="POST">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
               <input type="hidden" name="action" value="change_password" />
+              <input type="text" name="username" value="{{ current_user.username }}" autocomplete="username" class="visually-hidden" tabindex="-1" aria-hidden="true" />
 
               <div class="mb-3">
                 <label for="current_password" class="form-label">{{ _('Senha Atual') }}</label>

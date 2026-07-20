@@ -27,6 +27,7 @@ from routes.goals import goals_bp
 from routes.budgets import budgets_bp
 from routes.auth import auth_bp
 from routes.backup import backup_bp
+from routes.accounts import accounts_bp
 from routes.public import public_bp
 from services.catalogs import (
     build_finance_catalog_payload,
@@ -482,6 +483,7 @@ def create_app(config_name='default'):
     # Import models so Alembic can detect them
     from models.user import User
     import models.audit  # noqa: F401
+    import models.account  # noqa: F401
     import models.backup  # noqa: F401
     import models.budget  # noqa: F401
     import models.finance  # noqa: F401
@@ -633,6 +635,7 @@ def create_app(config_name='default'):
     app.register_blueprint(budgets_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(backup_bp)
+    app.register_blueprint(accounts_bp)
     app.register_blueprint(public_bp)
 
     def _get_safe_local_redirect_target(target: str | None) -> str | None:

@@ -23,7 +23,10 @@ def get_monthly_stats(month: int, year: int, user_id: int) -> Dict[str, Any]:
         func.sum(case(((Finance.type == 'Despesa') & (Finance.status == 'Pago'), Finance.value), else_=0)).label('despesa_pago'),
         func.sum(case(((Finance.type == 'Despesa') & (Finance.status == 'Pendente'), Finance.value), else_=0)).label('despesa_pendente'),
         func.sum(case(((Finance.type == 'Despesa') & (Finance.status == 'Atrasado'), Finance.value), else_=0)).label('despesa_atrasado'),
-        func.sum(case((Finance.type == 'Receita', Finance.value), else_=0)).label('total_receita')
+        func.sum(case((Finance.type == 'Receita', Finance.value), else_=0)).label('total_receita'),
+        func.sum(case(((Finance.type == 'Receita') & (Finance.status == 'Pago'), Finance.value), else_=0)).label('receita_recebida'),
+        func.sum(case(((Finance.type == 'Receita') & (Finance.status != 'Pago'), Finance.value), else_=0)).label('receita_a_receber'),
+        func.sum(case(((Finance.type == 'Despesa') & (Finance.status != 'Pago'), Finance.value), else_=0)).label('despesa_a_pagar'),
     ).first()
 
     total_despesas_all = stats.total_despesa or 0.0
@@ -31,8 +34,12 @@ def get_monthly_stats(month: int, year: int, user_id: int) -> Dict[str, Any]:
     total_despesa_pendente = stats.despesa_pendente or 0.0
     total_despesa_atrasado = stats.despesa_atrasado or 0.0
     total_receita = stats.total_receita or 0.0
-    
-    balance = total_receita - total_despesas_all
+    receita_recebida = stats.receita_recebida or 0.0
+    receita_a_receber = stats.receita_a_receber or 0.0
+    despesa_a_pagar = stats.despesa_a_pagar or 0.0
+
+    realized_balance = receita_recebida - total_despesa_pago
+    projected_balance = total_receita - total_despesas_all
 
     # Category Breakdown (Expenses only usually)
     categories = base_query.filter(Finance.type == 'Despesa')\
@@ -42,16 +49,30 @@ def get_monthly_stats(month: int, year: int, user_id: int) -> Dict[str, Any]:
     category_labels = [c[0] for c in categories]
     category_values = [c[1] for c in categories]
 
+    income_categories = base_query.filter(Finance.type == 'Receita')\
+        .with_entities(Finance.category, func.sum(Finance.value))\
+        .group_by(Finance.category).all()
+    income_category_labels = [row[0] for row in income_categories]
+    income_category_values = [row[1] for row in income_categories]
+
     return {
         'total_pago': total_despesa_pago,
         'total_pendente': total_despesa_pendente,
         'total_atrasado': total_despesa_atrasado,
-        'total_geral': balance,
+        'total_geral': realized_balance,
+        'saldo_realizado': realized_balance,
+        'saldo_projetado': projected_balance,
+        'receitas_recebidas': receita_recebida,
+        'a_receber': receita_a_receber,
+        'despesas_pagas': total_despesa_pago,
+        'a_pagar': despesa_a_pagar,
         'pendentes_atrasados': total_despesa_pendente + total_despesa_atrasado,
         'total_receitas': total_receita,
         'total_despesas': total_despesas_all,
         'chart_labels': category_labels,
-        'chart_values': category_values
+        'chart_values': category_values,
+        'income_chart_labels': income_category_labels,
+        'income_chart_values': income_category_values,
     }
 
 def get_yearly_stats(year: int, user_id: int | None = None) -> Dict[str, Any]:

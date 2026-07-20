@@ -65,6 +65,13 @@ DETAIL_LABELS = {
     'package_path': 'Pacote',
     'recovery_key_version': 'Versão da chave',
     'session_timeout_minutes': 'Tempo de sessão',
+    'account_id': 'Conta',
+    'source_account_id': 'Conta de origem',
+    'destination_account_id': 'Conta de destino',
+    'account_type': 'Tipo de conta',
+    'amount': 'Valor',
+    'imported_rows': 'Movimentações importadas',
+    'duplicate_rows': 'Duplicatas ignoradas',
 }
 DETAIL_VALUE_LABELS = {
     'Manual': 'Manual',
@@ -87,6 +94,7 @@ ACTIVITY_CATEGORY_LABELS = {
     'exports': 'Exportações',
     'backup': 'Backups',
     'system': 'Sistema',
+    'accounts': 'Contas',
 }
 ACTIVITY_TYPE_LABELS = {
     'login_success': 'Login realizado',
@@ -114,6 +122,10 @@ ACTIVITY_TYPE_LABELS = {
     'backup_deleted': 'Backup excluído',
     'backup_schedule_updated': 'Rotina de backup atualizada',
     'update_applied': 'Atualização aplicada',
+    'financial_account_created': 'Conta financeira criada',
+    'financial_account_updated': 'Conta financeira atualizada',
+    'transfer_created': 'Transferência registrada',
+    'statement_imported': 'Extrato importado',
 }
 SYSTEM_SOURCE_LABELS = {
     'entries': 'Lançamentos',
@@ -121,7 +133,35 @@ SYSTEM_SOURCE_LABELS = {
     'profile': 'Perfil',
     'update': 'Atualizações',
     'backup': 'Backups',
+    'accounts': 'Contas',
 }
+
+
+
+def get_system_event_code_label(event_code):
+    labels = {
+        'update_apply_failed': _('Falha ao aplicar atualização'),
+        'entry_create_failed': _('Falha ao criar lançamento'),
+        'entry_update_failed': _('Falha ao atualizar lançamento'),
+        'entry_delete_failed': _('Falha ao excluir lançamento'),
+        'goal_create_failed': _('Falha ao criar meta'),
+        'goal_update_failed': _('Falha ao atualizar meta'),
+        'goal_delete_failed': _('Falha ao excluir meta'),
+        'budget_create_failed': _('Falha ao criar orçamento'),
+        'budget_update_failed': _('Falha ao atualizar orçamento'),
+        'budget_delete_failed': _('Falha ao excluir orçamento'),
+        'import_validation_failed': _('Importação rejeitada'),
+        'import_unexpected_failed': _('Falha inesperada na importação'),
+        'statement_import_failed': _('Falha ao importar extrato'),
+        'backup_generation_failed': _('Falha ao gerar backup'),
+        'backup_delete_failed': _('Falha ao excluir backup'),
+        'profile_persist_failed': _('Falha ao salvar perfil'),
+        'password_update_failed': _('Falha ao alterar senha'),
+        'delete_account_failed': _('Falha ao excluir conta de usuário'),
+        'recovery_key_email_failed': _('Falha ao enviar chave por e-mail'),
+        'recovery_key_regenerate_failed': _('Falha ao regenerar chave'),
+    }
+    return labels.get(event_code)
 
 
 def get_translated_update_status_label(status):
@@ -941,7 +981,8 @@ def get_profile_hub_context(
         {
             'key': failure_type,
             'label': _(
-                SYSTEM_SOURCE_LABELS.get(
+                get_system_event_code_label(failure_type)
+                or SYSTEM_SOURCE_LABELS.get(
                     failure_type,
                     _humanize_identifier(failure_type or 'erro_desconhecido'),
                 )

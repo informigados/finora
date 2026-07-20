@@ -4,6 +4,7 @@ from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
 from models.finance import Finance
 from models.recurring import RecurringEntry
+from models.account import FinancialAccount
 from database.db import db
 from services.ownership import get_owned_or_none
 from services.profile_service import record_activity, record_system_event
@@ -12,6 +13,16 @@ from services.validators import parse_finance_form
 from datetime import datetime
 
 entries_bp = Blueprint('entries', __name__)
+
+
+def _get_valid_account_id(data):
+    account_id = data.get('account_id', type=int)
+    if not account_id:
+        return None
+    account = get_owned_or_none(FinancialAccount, account_id, current_user.id)
+    if not account or not account.is_active:
+        raise ValueError('Conta financeira inválida.')
+    return account.id
 
 
 def _redirect_dashboard_context(
@@ -46,6 +57,7 @@ def add_entry() -> ResponseReturnValue:
             return _redirect_dashboard_context()
 
         recurring = None
+        account_id = _get_valid_account_id(data)
         success_message = _('Lançamento adicionado com sucesso!')
         new_entry = Finance(
             description=payload['description'],
@@ -58,7 +70,8 @@ def add_entry() -> ResponseReturnValue:
             payment_date=payload['payment_date'],
             payment_method=payload['payment_method'],
             observations=payload['observations'],
-            user_id=current_user.id
+            user_id=current_user.id,
+            account_id=account_id,
         )
 
         if data.get('is_recurring') == 'on':
@@ -91,7 +104,8 @@ def add_entry() -> ResponseReturnValue:
                 start_date=start_date,
                 next_run_date=next_run,
                 end_date=end_d,
-                user_id=current_user.id
+                user_id=current_user.id,
+                account_id=account_id,
             )
             success_message = _('Lançamento e recorrência adicionados com sucesso!')
         db.session.add(new_entry)
@@ -191,6 +205,7 @@ def edit_entry(id: int) -> ResponseReturnValue:
             entry.payment_date = payload['payment_date']
             entry.payment_method = payload['payment_method']
             entry.observations = payload['observations']
+            entry.account_id = _get_valid_account_id(data)
             record_activity(
                 current_user,
                 'entries',

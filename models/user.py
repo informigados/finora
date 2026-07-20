@@ -43,6 +43,10 @@ class User(UserMixin, db.Model):
     login_sessions = db.relationship('UserSession', backref='user', lazy='dynamic', cascade="all, delete-orphan")
     activity_logs = db.relationship('ActivityLog', backref='user', lazy='dynamic', cascade="all, delete-orphan")
     system_events = db.relationship('SystemEvent', backref='user', lazy='dynamic', cascade="all, delete-orphan")
+    financial_accounts = db.relationship('FinancialAccount', backref='user', lazy='dynamic', cascade="all, delete-orphan")
+    account_transfers = db.relationship('AccountTransfer', backref='user', lazy='dynamic', cascade="all, delete-orphan")
+    bank_import_profiles = db.relationship('BankImportProfile', backref='user', lazy='dynamic', cascade="all, delete-orphan")
+    bank_transactions = db.relationship('BankTransaction', backref='user', lazy='dynamic', cascade="all, delete-orphan")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

@@ -10,7 +10,7 @@
 Finora is a local-first personal finance application built with Flask.  
 It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, managed backups, profile observability, guided updates, and multilingual UI.
 
-Current stable version: `1.4.3`
+Current stable version: `1.4.4`
 
 ## 🧱 Tech Stack
 
@@ -106,7 +106,7 @@ Optional update and mail settings:
 
 ```ini
 # App metadata
-APP_VERSION=1.4.3
+APP_VERSION=1.4.4
 APP_BASE_URL=http://127.0.0.1:5000
 
 # Automatic update
@@ -352,6 +352,17 @@ Or:
 - Added secure deletion of ended session records, user-owned activity records, and user-owned system events, with CSRF protection and confirmation prompts.
 - Corrected the navigation breakpoint to prevent horizontal page overflow on compact desktop and tablet-sized windows.
 - Expanded regression coverage for profile navigation, pagination, ownership boundaries, active-session protection, counters, and deletion flows.
+
+### 2026-07-20 (1.4.4)
+
+- Added bank accounts, savings accounts, wallets, credit cards, investments, per-account balances, and a consolidated balance.
+- Added internal transfers that move balances without being counted as income or expenses.
+- Added OFX statement import, reusable CSV/XLSX column profiles, duplicate detection, and bank reconciliation with existing or newly created entries.
+- Redefined dashboard indicators around realized balance, projected balance, received income, paid expenses, receivables, and payables.
+- Added income-by-category alongside expenses-by-category and a persistent collapsible analytics rail that expands the monthly entries workspace.
+- Added meaningful icons to the primary navigation and introduced Accounts immediately after Dashboard.
+- Localized system failure types and hardened long-content wrapping across cards, status panels, badges, lists, and operational surfaces.
+- Added an Alembic migration and regression coverage for account ownership, balances, transfers, imports, reconciliation, dashboard calculations, and responsive UI contracts.
 
 ## 👥 Authors
 

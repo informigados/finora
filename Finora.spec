@@ -49,6 +49,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=['static/favicon.ico'],
+    version='build/finora_version_info.txt',
 )
 coll = COLLECT(
     exe,

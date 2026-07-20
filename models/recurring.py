@@ -22,8 +22,18 @@ class RecurringEntry(db.Model):
     active = db.Column(db.Boolean, default=True)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    account_id = db.Column(
+        db.Integer,
+        db.ForeignKey(
+            'financial_accounts.id',
+            name='fk_recurring_entries_account_id_financial_accounts',
+        ),
+        nullable=True,
+    )
     
     created_at = db.Column(db.DateTime, default=utcnow_naive)
+
+    account = db.relationship('FinancialAccount', back_populates='recurring_entries')
 
     def to_dict(self):
         return {
@@ -37,5 +47,6 @@ class RecurringEntry(db.Model):
             'frequency': self.frequency,
             'start_date': self.start_date.isoformat() if self.start_date else None,
             'next_run_date': self.next_run_date.isoformat() if self.next_run_date else None,
-            'active': self.active
+            'active': self.active,
+            'account_id': self.account_id,
         }

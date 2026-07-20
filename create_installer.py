@@ -12,6 +12,7 @@ APP_NAME = "Finora"
 VERSION_FILE = ROOT / "VERSION"
 DIST_EXE = ROOT / "dist" / APP_NAME / f"{APP_NAME}.exe"
 INNO_SCRIPT = ROOT / "finora_installer.iss"
+PYINSTALLER_VERSION_FILE = ROOT / "build" / "finora_version_info.txt"
 INNO_CANDIDATES = [
     Path(r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"),
     Path(r"C:\Program Files\Inno Setup 6\ISCC.exe"),
@@ -33,6 +34,47 @@ def read_version() -> str:
     if not version:
         raise RuntimeError("VERSION file is empty.")
     return version
+
+
+def write_pyinstaller_version_info(version: str) -> None:
+    numeric_parts = version.split('.')
+    if not 1 <= len(numeric_parts) <= 4 or not all(part.isdigit() for part in numeric_parts):
+        raise RuntimeError(f"Invalid numeric release version: {version}")
+    version_tuple = tuple(int(part) for part in numeric_parts)
+    version_tuple += (0,) * (4 - len(version_tuple))
+    tuple_literal = repr(version_tuple)
+    PYINSTALLER_VERSION_FILE.parent.mkdir(parents=True, exist_ok=True)
+    PYINSTALLER_VERSION_FILE.write_text(
+        f"""VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers={tuple_literal},
+    prodvers={tuple_literal},
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo([
+      StringTable('041604B0', [
+        StringStruct('CompanyName', 'INformigados'),
+        StringStruct('FileDescription', 'Finora - Organização Financeira'),
+        StringStruct('FileVersion', '{version}'),
+        StringStruct('InternalName', 'Finora'),
+        StringStruct('LegalCopyright', '© 2026 INformigados'),
+        StringStruct('OriginalFilename', 'Finora.exe'),
+        StringStruct('ProductName', 'Finora'),
+        StringStruct('ProductVersion', '{version}')
+      ])
+    ]),
+    VarFileInfo([VarStruct('Translation', [1046, 1200])])
+  ]
+)
+""",
+        encoding="utf-8",
+    )
 
 
 def find_iscc() -> Path:
@@ -118,6 +160,7 @@ def main() -> int:
         print("=" * 60)
 
         clean_release_dirs()
+        write_pyinstaller_version_info(version)
 
         # Rebuild the Windows icon from the checked-in Finora branding source.
         run_command([sys.executable, "scripts/generate_windows_icon.py"])

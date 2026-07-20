@@ -25,7 +25,7 @@
     data-session-expires-at="{{ session_expires_at or 0 }}"
   >
     <a href="#mainContent" class="skip-link">{{ _('Pular para o conteúdo principal') }}</a>
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-premium">
+    <nav class="navbar navbar-expand-xl navbar-dark navbar-premium">
       <div class="container navbar-shell">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('dashboard.index') if current_user.is_authenticated else url_for('public.welcome') }}">
           <img class="brand-mark-image me-2" src="{{ url_for('brand_mark') }}" alt="" aria-hidden="true" />
@@ -51,15 +51,16 @@
             <div class="navbar-menu-shell">
               <div class="navbar-nav navbar-main-nav">
                 {% if current_user.is_authenticated %}
-                <a href="{{ url_for('dashboard.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('dashboard') else '' }}" {% if request.endpoint and request.endpoint.startswith('dashboard') %}aria-current="page"{% endif %}>{{ _('Painel') }}</a>
-                <a href="{{ url_for('goals.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('goals') else '' }}" {% if request.endpoint and request.endpoint.startswith('goals') %}aria-current="page"{% endif %}>{{ _('Metas') }}</a>
-                <a href="{{ url_for('budgets.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('budgets') else '' }}" {% if request.endpoint and request.endpoint.startswith('budgets') %}aria-current="page"{% endif %}>{{ _('Orçamentos') }}</a>
-                <a href="{{ url_for('public.about') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}" {% if request.endpoint == 'public.about' %}aria-current="page"{% endif %}>{{ _('Sobre') }}</a>
+                <a href="{{ url_for('dashboard.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('dashboard') else '' }}" {% if request.endpoint and request.endpoint.startswith('dashboard') %}aria-current="page"{% endif %}><i data-lucide="layout-dashboard" class="nav-main-icon"></i><span>{{ _('Painel') }}</span></a>
+                <a href="{{ url_for('accounts.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('accounts') else '' }}" {% if request.endpoint and request.endpoint.startswith('accounts') %}aria-current="page"{% endif %}><i data-lucide="landmark" class="nav-main-icon"></i><span>{{ _('Contas') }}</span></a>
+                <a href="{{ url_for('goals.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('goals') else '' }}" {% if request.endpoint and request.endpoint.startswith('goals') %}aria-current="page"{% endif %}><i data-lucide="target" class="nav-main-icon"></i><span>{{ _('Metas') }}</span></a>
+                <a href="{{ url_for('budgets.index') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint and request.endpoint.startswith('budgets') else '' }}" {% if request.endpoint and request.endpoint.startswith('budgets') %}aria-current="page"{% endif %}><i data-lucide="wallet-cards" class="nav-main-icon"></i><span>{{ _('Orçamentos') }}</span></a>
+                <a href="{{ url_for('public.about') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}" {% if request.endpoint == 'public.about' %}aria-current="page"{% endif %}><i data-lucide="info" class="nav-main-icon"></i><span>{{ _('Sobre') }}</span></a>
                 {% else %}
-                <a href="{{ url_for('public.welcome') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.welcome' else '' }}" {% if request.endpoint == 'public.welcome' %}aria-current="page"{% endif %}>{{ _('Início') }}</a>
-                <a href="{{ url_for('auth.login') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.login' else '' }}" {% if request.endpoint == 'auth.login' %}aria-current="page"{% endif %}>{{ _('Entrar') }}</a>
-                <a href="{{ url_for('auth.register') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.register' else '' }}" {% if request.endpoint == 'auth.register' %}aria-current="page"{% endif %}>{{ _('Cadastrar') }}</a>
-                <a href="{{ url_for('public.about') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}" {% if request.endpoint == 'public.about' %}aria-current="page"{% endif %}>{{ _('Sobre') }}</a>
+                <a href="{{ url_for('public.welcome') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.welcome' else '' }}" {% if request.endpoint == 'public.welcome' %}aria-current="page"{% endif %}><i data-lucide="house" class="nav-main-icon"></i><span>{{ _('Início') }}</span></a>
+                <a href="{{ url_for('auth.login') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.login' else '' }}" {% if request.endpoint == 'auth.login' %}aria-current="page"{% endif %}><i data-lucide="log-in" class="nav-main-icon"></i><span>{{ _('Entrar') }}</span></a>
+                <a href="{{ url_for('auth.register') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'auth.register' else '' }}" {% if request.endpoint == 'auth.register' %}aria-current="page"{% endif %}><i data-lucide="user-plus" class="nav-main-icon"></i><span>{{ _('Cadastrar') }}</span></a>
+                <a href="{{ url_for('public.about') }}" class="nav-main-link nav-link text-white text-decoration-none {{ 'fw-bold active' if request.endpoint == 'public.about' else '' }}" {% if request.endpoint == 'public.about' %}aria-current="page"{% endif %}><i data-lucide="info" class="nav-main-icon"></i><span>{{ _('Sobre') }}</span></a>
                 {% endif %}
               </div>
             </div>

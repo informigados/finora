@@ -5,6 +5,7 @@ from flask_babel import gettext as _
 from datetime import date
 from services.calculations import get_monthly_stats, get_yearly_stats
 from models.finance import Finance
+from models.account import FinancialAccount
 from sqlalchemy import extract
 from database.db import db
 
@@ -24,6 +25,7 @@ def view_month(year: int, month: int) -> ResponseReturnValue:
     
     # Translate chart labels
     stats['chart_labels'] = [_(label) for label in stats['chart_labels']]
+    stats['income_chart_labels'] = [_(label) for label in stats['income_chart_labels']]
     
     page = request.args.get('page', default=1, type=int) or 1
     if page < 1:
@@ -51,6 +53,10 @@ def view_month(year: int, month: int) -> ResponseReturnValue:
         )
 
     entries = entries_pagination.items
+    financial_accounts = FinancialAccount.query.filter_by(
+        user_id=current_user.id,
+        is_active=True,
+    ).order_by(FinancialAccount.name.asc()).all()
     
     return render_template('dashboard.html', 
                            year=year, 
@@ -58,6 +64,7 @@ def view_month(year: int, month: int) -> ResponseReturnValue:
                            stats=stats, 
                            entries=entries,
                            entries_pagination=entries_pagination,
+                           financial_accounts=financial_accounts,
                            today=date.today())
 
 @dashboard_bp.route('/dashboard/<int:year>')

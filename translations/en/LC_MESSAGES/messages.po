@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-20 18:12-0300\n"
-"PO-Revision-Date: 2026-02-10 13:31-0300\n"
+"POT-Creation-Date: 2026-07-20 20:26-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: en <LL@li.org>\n"
@@ -18,17 +18,96 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app.py:497
+#: app.py:499
 msgid "Por favor, faça login para acessar esta página."
 msgstr "Please log in to access this page."
 
-#: app.py:563
+#: app.py:565
 msgid "Sessão expirada por inatividade. Faça login novamente."
 msgstr "Session expired due to inactivity. Log in again."
 
-#: app.py:659
+#: app.py:662
 msgid "Idioma alterado com sucesso!"
 msgstr "Language changed successfully!"
+
+#: routes/accounts.py:124
+msgid "Conta adicionada com sucesso."
+msgstr "Account added successfully."
+
+#: routes/accounts.py:130 routes/accounts.py:161
+msgid "Já existe uma conta com esse nome."
+msgstr "An account with that name already exists."
+
+#: routes/accounts.py:139 routes/accounts.py:222
+msgid "Conta não encontrada."
+msgstr "Account not found."
+
+#: routes/accounts.py:155
+msgid "Conta atualizada com sucesso."
+msgstr "Account updated successfully."
+
+#: routes/accounts.py:173
+msgid "Conta reativada."
+msgstr "Account reactivated."
+
+#: routes/accounts.py:173
+msgid "Conta arquivada sem apagar o histórico."
+msgstr "Account archived without deleting history."
+
+#: routes/accounts.py:199
+msgid "Transferência registrada sem afetar receitas ou despesas."
+msgstr "Transfer registered without affecting income or expenses."
+
+#: routes/accounts.py:213
+msgid "Transferência excluída."
+msgstr "Transfer deleted."
+
+#: routes/accounts.py:229
+msgid "Perfil de importação salvo."
+msgstr "Saved import profile."
+
+#: routes/accounts.py:235
+msgid "Já existe um perfil com esse nome."
+msgstr "A profile with that name already exists."
+
+#: routes/accounts.py:246
+msgid "Perfil de importação excluído."
+msgstr "Import profile deleted."
+
+#: routes/accounts.py:260
+msgid "Selecione a conta e o arquivo do extrato."
+msgstr "Select the account and statement file."
+
+#: routes/accounts.py:293
+#, python-format
+msgid ""
+"%(count)d movimentação(ões) importada(s); %(duplicates)d duplicata(s) "
+"ignorada(s)."
+msgstr "%(count)d imported movement(s); %(duplicates)d duplicate(s) ignored."
+
+#: routes/accounts.py:313
+msgid "Não foi possível importar o extrato."
+msgstr "The statement could not be imported."
+
+#: routes/accounts.py:323
+msgid "Movimentação ou lançamento não encontrado."
+msgstr "Bank transaction or entry not found."
+
+#: routes/accounts.py:328
+msgid "Movimentação conciliada com sucesso."
+msgstr "Transaction reconciled successfully."
+
+#: routes/accounts.py:342
+msgid "Lançamento criado e conciliado com sucesso."
+msgstr "Entry created and reconciled successfully."
+
+#: routes/accounts.py:344
+msgid "A movimentação já foi conciliada ou não existe."
+msgstr "The movement has already been reconciled or does not exist."
+
+#: routes/accounts.py:356
+msgid "Conciliação desfeita. O lançamento foi preservado."
+msgstr "Conciliation broken. The release has been preserved."
 
 #: routes/auth.py:74
 msgid ""
@@ -449,87 +528,87 @@ msgstr "Budget removed!"
 msgid "Erro ao remover orçamento."
 msgstr "Error removing budget."
 
-#: routes/dashboard.py:69
+#: routes/dashboard.py:76
 msgid "Jan"
 msgstr "Jan"
 
-#: routes/dashboard.py:69
+#: routes/dashboard.py:76
 msgid "Fev"
 msgstr "Feb"
 
-#: routes/dashboard.py:69
+#: routes/dashboard.py:76
 msgid "Mar"
 msgstr "Mar"
 
-#: routes/dashboard.py:69
+#: routes/dashboard.py:76
 msgid "Abr"
 msgstr "Apr"
 
-#: routes/dashboard.py:69
+#: routes/dashboard.py:76
 msgid "Mai"
 msgstr "May"
 
-#: routes/dashboard.py:69
+#: routes/dashboard.py:76
 msgid "Jun"
 msgstr "Jun"
 
-#: routes/dashboard.py:70
+#: routes/dashboard.py:77
 msgid "Jul"
 msgstr "Jul"
 
-#: routes/dashboard.py:70
+#: routes/dashboard.py:77
 msgid "Ago"
 msgstr "Aug"
 
-#: routes/dashboard.py:70
+#: routes/dashboard.py:77
 msgid "Set"
 msgstr "Sep"
 
-#: routes/dashboard.py:70
+#: routes/dashboard.py:77
 msgid "Out"
 msgstr "Oct"
 
-#: routes/dashboard.py:70
+#: routes/dashboard.py:77
 msgid "Nov"
 msgstr "Nov"
 
-#: routes/dashboard.py:70
+#: routes/dashboard.py:77
 msgid "Dez"
 msgstr "Dec"
 
-#: routes/dashboard.py:101
+#: routes/dashboard.py:108
 msgid "Mês inválido selecionado."
 msgstr "Invalid month selected."
 
-#: routes/entries.py:49
+#: routes/entries.py:61
 msgid "Lançamento adicionado com sucesso!"
 msgstr "Entry added successfully!"
 
-#: routes/entries.py:69 routes/entries.py:74
+#: routes/entries.py:82 routes/entries.py:87
 msgid "Frequência de recorrência inválida."
 msgstr "Invalid recurrence frequency."
 
-#: routes/entries.py:96
+#: routes/entries.py:110
 msgid "Lançamento e recorrência adicionados com sucesso!"
 msgstr "Launch and recurrence added successfully!"
 
-#: routes/entries.py:129
+#: routes/entries.py:143
 msgid "Erro ao adicionar lançamento. Verifique os dados e tente novamente."
 msgstr "Error adding entry. Check data and try again."
 
-#: routes/entries.py:155
+#: routes/entries.py:169
 msgid "Lançamento excluído com sucesso!"
 msgstr "Entry deleted successfully!"
 
-#: routes/entries.py:166
+#: routes/entries.py:180
 msgid "Erro ao excluir lançamento."
 msgstr "Error deleting entry."
 
-#: routes/entries.py:210
+#: routes/entries.py:225
 msgid "Lançamento atualizado com sucesso!"
 msgstr "Entry updated successfully!"
 
-#: routes/entries.py:221
+#: routes/entries.py:236
 msgid "Erro ao atualizar lançamento."
 msgstr "Error updating entry."
 
@@ -538,49 +617,49 @@ msgid "ID"
 msgstr "ID"
 
 #: routes/export.py:36 routes/export.py:89 services/reports.py:49
-#: templates/dashboard.html:145 templates/dashboard.html:307
+#: templates/dashboard.html:143 templates/dashboard.html:329
 msgid "Descrição"
 msgstr "Description"
 
 #: routes/export.py:37 routes/export.py:90 services/reports.py:53
-#: templates/dashboard.html:148
+#: templates/accounts.html:236 templates/dashboard.html:146
 msgid "Valor"
 msgstr "Value"
 
 #: routes/export.py:38 routes/export.py:89 services/reports.py:50
 #: templates/budgets.html:94 templates/budgets.html:133
-#: templates/dashboard.html:147 templates/dashboard.html:325
+#: templates/dashboard.html:145 templates/dashboard.html:354
 msgid "Categoria"
 msgstr "Category"
 
-#: routes/export.py:39 templates/dashboard.html:329
+#: routes/export.py:39 templates/dashboard.html:358
 msgid "Subcategoria"
 msgstr "Subcategory"
 
-#: routes/export.py:40 services/reports.py:52 templates/dashboard.html:146
-#: templates/dashboard.html:316
+#: routes/export.py:40 services/reports.py:52 templates/accounts.html:232
+#: templates/dashboard.html:144 templates/dashboard.html:338
 msgid "Tipo"
 msgstr "Type"
 
 #: routes/export.py:41 routes/export.py:90 services/reports.py:54
-#: templates/about.html:76 templates/dashboard.html:149
-#: templates/dashboard.html:337
+#: templates/about.html:76 templates/dashboard.html:147
+#: templates/dashboard.html:366
 msgid "Status"
 msgstr "Status"
 
-#: routes/export.py:42 templates/dashboard.html:347
+#: routes/export.py:42 templates/dashboard.html:376
 msgid "Vencimento"
 msgstr "Due date"
 
-#: routes/export.py:43 templates/dashboard.html:351
+#: routes/export.py:43 templates/dashboard.html:380
 msgid "Pagamento"
 msgstr "Payment date"
 
-#: routes/export.py:44 templates/dashboard.html:356
+#: routes/export.py:44 templates/dashboard.html:385
 msgid "Forma de pagamento/recebimento"
 msgstr "Payment/receiving method"
 
-#: routes/export.py:45 templates/about.html:97 templates/dashboard.html:388
+#: routes/export.py:45 templates/about.html:97 templates/dashboard.html:417
 msgid "Observações"
 msgstr "Notes"
 
@@ -589,7 +668,7 @@ msgstr "Notes"
 msgid "Relatório FINORA - %(month)s/%(year)s"
 msgstr "FINORA Report - %(month)s/%(year)s"
 
-#: routes/export.py:89 services/reports.py:48
+#: routes/export.py:89 services/reports.py:48 templates/accounts.html:236
 msgid "Data"
 msgstr "Date"
 
@@ -646,36 +725,40 @@ msgstr "Goal updated successfully."
 msgid "Erro ao atualizar meta financeira."
 msgstr "Error updating financial goal."
 
-#: routes/imports.py:19
+#: routes/imports.py:21
 msgid "Nenhum arquivo foi enviado para importação."
 msgstr "No files were sent for import."
 
-#: routes/imports.py:24
+#: routes/imports.py:26
 msgid "Selecione um arquivo antes de importar."
 msgstr "Select a file before importing."
 
-#: routes/imports.py:36
+#: routes/imports.py:34
+msgid "Conta financeira inválida."
+msgstr "Invalid financial account."
+
+#: routes/imports.py:45
 msgid "Nenhum lançamento válido foi encontrado no arquivo."
 msgstr "No valid releases were found in the archive."
 
-#: routes/imports.py:55
+#: routes/imports.py:64
 #, python-format
 msgid "%(count)d lançamento(s) importado(s) com sucesso."
 msgstr "%(count)d release(s) imported successfully."
 
-#: routes/imports.py:64
+#: routes/imports.py:73
 #, python-format
 msgid " ... e mais %(count)d linha(s)."
 msgstr "... and more %(count)d line(s)."
 
-#: routes/imports.py:67
+#: routes/imports.py:76
 #, python-format
 msgid ""
 "%(count)d linha(s) foram ignoradas por inconsistência: "
 "%(preview)s%(suffix)s"
 msgstr "%(count)d line(s) were ignored due to inconsistency: %(preview)s%(suffix)s"
 
-#: routes/imports.py:96
+#: routes/imports.py:105
 msgid "Erro inesperado ao importar arquivo. Nenhuma alteração foi salva."
 msgstr "Unexpected error when importing file. No changes were saved."
 
@@ -729,6 +812,135 @@ msgstr ""
 "Update applied successfully. Installed version: %(version)s. Restart "
 "Finora to load all updated components."
 
+#: services/account_service.py:80
+msgid "Azul"
+msgstr "Blue"
+
+#: services/account_service.py:81
+msgid "Verde"
+msgstr "Green"
+
+#: services/account_service.py:82
+msgid "Violeta"
+msgstr "Violet"
+
+#: services/account_service.py:83
+msgid "Âmbar"
+msgstr "Amber"
+
+#: services/account_service.py:84
+msgid "Rosa"
+msgstr "Rose"
+
+#: services/account_service.py:85
+msgid "Grafite"
+msgstr "Slate"
+
+#: services/account_service.py:91 services/account_service.py:108
+msgid "Informe um valor válido."
+msgstr "Enter a valid amount."
+
+#: services/account_service.py:123
+msgid "Informe um nome de conta com até 80 caracteres."
+msgstr "Enter an account name with up to 80 characters."
+
+#: services/account_service.py:125
+msgid "Selecione um tipo de conta válido."
+msgstr "Select a valid account type."
+
+#: services/account_service.py:127
+msgid "A instituição deve ter até 100 caracteres."
+msgstr "The institution must have up to 100 characters."
+
+#: services/account_service.py:129
+msgid "Informe exatamente os quatro últimos dígitos."
+msgstr "Enter exactly the last four digits."
+
+#: services/account_service.py:131
+msgid "Selecione uma cor válida para a conta."
+msgstr "Select a valid color for the account."
+
+#: services/account_service.py:213
+msgid "Selecione contas de origem e destino diferentes."
+msgstr "Select different source and target accounts."
+
+#: services/account_service.py:221
+msgid "Uma das contas selecionadas não está disponível."
+msgstr "One of the selected accounts is not available."
+
+#: services/account_service.py:225
+msgid "O valor da transferência deve ser maior que zero."
+msgstr "The transfer amount must be greater than zero."
+
+#: services/account_service.py:229
+msgid "Informe uma data válida para a transferência."
+msgstr "Enter a valid date for the transfer."
+
+#: services/account_service.py:246
+msgid "Informe um nome de perfil com até 80 caracteres."
+msgstr "Enter a profile name with up to 80 characters."
+
+#: services/account_service.py:248
+msgid "O perfil deve usar CSV ou XLSX."
+msgstr "The profile must use CSV or XLSX."
+
+#: services/account_service.py:257
+msgid "Mapeie as colunas de data, descrição e valor."
+msgstr "Map the date, description, and value columns."
+
+#: services/account_service.py:262
+msgid "Informe um delimitador CSV válido."
+msgstr "Enter a valid CSV delimiter."
+
+#: services/account_service.py:284
+msgid "Selecione um extrato não vazio para importar."
+msgstr "Select a non-empty statement to import."
+
+#: services/account_service.py:286
+msgid "O extrato excede o limite de 10 MB."
+msgstr "The extract exceeds the 10 MB limit."
+
+#: services/account_service.py:293
+msgid "Selecione um perfil compatível com o arquivo enviado."
+msgstr "Select a profile compatible with the uploaded file."
+
+#: services/account_service.py:297
+msgid "Formato inválido. Utilize OFX, CSV ou XLSX."
+msgstr "Invalid format. Use OFX, CSV or XLSX."
+
+#: services/account_service.py:310
+#, python-format
+msgid "O extrato excede o limite de %(count)d movimentações."
+msgstr "The statement exceeds the limit of %(count)d movements."
+
+#: services/account_service.py:330
+msgid "Nenhuma movimentação válida foi encontrada no extrato."
+msgstr "No valid transactions were found in the statement."
+
+#: services/account_service.py:345
+msgid "Não foi possível ler o arquivo OFX."
+msgstr "Unable to read OFX file."
+
+#: services/account_service.py:399
+msgid "Não foi possível decodificar o arquivo CSV."
+msgstr "The CSV file could not be decoded."
+
+#: services/account_service.py:408
+msgid "A planilha está vazia."
+msgstr "The spreadsheet is empty."
+
+#: services/account_service.py:448
+msgid "Data inválida no extrato."
+msgstr "Invalid date on statement."
+
+#: services/account_service.py:496
+msgid "O lançamento selecionado não pertence a esta conta."
+msgstr "The selected entry does not belong to this account."
+
+#: services/account_service.py:499
+msgid "Tipo ou valor incompatível com a movimentação bancária."
+msgstr "Type or value incompatible with bank transactions."
+
 #: services/auth_service.py:59
 msgid "Sua conta foi criada com sucesso."
 msgstr "Your account was created successfully."
@@ -749,7 +961,7 @@ msgstr "Your recovery key is available below."
 msgid "Olá"
 msgstr "Hello"
 
-#: services/auth_service.py:67 services/profile_service.py:619
+#: services/auth_service.py:67 services/profile_service.py:659
 msgid "Usuário"
 msgstr "User"
 
@@ -757,7 +969,7 @@ msgstr "User"
 msgid "Chave de recuperação"
 msgstr "Recovery key"
 
-#: services/auth_service.py:69 templates/auth/profile.html:249
+#: services/auth_service.py:69 templates/auth/profile.html:250
 msgid "Versão da chave"
 msgstr "Key version"
 
@@ -796,85 +1008,165 @@ msgstr "Access the link below to continue:"
 msgid "Este link expira em %(minutes)s minutos."
 msgstr "This link expires in %(minutes)s minutes."
 
-#: services/profile_service.py:142
+#: services/profile_service.py:143
+msgid "Falha ao aplicar atualização"
+msgstr "Failed to apply update"
+
+#: services/profile_service.py:144
+msgid "Falha ao criar lançamento"
+msgstr "Entry creation failed"
+
+#: services/profile_service.py:145
+msgid "Falha ao atualizar lançamento"
+msgstr "Entry update failed"
+
+#: services/profile_service.py:146
+msgid "Falha ao excluir lançamento"
+msgstr "Entry deletion failed"
+
+#: services/profile_service.py:147
+msgid "Falha ao criar meta"
+msgstr "Failed to create goal"
+
+#: services/profile_service.py:148
+msgid "Falha ao atualizar meta"
+msgstr "Failed to update goal"
+
+#: services/profile_service.py:149
+msgid "Falha ao excluir meta"
+msgstr "Failed to delete goal"
+
+#: services/profile_service.py:150
+msgid "Falha ao criar orçamento"
+msgstr "Failed to create budget"
+
+#: services/profile_service.py:151
+msgid "Falha ao atualizar orçamento"
+msgstr "Failed to update budget"
+
+#: services/profile_service.py:152
+msgid "Falha ao excluir orçamento"
+msgstr "Failed to delete budget"
+
+#: services/profile_service.py:153
+msgid "Importação rejeitada"
+msgstr "Rejected import"
+
+#: services/profile_service.py:154
+msgid "Falha inesperada na importação"
+msgstr "Unexpected import failure"
+
+#: services/profile_service.py:155
+msgid "Falha ao importar extrato"
+msgstr "Statement import failed"
+
+#: services/profile_service.py:156
+msgid "Falha ao gerar backup"
+msgstr "Failed to generate backup"
+
+#: services/profile_service.py:157
+msgid "Falha ao excluir backup"
+msgstr "Failed to delete backup"
+
+#: services/profile_service.py:158
+msgid "Falha ao salvar perfil"
+msgstr "Failed to save profile"
+
+#: services/profile_service.py:159
+msgid "Falha ao alterar senha"
+msgstr "Failed to change password"
+
+#: services/profile_service.py:160
+msgid "Falha ao excluir conta de usuário"
+msgstr "Failed to delete user account"
+
+#: services/profile_service.py:161
+msgid "Falha ao enviar chave por e-mail"
+msgstr "Failed to send key by email"
+
+#: services/profile_service.py:162
+msgid "Falha ao regenerar chave"
+msgstr "Failed to regenerate key"
+
+#: services/profile_service.py:182
 msgid "Pronto"
 msgstr "Ready"
 
-#: services/profile_service.py:143 templates/about.html:40
+#: services/profile_service.py:183 templates/about.html:40
 msgid "Verificando"
 msgstr "Checking"
 
-#: services/profile_service.py:144
+#: services/profile_service.py:184
 msgid "Atualização disponível"
 msgstr "Update available"
 
-#: services/profile_service.py:145
+#: services/profile_service.py:185
 msgid "Atualizado"
 msgstr "Up to date"
 
-#: services/profile_service.py:146 templates/auth/profile.html:316
-#: templates/auth/profile.html:699
+#: services/profile_service.py:186 templates/auth/profile.html:317
+#: templates/auth/profile.html:700
 msgid "Não configurado"
 msgstr "Not configured"
 
-#: services/profile_service.py:147
+#: services/profile_service.py:187
 msgid "Aplicando atualização"
 msgstr "Applying update"
 
-#: services/profile_service.py:148
+#: services/profile_service.py:188
 msgid "Atualização aplicada"
 msgstr "Update applied"
 
-#: services/profile_service.py:149
+#: services/profile_service.py:189
 msgid "Falha na atualização"
 msgstr "Update failed"
 
-#: services/profile_service.py:151
+#: services/profile_service.py:191
 msgid "Desconhecido"
 msgstr "Unknown"
 
-#: services/profile_service.py:620 templates/auth/profile.html:133
+#: services/profile_service.py:660 templates/auth/profile.html:133
 #: templates/auth/profile.html:182 templates/auth/register.html:32
 msgid "E-mail"
 msgstr "Email"
 
-#: services/profile_service.py:621
+#: services/profile_service.py:661
 msgid "Versão"
 msgstr "Version"
 
-#: services/profile_service.py:644 services/profile_service.py:652
+#: services/profile_service.py:684 services/profile_service.py:692
 msgid "Não informado"
 msgstr "Not provided"
 
-#: services/profile_service.py:646 templates/auth/profile.html:676
+#: services/profile_service.py:686 templates/auth/profile.html:677
 msgid "Sim"
 msgstr "Yes"
 
-#: services/profile_service.py:646 templates/auth/profile.html:676
+#: services/profile_service.py:686 templates/auth/profile.html:677
 msgid "Não"
 msgstr "No"
 
-#: services/profile_service.py:672
+#: services/profile_service.py:712
 msgid "Item"
 msgstr "Item"
 
-#: services/profile_service.py:673
+#: services/profile_service.py:713
 msgid "Detalhe"
 msgstr "Detail"
 
-#: services/profile_service.py:1033
+#: services/profile_service.py:1074
 msgid "Finora - Sugestão"
 msgstr "Finora - Suggestion"
 
-#: services/profile_service.py:1034
+#: services/profile_service.py:1075
 msgid "Descreva sua sugestão abaixo:"
 msgstr "Describe your suggestion below:"
 
-#: services/profile_service.py:1039
+#: services/profile_service.py:1080
 msgid "Finora - Comunicar erro"
 msgstr "Finora - Report issue"
 
-#: services/profile_service.py:1040
+#: services/profile_service.py:1081
 msgid "Descreva o erro encontrado abaixo:"
 msgstr "Describe the issue you found below:"
 
@@ -1092,6 +1384,373 @@ msgstr ""
 msgid "Ver repositório"
 msgstr "View repository"
 
+#: templates/accounts.html:3 templates/accounts.html:14 templates/base.html:55
+msgid "Contas"
+msgstr "Accounts"
+
+#: templates/accounts.html:13
+msgid "Visão consolidada"
+msgstr "Consolidated view"
+
+#: templates/accounts.html:15
+msgid "Bancos, carteiras, cartões, transferências e conciliação em um só lugar."
+msgstr "Banks, wallets, cards, transfers and reconciliation in one place."
+
+#: templates/accounts.html:19
+msgid "Transferir"
+msgstr "Transfer"
+
+#: templates/accounts.html:22 templates/accounts.html:232
+msgid "Nova conta"
+msgstr "New account"
+
+#: templates/accounts.html:29
+msgid "Saldo consolidado"
+msgstr "Consolidated balance"
+
+#: templates/accounts.html:32
+msgid ""
+"Soma dos saldos das contas ativas, incluindo transferências internas sem "
+"duplicar receitas ou despesas."
+msgstr ""
+"Sum of active account balances, including internal transfers without "
+"duplicating income or expenses."
+
+#: templates/accounts.html:47
+msgid "Sem instituição"
+msgstr "No institution"
+
+#: templates/accounts.html:53
+msgid "Saldo atual"
+msgstr "Current balance"
+
+#: templates/accounts.html:59
+#, python-format
+msgid "%(count)d pendente(s)"
+msgstr "%(count)d pending(s)"
+
+#: templates/accounts.html:62
+msgid "Editar conta"
+msgstr "Edit account"
+
+#: templates/accounts.html:65
+msgid "Arquivar esta conta sem apagar o histórico?"
+msgstr "Archive this account without deleting history?"
+
+#: templates/accounts.html:65
+msgid "Reativar esta conta?"
+msgstr "Reactivate this account?"
+
+#: templates/accounts.html:67
+msgid "Arquivar"
+msgstr "Archive"
+
+#: templates/accounts.html:67
+msgid "Reativar"
+msgstr "Reactivate"
+
+#: templates/accounts.html:77 templates/accounts.html:232
+msgid "Nome da conta"
+msgstr "Account name"
+
+#: templates/accounts.html:79
+msgid "Tipo de conta"
+msgstr "Account type"
+
+#: templates/accounts.html:83 templates/accounts.html:232
+msgid "Saldo inicial"
+msgstr "Opening balance"
+
+#: templates/accounts.html:84 templates/accounts.html:232
+msgid "Instituição"
+msgstr "Institution"
+
+#: templates/accounts.html:85
+msgid "Final"
+msgstr "Last digits"
+
+#: templates/accounts.html:86 templates/accounts.html:232
+msgid "Cor"
+msgstr "Color"
+
+#: templates/accounts.html:87 templates/goals.html:151
+msgid "Salvar alterações"
+msgstr "Save changes"
+
+#: templates/accounts.html:98
+msgid "Comece pela sua primeira conta"
+msgstr "Start with your first account"
+
+#: templates/accounts.html:99
+msgid ""
+"Cadastre uma conta bancária, carteira ou cartão para acompanhar saldos e "
+"importar extratos."
+msgstr ""
+"Register a bank account, wallet or card to track balances and import "
+"statements."
+
+#: templates/accounts.html:100
+msgid "Criar primeira conta"
+msgstr "Create first account"
+
+#: templates/accounts.html:106
+msgid "Movimentação interna"
+msgstr "Internal movement"
+
+#: templates/accounts.html:106
+msgid "Transferências entre contas"
+msgstr "Transfers between accounts"
+
+#: templates/accounts.html:107
+msgid "Transferências apenas movem saldo e não entram como receita ou despesa."
+msgstr "Transfers only change balance and do not appear as income or expenses."
+
+#: templates/accounts.html:119
+msgid "Excluir esta transferência?"
+msgstr "Delete this transfer?"
+
+#: templates/accounts.html:121
+msgid "Excluir transferência"
+msgstr "Delete transfer"
+
+#: templates/accounts.html:127
+msgid "Paginação das transferências"
+msgstr "Transfer pagination"
+
+#: templates/accounts.html:127 templates/accounts.html:223
+#: templates/auth/profile.html:19 templates/dashboard.html:227
+msgid "Anterior"
+msgstr "Previous"
+
+#: templates/accounts.html:127 templates/accounts.html:223
+#: templates/auth/profile.html:26 templates/dashboard.html:239
+msgid "Próxima"
+msgstr "Next"
+
+#: templates/accounts.html:130
+msgid "Nenhuma transferência registrada."
+msgstr "No transfer recorded."
+
+#: templates/accounts.html:136
+msgid "Entrada de dados"
+msgstr "Data entry"
+
+#: templates/accounts.html:136
+msgid "Extratos e perfis de importação"
+msgstr "Statements and import profiles"
+
+#: templates/accounts.html:137
+msgid ""
+"OFX funciona diretamente; CSV e XLSX usam um perfil de colunas "
+"reutilizável."
+msgstr "OFX works directly; CSV and XLSX use a reusable column profile."
+
+#: templates/accounts.html:141 templates/dashboard.html:293
+msgid "Importando..."
+msgstr "Importing..."
+
+#: templates/accounts.html:143
+msgid "Importar extrato"
+msgstr "Import statement"
+
+#: templates/accounts.html:144
+msgid "Conta de destino"
+msgstr "Destination account"
+
+#: templates/accounts.html:146
+msgid "Selecione a conta"
+msgstr "Select account"
+
+#: templates/accounts.html:149
+msgid "Arquivo OFX, CSV ou XLSX"
+msgstr "OFX, CSV or XLSX file"
+
+#: templates/accounts.html:151
+msgid "Perfil para CSV/XLSX"
+msgstr "Profile for CSV/XLSX"
+
+#: templates/accounts.html:153
+msgid "Não necessário para OFX"
+msgstr "Not required for OFX"
+
+#: templates/accounts.html:156
+msgid "Importar movimentações"
+msgstr "Import transactions"
+
+#: templates/accounts.html:162
+msgid "Novo perfil CSV/XLSX"
+msgstr "New CSV/XLSX profile"
+
+#: templates/accounts.html:162
+msgid "Reutilizável"
+msgstr "Reusable"
+
+#: templates/accounts.html:164
+msgid "Nome do perfil"
+msgstr "Profile name"
+
+#: templates/accounts.html:165
+msgid "Formato"
+msgstr "Format"
+
+#: templates/accounts.html:166
+msgid "Conta padrão"
+msgstr "Default account"
+
+#: templates/accounts.html:166
+msgid "Qualquer conta"
+msgstr "Any account"
+
+#: templates/accounts.html:167
+msgid "Delimitador CSV"
+msgstr "CSV delimiter"
+
+#: templates/accounts.html:168
+msgid "Coluna da data"
+msgstr "Date column"
+
+#: templates/accounts.html:169
+msgid "Coluna da descrição"
+msgstr "Description column"
+
+#: templates/accounts.html:170
+msgid "Coluna do valor assinado"
+msgstr "Signed amount column"
+
+#: templates/accounts.html:171
+msgid "Coluna da referência (opcional)"
+msgstr "Reference column (optional)"
+
+#: templates/accounts.html:173
+msgid "Salvar perfil"
+msgstr "Save profile"
+
+#: templates/accounts.html:178
+msgid "Excluir este perfil de importação?"
+msgstr "Delete this import profile?"
+
+#: templates/accounts.html:180
+msgid "Excluir perfil"
+msgstr "Delete profile"
+
+#: templates/accounts.html:191
+msgid "Conferência bancária"
+msgstr "Bank matching"
+
+#: templates/accounts.html:191
+msgid "Conciliação"
+msgstr "Reconciliation"
+
+#: templates/accounts.html:193
+msgid "Filtrar conta"
+msgstr "Filter account"
+
+#: templates/accounts.html:193
+msgid "Todas as contas"
+msgstr "All accounts"
+
+#: templates/accounts.html:194
+msgid "Filtrar conciliação"
+msgstr "Filter reconciliation"
+
+#: templates/accounts.html:194
+msgid "Pendentes"
+msgstr "Pending"
+
+#: templates/accounts.html:194
+msgid "Conciliadas"
+msgstr "Reconciled"
+
+#: templates/accounts.html:194
+msgid "Todas"
+msgstr "All"
+
+#: templates/accounts.html:195
+msgid "Filtrar"
+msgstr "Filter"
+
+#: templates/accounts.html:205
+msgid "Conciliada com"
+msgstr "Reconciled with"
+
+#: templates/accounts.html:206
+msgid "Desfazer"
+msgstr "Undo"
+
+#: templates/accounts.html:212
+msgid "Lançamento compatível"
+msgstr "Matching entry"
+
+#: templates/accounts.html:212
+msgid "Selecionar lançamento"
+msgstr "Select entry"
+
+#: templates/accounts.html:213
+msgid "Conciliar"
+msgstr "Reconcile"
+
+#: templates/accounts.html:216
+msgid "Criar lançamento"
+msgstr "Create entry"
+
+#: templates/accounts.html:223
+msgid "Paginação da conciliação"
+msgstr "Reconciliation pagination"
+
+#: templates/accounts.html:226
+msgid "Nenhuma movimentação neste filtro"
+msgstr "No movement in this filter"
+
+#: templates/accounts.html:226
+msgid "Importe um extrato ou altere os filtros de conciliação."
+msgstr "Import a statement or change reconciliation filters."
+
+#: templates/accounts.html:232 templates/accounts.html:236
+#: templates/auth/profile.html:791 templates/base.html:144
+#: templates/base.html:166 templates/budgets.html:90 templates/budgets.html:129
+#: templates/dashboard.html:324 templates/goals.html:92
+#: templates/goals.html:129
+msgid "Fechar"
+msgstr "To close"
+
+#: templates/accounts.html:232
+msgid "Últimos 4 dígitos"
+msgstr "Last 4 digits"
+
+#: templates/accounts.html:232 templates/accounts.html:236
+#: templates/auth/forgot_password.html:45 templates/auth/profile.html:801
+#: templates/auth/reset_password_offline.html:40
+#: templates/auth/reset_password_token.html:29 templates/base.html:172
+#: templates/budgets.html:113 templates/budgets.html:149
+#: templates/dashboard.html:422 templates/goals.html:113
+#: templates/goals.html:150
+msgid "Cancelar"
+msgstr "Cancel"
+
+#: templates/accounts.html:232
+msgid "Salvar conta"
+msgstr "Save account"
+
+#: templates/accounts.html:236
+msgid "Transferir entre contas"
+msgstr "Transfer between accounts"
+
+#: templates/accounts.html:236 templates/auth/profile.html:482
+msgid "Origem"
+msgstr "Origin"
+
+#: templates/accounts.html:236
+msgid "Destino"
+msgstr "Destination"
+
+#: templates/accounts.html:236
+msgid "Descrição opcional"
+msgstr "Optional description"
+
+#: templates/accounts.html:236
+msgid "Registrar transferência"
+msgstr "Record transfer"
+
 #: templates/base.html:7
 msgid ""
 "Finora é um sistema local de controle financeiro pessoal com foco em "
@@ -1112,119 +1771,103 @@ msgstr "Toggle navigation"
 msgid "Painel"
 msgstr "Panel"
 
-#: templates/base.html:55
+#: templates/base.html:56
 msgid "Metas"
 msgstr "Goals"
 
-#: templates/base.html:56 templates/budgets.html:3 templates/budgets.html:8
+#: templates/base.html:57 templates/budgets.html:3 templates/budgets.html:8
 msgid "Orçamentos"
 msgstr "Budgets"
 
-#: templates/base.html:57 templates/base.html:62
+#: templates/base.html:58 templates/base.html:63
 msgid "Sobre"
 msgstr "On"
 
-#: templates/base.html:59
+#: templates/base.html:60
 msgid "Início"
 msgstr "Start"
 
 #: templates/auth/login.html:3 templates/auth/login.html:10
 #: templates/auth/login.html:32 templates/auth/register.html:59
-#: templates/auth/register_success.html:33 templates/base.html:60
+#: templates/auth/register_success.html:33 templates/base.html:61
 #: templates/welcome.html:16
 msgid "Entrar"
 msgstr "Login"
 
-#: templates/auth/register.html:55 templates/base.html:61
+#: templates/auth/register.html:55 templates/base.html:62
 msgid "Cadastrar"
 msgstr "Sign Up"
 
-#: templates/auth/profile.html:37 templates/base.html:74
+#: templates/auth/profile.html:37 templates/base.html:75
 msgid "Foto de perfil"
 msgstr "Profile photo"
 
-#: templates/auth/profile.html:3 templates/base.html:89
+#: templates/auth/profile.html:3 templates/base.html:90
 msgid "Meu Perfil"
 msgstr "My Profile"
 
-#: templates/auth/profile.html:137 templates/auth/profile.html:379
-#: templates/base.html:90
+#: templates/auth/profile.html:137 templates/auth/profile.html:380
+#: templates/base.html:91
 msgid "Meus Backups"
 msgstr "My Backups"
 
-#: templates/base.html:92
+#: templates/base.html:93
 msgid "Sair"
 msgstr "Logout"
 
-#: templates/base.html:98
+#: templates/base.html:99
 msgid "Alterar idioma"
 msgstr "Change language"
 
-#: templates/base.html:100
+#: templates/base.html:101
 msgid "Idioma"
 msgstr "Language"
 
-#: templates/base.html:109
+#: templates/base.html:110
 msgid "Alternar tema"
 msgstr "Switch theme"
 
-#: templates/base.html:124
+#: templates/base.html:125
 msgid "Tema"
 msgstr "Theme"
 
-#: templates/base.html:142
+#: templates/base.html:143
 msgid "Notificação"
 msgstr "Notification"
 
-#: templates/auth/profile.html:790 templates/base.html:143
-#: templates/base.html:165 templates/budgets.html:90 templates/budgets.html:129
-#: templates/dashboard.html:302 templates/goals.html:92
-#: templates/goals.html:129
-msgid "Fechar"
-msgstr "To close"
-
-#: templates/base.html:154
+#: templates/base.html:155
 msgid "Sua sessão está prestes a expirar."
 msgstr "Your session is about to expire."
 
-#: templates/base.html:155
+#: templates/base.html:156
 msgid "Tempo restante:"
 msgstr "Remaining time:"
 
-#: templates/base.html:156
+#: templates/base.html:157
 msgid "Renovar sessão"
 msgstr "Renew session"
 
-#: templates/base.html:164
+#: templates/base.html:165
 msgid "Confirmar ação"
 msgstr "Confirm action"
 
-#: templates/base.html:168
+#: templates/base.html:169
 msgid "Deseja continuar?"
 msgstr "Do you want to continue?"
 
-#: templates/auth/forgot_password.html:45 templates/auth/profile.html:800
-#: templates/auth/reset_password_offline.html:40
-#: templates/auth/reset_password_token.html:29 templates/base.html:171
-#: templates/budgets.html:113 templates/budgets.html:149
-#: templates/dashboard.html:393 templates/goals.html:113
-#: templates/goals.html:150
-msgid "Cancelar"
-msgstr "Cancel"
-
-#: templates/base.html:172
+#: templates/base.html:173
 msgid "Confirmar"
 msgstr "Confirm"
 
-#: templates/base.html:182
+#: templates/base.html:183
 msgid "Simples, poderoso e local."
 msgstr "Simple, powerful, and local."
 
-#: templates/base.html:183
+#: templates/base.html:184
 msgid "Todos os direitos reservados."
 msgstr "All rights reserved."
 
-#: templates/base.html:184
+#: templates/base.html:185
 msgid "Projetado por"
 msgstr "Designed by"
 
@@ -1236,7 +1879,7 @@ msgstr "New Budget"
 msgid "Opções"
 msgstr "Options"
 
-#: templates/budgets.html:29 templates/dashboard.html:189
+#: templates/budgets.html:29 templates/dashboard.html:190
 #: templates/goals.html:29 templates/goals.html:30
 msgid "Editar"
 msgstr "Edit"
@@ -1245,8 +1888,8 @@ msgstr "Edit"
 msgid "Tem certeza que deseja excluir este orçamento?"
 msgstr "Are you sure you want to delete this budget?"
 
-#: templates/auth/profile.html:508 templates/budgets.html:33
-#: templates/dashboard.html:197 templates/goals.html:36
+#: templates/auth/profile.html:509 templates/budgets.html:33
+#: templates/dashboard.html:198 templates/goals.html:36
 msgid "Excluir"
 msgstr "Delete"
 
@@ -1285,16 +1928,16 @@ msgid "Limite (R$)"
 msgstr "Limit ($)"
 
 #: templates/budgets.html:107 templates/budgets.html:143
-#: templates/dashboard.html:374
+#: templates/dashboard.html:403
 msgid "Mensal"
 msgstr "Monthly"
 
 #: templates/budgets.html:108 templates/budgets.html:144
-#: templates/dashboard.html:377
+#: templates/dashboard.html:406
 msgid "Anual"
 msgstr "Yearly"
 
-#: templates/budgets.html:114 templates/dashboard.html:394
+#: templates/budgets.html:114 templates/dashboard.html:423
 #: templates/goals.html:114
 msgid "Salvar"
 msgstr "Save"
@@ -1395,208 +2038,248 @@ msgstr "View Annual Summary"
 msgid "Resumo Anual"
 msgstr "Annual Summary"
 
-#: templates/dashboard.html:65 templates/dashboard.html:301
-#: templates/dashboard.html:578
+#: templates/dashboard.html:65 templates/dashboard.html:323
+#: templates/dashboard.html:680
 msgid "Novo Lançamento"
 msgstr "New Entry"
 
+#: templates/dashboard.html:75
+msgid "Saldo realizado"
+msgstr "Realized balance"
+
 #: templates/dashboard.html:76
-msgid "Saldo Geral"
-msgstr "General Balance"
+msgid "Recebido menos pago"
+msgstr "Received income minus paid expenses"
 
-#: templates/dashboard.html:80
-msgid "* (Receitas - Despesas)"
-msgstr "* (Income - Expenses)"
+#: templates/dashboard.html:82
+msgid "Saldo projetado"
+msgstr "Projected balance"
 
-#: templates/dashboard.html:93
-msgid "Despesas Pagas"
-msgstr "Paid Expenses"
+#: templates/dashboard.html:91
+msgid "Receitas recebidas"
+msgstr "Income received"
 
-#: templates/dashboard.html:104
-msgid "Total Pendente"
-msgstr "Total Pending"
+#: templates/dashboard.html:98
+msgid "Despesas pagas"
+msgstr "Paid expenses"
 
-#: templates/dashboard.html:115
-msgid "Total Atrasado"
-msgstr "Total Overdue"
+#: templates/dashboard.html:105
+msgid "A receber"
+msgstr "Receivable"
 
-#: templates/dashboard.html:130
+#: templates/dashboard.html:112
+msgid "A pagar"
+msgstr "Payable"
+
+#: templates/dashboard.html:125
 msgid "Lançamentos do Mês"
 msgstr "Monthly Entries"
 
-#: templates/dashboard.html:131 templates/dashboard.html:697
+#: templates/dashboard.html:126 templates/dashboard.html:802
 msgid "item"
 msgstr "item"
 
-#: templates/dashboard.html:131 templates/dashboard.html:697
+#: templates/dashboard.html:126 templates/dashboard.html:802
 msgid "itens"
 msgstr "items"
 
-#: templates/dashboard.html:135
+#: templates/dashboard.html:127 templates/dashboard.html:542
+msgid "Recolher painel lateral"
+msgstr "Collapse side panel"
+
+#: templates/dashboard.html:128 templates/dashboard.html:548
+msgid "Recolher lateral"
+msgstr "Collapse sidebar"
+
+#: templates/dashboard.html:133
 msgid "Buscar lançamentos..."
 msgstr "Search for releases..."
 
-#: templates/dashboard.html:135
+#: templates/dashboard.html:133
 msgid "Buscar lançamentos"
 msgstr "Search for releases"
 
-#: templates/dashboard.html:137
+#: templates/dashboard.html:135
 msgid "A busca filtra apenas os lançamentos visíveis nesta página."
 msgstr "The search filters only the releases visible on this page."
 
-#: templates/dashboard.html:144
+#: templates/dashboard.html:142
 msgid "Dia"
 msgstr "Day"
 
-#: templates/auth/profile.html:484 templates/dashboard.html:150
+#: templates/auth/profile.html:485 templates/dashboard.html:148
 msgid "Ações"
 msgstr "Actions"
 
-#: templates/dashboard.html:179 templates/dashboard.html:340
+#: templates/dashboard.html:180 templates/dashboard.html:369
 msgid "Pago"
 msgstr "Paid"
 
-#: templates/dashboard.html:181 templates/dashboard.html:339
+#: templates/dashboard.html:182 templates/dashboard.html:368
 msgid "Pendente"
 msgstr "Pending"
 
-#: templates/dashboard.html:183 templates/dashboard.html:341
+#: templates/dashboard.html:184 templates/dashboard.html:370
 msgid "Atrasado"
 msgstr "Overdue"
 
-#: templates/dashboard.html:192
+#: templates/dashboard.html:193
 msgid "Tem certeza que deseja excluir este lançamento?"
 msgstr "Are you sure you want to delete this release?"
 
-#: templates/dashboard.html:206
+#: templates/dashboard.html:207
 msgid "Nenhum lançamento neste mês."
 msgstr "No entries this month."
 
-#: templates/dashboard.html:213
+#: templates/dashboard.html:214
 msgid "Nenhum resultado encontrado para a busca."
 msgstr "No results found for your search."
 
-#: templates/dashboard.html:223
+#: templates/dashboard.html:224
 msgid "Paginação dos lançamentos"
 msgstr "Pagination of releases"
 
-#: templates/auth/profile.html:19 templates/dashboard.html:226
-msgid "Anterior"
-msgstr "Previous"
+#: templates/dashboard.html:249
+msgid "Painel lateral de análises"
+msgstr "Analytics side panel"
 
-#: templates/auth/profile.html:26 templates/dashboard.html:238
-msgid "Próxima"
-msgstr "Next"
-
-#: templates/dashboard.html:250
+#: templates/dashboard.html:251
 msgid "Despesas por Categoria"
 msgstr "Expenses by Category"
 
-#: templates/dashboard.html:254
+#: templates/dashboard.html:255
 msgid "Ainda não há despesas suficientes para montar o gráfico deste período."
 msgstr "There are still not enough expenses to create the graph for this period."
 
-#: templates/dashboard.html:258
+#: templates/dashboard.html:259
 msgid "Gráfico de despesas por categoria"
 msgstr "Expense chart by category"
 
-#: templates/dashboard.html:265
+#: templates/dashboard.html:266
+msgid "Receitas por Categoria"
+msgstr "Income by Category"
+
+#: templates/dashboard.html:270
+msgid "Ainda não há receitas suficientes para montar o gráfico deste período."
+msgstr "There are still not enough revenues to create the graph for this period."
+
+#: templates/dashboard.html:274
+msgid "Gráfico de receitas por categoria"
+msgstr "Revenue chart by category"
+
+#: templates/dashboard.html:281
 msgid "Exportar e Importar"
 msgstr "Export and Import"
 
-#: templates/dashboard.html:267
+#: templates/dashboard.html:283
 msgid "Gerando PDF..."
 msgstr "Generating PDF..."
 
-#: templates/dashboard.html:268
+#: templates/dashboard.html:284
 msgid "Relatório PDF"
 msgstr "PDF Report"
 
-#: templates/dashboard.html:270
+#: templates/dashboard.html:286
 msgid "Gerando CSV..."
 msgstr "Generating CSV..."
 
-#: templates/dashboard.html:271
+#: templates/dashboard.html:287
 msgid "Planilha CSV"
 msgstr "CSV Spreadsheet"
 
-#: templates/dashboard.html:273
+#: templates/dashboard.html:289
 msgid "Gerando TXT..."
 msgstr "Generating TXT..."
 
-#: templates/dashboard.html:274
+#: templates/dashboard.html:290
 msgid "Arquivo TXT"
 msgstr "TXT File"
 
-#: templates/dashboard.html:277
-msgid "Importando..."
-msgstr "Importing..."
-
-#: templates/dashboard.html:280
+#: templates/dashboard.html:296
 msgid "Arquivo para importação"
 msgstr "File for import"
 
-#: templates/dashboard.html:281 templates/dashboard.html:282
+#: templates/dashboard.html:297 templates/dashboard.html:298
 msgid "Importar"
 msgstr "Import"
 
-#: templates/dashboard.html:285
+#: templates/dashboard.html:302
+msgid "Conta para lançamentos importados"
+msgstr "Account for imported entries"
+
+#: templates/dashboard.html:303 templates/dashboard.html:347
+msgid "Sem conta associada"
+msgstr "No associated account"
+
+#: templates/dashboard.html:307
 msgid "CSV ou XLSX (máx. 10 MB)"
 msgstr "CSV or XLSX (max. 10 MB)"
 
-#: templates/dashboard.html:302
+#: templates/dashboard.html:324
 msgid "Fechar modal"
 msgstr "Close modal"
 
-#: templates/dashboard.html:305
+#: templates/dashboard.html:327
 msgid "Use este formulário para criar ou editar um lançamento financeiro."
 msgstr "Use this form to create or edit a financial entry."
 
-#: templates/dashboard.html:312
+#: templates/dashboard.html:334
 msgid "Valor (R$)"
 msgstr "Value (R$)"
 
-#: templates/dashboard.html:318
+#: templates/dashboard.html:340
 msgid "Despesa"
 msgstr "Expense"
 
-#: templates/dashboard.html:319
+#: templates/dashboard.html:341
 msgid "Receita"
 msgstr "Income"
 
-#: templates/dashboard.html:331 templates/dashboard.html:407
+#: templates/dashboard.html:345
+msgid "Conta"
+msgstr "Account"
+
+#: templates/dashboard.html:360 templates/dashboard.html:436
 msgid "Selecione a subcategoria"
 msgstr "Select a subcategory"
 
-#: templates/dashboard.html:358 templates/dashboard.html:408
+#: templates/dashboard.html:387 templates/dashboard.html:437
 msgid "Selecione a forma"
 msgstr "Select a method"
 
-#: templates/dashboard.html:367
+#: templates/dashboard.html:396
 msgid "Repetir (Recorrência)"
 msgstr "Repeat (Recurrence)"
 
-#: templates/auth/profile.html:427 templates/dashboard.html:372
+#: templates/auth/profile.html:428 templates/dashboard.html:401
 msgid "Frequência"
 msgstr "Frequency"
 
-#: templates/dashboard.html:375
+#: templates/dashboard.html:404
 msgid "Semanal"
 msgstr "Weekly"
 
-#: templates/dashboard.html:376
+#: templates/dashboard.html:405
 msgid "Diário"
 msgstr "Daily"
 
-#: templates/dashboard.html:381
+#: templates/dashboard.html:410
 msgid "Data Final (Opcional)"
 msgstr "End Date (Optional)"
 
-#: templates/dashboard.html:406
+#: templates/dashboard.html:435
 msgid "Selecione a categoria"
 msgstr "Select a category"
 
-#: templates/dashboard.html:610
+#: templates/dashboard.html:541
+msgid "Expandir painel lateral"
+msgstr "Expand side panel"
+
+#: templates/dashboard.html:547
+msgid "Expandir lateral"
+msgstr "Expand sidebar"
+
+#: templates/dashboard.html:712
 msgid "Editar Lançamento"
 msgstr "Edit Entry"
 
@@ -1664,10 +2347,6 @@ msgstr "Deadline (Optional)"
 #: templates/goals.html:128
 msgid "Editar Meta"
 msgstr "Edit Goal"
-
-#: templates/goals.html:151
-msgid "Salvar alterações"
-msgstr "Save changes"
 
 #: templates/welcome.html:3
 msgid "Controle financeiro local e inteligente"
@@ -1901,7 +2580,7 @@ msgstr "Open"
 msgid "Abrir Sessões"
 msgstr "Open Sessions"
 
-#: templates/auth/profile.html:92 templates/auth/profile.html:532
+#: templates/auth/profile.html:92 templates/auth/profile.html:533
 msgid "Sessões ativas"
 msgstr "Active sessions"
 
@@ -2011,57 +2690,57 @@ msgstr "When the timer runs out due to inactivity, you will need to sign in agai
 msgid "Salvar Alterações"
 msgstr "Save Changes"
 
-#: templates/auth/profile.html:231
+#: templates/auth/profile.html:232
 msgid "Senha Atual"
 msgstr "Current Password"
 
-#: templates/auth/profile.html:236
+#: templates/auth/profile.html:237
 #: templates/auth/reset_password_offline.html:31
 #: templates/auth/reset_password_token.html:18
 msgid "Nova Senha"
 msgstr "New Password"
 
-#: templates/auth/profile.html:238 templates/auth/register.html:50
+#: templates/auth/profile.html:239 templates/auth/register.html:50
 #: templates/auth/register.html:209 templates/auth/register.html:234
 #: templates/auth/reset_password_token.html:23
 msgid "Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números."
 msgstr "Use at least 8 characters with uppercase, lowercase letters and numbers."
 
-#: templates/auth/profile.html:241 templates/auth/reset_password_token.html:28
+#: templates/auth/profile.html:242 templates/auth/reset_password_token.html:28
 msgid "Atualizar Senha"
 msgstr "Update Password"
 
-#: templates/auth/profile.html:255
+#: templates/auth/profile.html:256
 msgid "Última geração"
 msgstr "Last generation"
 
-#: templates/auth/profile.html:260
+#: templates/auth/profile.html:261
 msgid "Não registrada"
 msgstr "Not registered"
 
-#: templates/auth/profile.html:267
+#: templates/auth/profile.html:268
 msgid "Chave atual"
 msgstr "Current key"
 
-#: templates/auth/profile.html:274
+#: templates/auth/profile.html:275
 msgid "Gere uma nova chave para disponibilizar a cópia nesta tela."
 msgstr "Generate a new key to make the copy available on this screen."
 
-#: templates/auth/profile.html:278 templates/auth/profile.html:865
+#: templates/auth/profile.html:279 templates/auth/profile.html:866
 #: templates/auth/register_success.html:21
 #: templates/auth/register_success.html:57
 msgid "Copiar"
 msgstr "Copy"
 
-#: templates/auth/profile.html:281
+#: templates/auth/profile.html:282
 msgid "Último envio por e-mail"
 msgstr "Last email sent"
 
-#: templates/auth/profile.html:286
+#: templates/auth/profile.html:287
 msgid "Nenhum envio registrado até o momento."
 msgstr "No shipments registered so far."
 
-#: templates/auth/profile.html:289
+#: templates/auth/profile.html:290
 msgid ""
 "Mantenha esta chave em local seguro. Se você suspeitar de "
 "comprometimento, gere uma nova chave imediatamente."
@@ -2069,11 +2748,11 @@ msgstr ""
 "Keep this key in a safe place. If you suspect compromise, generate a new "
 "key immediately."
 
-#: templates/auth/profile.html:294
+#: templates/auth/profile.html:295
 msgid "Enviar por e-mail"
 msgstr "Send by email"
 
-#: templates/auth/profile.html:296
+#: templates/auth/profile.html:297
 msgid ""
 "Deseja gerar uma nova chave de recuperação? A chave anterior deixará de "
 "valer imediatamente."
@@ -2081,19 +2760,19 @@ msgstr ""
 "Do you want to generate a new recovery key? The previous key will cease "
 "to be valid immediately."
 
-#: templates/auth/profile.html:299
+#: templates/auth/profile.html:300
 msgid "Gerar nova chave"
 msgstr "Generate new key"
 
-#: templates/auth/profile.html:301
+#: templates/auth/profile.html:302
 msgid "Abrir fluxo de recuperação"
 msgstr "Open recovery flow"
 
-#: templates/auth/profile.html:312
+#: templates/auth/profile.html:313
 msgid "Envio de e-mails"
 msgstr "Email delivery"
 
-#: templates/auth/profile.html:313
+#: templates/auth/profile.html:314
 msgid ""
 "Configure o SMTP usado para chaves de recuperação, redefinição de senha e"
 " avisos do Finora."
@@ -2101,361 +2780,357 @@ msgstr ""
 "Configure the SMTP service used for recovery keys, password resets, and "
 "Finora notifications."
 
-#: templates/auth/profile.html:316 templates/auth/profile.html:699
+#: templates/auth/profile.html:317 templates/auth/profile.html:700
 msgid "Configurado"
 msgstr "Configured"
 
-#: templates/auth/profile.html:324
+#: templates/auth/profile.html:325
 msgid "Servidor SMTP"
 msgstr "SMTP server"
 
-#: templates/auth/profile.html:328
+#: templates/auth/profile.html:329
 msgid "Porta"
 msgstr "Port"
 
-#: templates/auth/profile.html:332
+#: templates/auth/profile.html:333
 msgid "Segurança"
 msgstr "Security"
 
-#: templates/auth/profile.html:336
+#: templates/auth/profile.html:337
 msgid "Sem criptografia"
 msgstr "No encryption"
 
-#: templates/auth/profile.html:340
+#: templates/auth/profile.html:341
 msgid "Usuário SMTP"
 msgstr "SMTP username"
 
-#: templates/auth/profile.html:344
+#: templates/auth/profile.html:345
 msgid "Senha SMTP"
 msgstr "SMTP password"
 
-#: templates/auth/profile.html:348
+#: templates/auth/profile.html:349
 msgid "Uma senha criptografada já está salva. Deixe em branco para mantê-la."
 msgstr "An encrypted password is already saved. Leave this blank to keep it."
 
-#: templates/auth/profile.html:350
+#: templates/auth/profile.html:351
 msgid "A senha será criptografada e armazenada somente neste computador."
 msgstr "The password will be encrypted and stored only on this computer."
 
-#: templates/auth/profile.html:355
+#: templates/auth/profile.html:356
 msgid "E-mail remetente"
 msgstr "Sender email"
 
-#: templates/auth/profile.html:359
+#: templates/auth/profile.html:360
 msgid "Nome do remetente"
 msgstr "Sender name"
 
-#: templates/auth/profile.html:366
+#: templates/auth/profile.html:367
 msgid "Salvar configurações"
 msgstr "Save settings"
 
-#: templates/auth/profile.html:369
+#: templates/auth/profile.html:370
 msgid "Salvar e enviar teste"
 msgstr "Save and send test"
 
-#: templates/auth/profile.html:380
+#: templates/auth/profile.html:381
 msgid ""
 "Centralize aqui os backups manuais, a rotina automática e o histórico "
 "salvo."
 msgstr "Centralize manual backups, automatic routine and saved history here."
 
-#: templates/auth/profile.html:382
+#: templates/auth/profile.html:383
 msgid "Gerar Backup Manual"
 msgstr "Generate Manual Backup"
 
-#: templates/auth/profile.html:388
+#: templates/auth/profile.html:389
 msgid "Rotina automática"
 msgstr "Automatic routine"
 
-#: templates/auth/profile.html:389
+#: templates/auth/profile.html:390
 msgid "Ativada"
 msgstr "Enabled"
 
-#: templates/auth/profile.html:389
+#: templates/auth/profile.html:390
 msgid "Desativada"
 msgstr "Disabled"
 
-#: templates/auth/profile.html:390
+#: templates/auth/profile.html:391
 #, python-format
 msgid "Frequência: %(frequency)s"
 msgstr "Frequency: %(frequency)s"
 
-#: templates/auth/profile.html:391
+#: templates/auth/profile.html:392
 #, python-format
 msgid "Retenção: %(count)s backup(s)"
 msgstr "Retention: %(count)s backup(s)"
 
-#: templates/auth/profile.html:392
+#: templates/auth/profile.html:393
 #, python-format
 msgid "Execuções por período: %(count)s"
 msgstr "Executions by period: %(count)s"
 
-#: templates/auth/profile.html:397
+#: templates/auth/profile.html:398
 msgid "Próxima execução"
 msgstr "Next run"
 
-#: templates/auth/profile.html:402
+#: templates/auth/profile.html:403
 msgid "Ainda não agendada"
 msgstr "Not yet scheduled"
 
-#: templates/auth/profile.html:407
+#: templates/auth/profile.html:408
 #, python-format
 msgid "Última execução em %(date)s"
 msgstr "Last run on %(date)s"
 
-#: templates/auth/profile.html:409
+#: templates/auth/profile.html:410
 msgid "Nenhuma execução automática registrada."
 msgstr "No autoruns recorded."
 
-#: templates/auth/profile.html:417
+#: templates/auth/profile.html:418
 msgid "Configurar rotina automática"
 msgstr "Configure automatic routine"
 
-#: templates/auth/profile.html:422
+#: templates/auth/profile.html:423
 msgid "Ativar backups automáticos"
 msgstr "Enable automatic backups"
 
-#: templates/auth/profile.html:435
+#: templates/auth/profile.html:436
 msgid "Execuções por período"
 msgstr "Executions by period"
 
-#: templates/auth/profile.html:443
+#: templates/auth/profile.html:444
 msgid "Dia da semana"
 msgstr "Day of the week"
 
-#: templates/auth/profile.html:451
+#: templates/auth/profile.html:452
 msgid "Dia do mês"
 msgstr "Day of the month"
 
-#: templates/auth/profile.html:455
+#: templates/auth/profile.html:456
 msgid "Hora inicial"
 msgstr "Start time"
 
-#: templates/auth/profile.html:459
+#: templates/auth/profile.html:460
 msgid "Minuto"
 msgstr "Minute"
 
-#: templates/auth/profile.html:463
+#: templates/auth/profile.html:464
 msgid "Retenção máxima"
 msgstr "Maximum retention"
 
-#: templates/auth/profile.html:465
+#: templates/auth/profile.html:466
 msgid "Backups mais antigos acima deste limite serão removidos automaticamente."
 msgstr "Older backups above this limit will be automatically removed."
 
-#: templates/auth/profile.html:470
+#: templates/auth/profile.html:471
 msgid "Salvar rotina"
 msgstr "Save schedule"
 
-#: templates/auth/profile.html:480
+#: templates/auth/profile.html:481
 msgid "Arquivo"
 msgstr "File"
 
-#: templates/auth/profile.html:481
-msgid "Origem"
-msgstr "Origin"
-
-#: templates/auth/profile.html:482
+#: templates/auth/profile.html:483
 msgid "Criado em"
 msgstr "Created in"
 
-#: templates/auth/profile.html:483
+#: templates/auth/profile.html:484
 msgid "Tamanho"
 msgstr "Size"
 
-#: templates/auth/profile.html:505
+#: templates/auth/profile.html:506
 msgid "Baixar"
 msgstr "Download"
 
-#: templates/auth/profile.html:506
+#: templates/auth/profile.html:507
 msgid "Deseja excluir este backup salvo?"
 msgstr "Do you want to delete this saved backup?"
 
-#: templates/auth/profile.html:520
+#: templates/auth/profile.html:521
 msgid "Nenhum backup manual registrado ainda."
 msgstr "No manual backups recorded yet."
 
-#: templates/auth/profile.html:526
+#: templates/auth/profile.html:527
 msgid "Resumo das sessões"
 msgstr "Session summary"
 
-#: templates/auth/profile.html:528
+#: templates/auth/profile.html:529
 msgid "Total de sessões"
 msgstr "Total sessions"
 
-#: templates/auth/profile.html:536
+#: templates/auth/profile.html:537
 msgid "Sessões encerradas"
 msgstr "Ended sessions"
 
-#: templates/auth/profile.html:550
+#: templates/auth/profile.html:551
 msgid "Ativa"
 msgstr "Active"
 
-#: templates/auth/profile.html:555
+#: templates/auth/profile.html:556
 msgid "IP indisponível"
 msgstr "IP unavailable"
 
-#: templates/auth/profile.html:559
+#: templates/auth/profile.html:560
 #, python-format
 msgid "Início: %(date)s"
 msgstr "Home: %(date)s"
 
-#: templates/auth/profile.html:560
+#: templates/auth/profile.html:561
 #, python-format
 msgid "Última atividade: %(date)s"
 msgstr "Last activity: %(date)s"
 
-#: templates/auth/profile.html:562
+#: templates/auth/profile.html:563
 #, python-format
 msgid "%(label)s em %(date)s"
 msgstr "%(label)s on %(date)s"
 
-#: templates/auth/profile.html:566
+#: templates/auth/profile.html:567
 msgid "Deseja excluir este registro de sessão?"
 msgstr "Do you want to delete this session record?"
 
-#: templates/auth/profile.html:569
+#: templates/auth/profile.html:570
 msgid "Excluir registro da sessão"
 msgstr "Delete session record"
 
-#: templates/auth/profile.html:569 templates/auth/profile.html:624
-#: templates/auth/profile.html:758
+#: templates/auth/profile.html:570 templates/auth/profile.html:625
+#: templates/auth/profile.html:759
 msgid "Excluir registro"
 msgstr "Delete record"
 
-#: templates/auth/profile.html:580
+#: templates/auth/profile.html:581
 msgid "Nenhuma sessão registrada até o momento."
 msgstr "No sessions registered so far."
 
-#: templates/auth/profile.html:586
+#: templates/auth/profile.html:587
 msgid "Resumo das atividades"
 msgstr "Activity summary"
 
-#: templates/auth/profile.html:588
+#: templates/auth/profile.html:589
 msgid "Total de atividades"
 msgstr "Total activities"
 
-#: templates/auth/profile.html:594
+#: templates/auth/profile.html:595
 msgid "Tipos de atividade"
 msgstr "Activity types"
 
-#: templates/auth/profile.html:621
+#: templates/auth/profile.html:622
 msgid "Deseja excluir este registro de atividade?"
 msgstr "Do you want to delete this activity record?"
 
-#: templates/auth/profile.html:624
+#: templates/auth/profile.html:625
 msgid "Excluir registro da atividade"
 msgstr "Delete activity record"
 
-#: templates/auth/profile.html:634
+#: templates/auth/profile.html:635
 msgid "Nenhuma atividade registrada ainda."
 msgstr "No activity recorded yet."
 
-#: templates/auth/profile.html:640
+#: templates/auth/profile.html:641
 msgid "Resumo das falhas do sistema"
 msgstr "System failure summary"
 
-#: templates/auth/profile.html:642
+#: templates/auth/profile.html:643
 msgid "Total de falhas"
 msgstr "Total failures"
 
-#: templates/auth/profile.html:646
+#: templates/auth/profile.html:647
 msgid "Falhas abertas"
 msgstr "Open failures"
 
-#: templates/auth/profile.html:650
+#: templates/auth/profile.html:651
 msgid "Falhas resolvidas"
 msgstr "Resolved failures"
 
-#: templates/auth/profile.html:656
+#: templates/auth/profile.html:657
 msgid "Tipos de falha"
 msgstr "Failure types"
 
-#: templates/auth/profile.html:667
+#: templates/auth/profile.html:668
 msgid "Banco de dados"
 msgstr "Database"
 
-#: templates/auth/profile.html:669
+#: templates/auth/profile.html:670
 msgid "Conectividade em tempo real"
 msgstr "Real-time connectivity"
 
-#: templates/auth/profile.html:674
+#: templates/auth/profile.html:675
 msgid "Agendador de backups"
 msgstr "Backup scheduler"
 
-#: templates/auth/profile.html:675 templates/auth/profile.html:682
+#: templates/auth/profile.html:676 templates/auth/profile.html:683
 msgid "Ativo"
 msgstr "Active"
 
-#: templates/auth/profile.html:675 templates/auth/profile.html:682
+#: templates/auth/profile.html:676 templates/auth/profile.html:683
 msgid "Desativado"
 msgstr "Disabled"
 
-#: templates/auth/profile.html:676
+#: templates/auth/profile.html:677
 #, python-format
 msgid "Storage pronto: %(state)s"
 msgstr "Storage ready: %(state)s"
 
-#: templates/auth/profile.html:681
+#: templates/auth/profile.html:682
 msgid "Agendador de recorrências"
 msgstr "Recurring scheduler"
 
-#: templates/auth/profile.html:683
+#: templates/auth/profile.html:684
 msgid "Operação automática de lançamentos"
 msgstr "Automatic entry processing"
 
-#: templates/auth/profile.html:688
+#: templates/auth/profile.html:689
 msgid "Atualizações"
 msgstr "Updates"
 
-#: templates/auth/profile.html:690
+#: templates/auth/profile.html:691
 #, python-format
 msgid "Status: %(status)s"
 msgstr "Status: %(status)s"
 
-#: templates/auth/profile.html:698
+#: templates/auth/profile.html:699
 msgid "Manifesto de atualização"
 msgstr "Update manifest"
 
-#: templates/auth/profile.html:702
+#: templates/auth/profile.html:703
 #, python-format
 msgid "Última verificação em %(date)s"
 msgstr "Last checked on %(date)s"
 
-#: templates/auth/profile.html:704
+#: templates/auth/profile.html:705
 msgid "Nenhuma verificação de atualização registrada."
 msgstr "No update check recorded."
 
-#: templates/auth/profile.html:711
+#: templates/auth/profile.html:712
 msgid "Último backup salvo"
 msgstr "Latest saved backup"
 
-#: templates/auth/profile.html:716
+#: templates/auth/profile.html:717
 msgid "Nenhum backup salvo ainda"
 msgstr "No backups saved yet"
 
-#: templates/auth/profile.html:723
+#: templates/auth/profile.html:724
 msgid "Gere um backup manual ou automático para começar o histórico."
 msgstr "Generate a manual or automatic backup to start the history."
 
-#: templates/auth/profile.html:751
+#: templates/auth/profile.html:752
 #, python-format
 msgid "Resolvido em %(date)s"
 msgstr "Resolved on %(date)s"
 
-#: templates/auth/profile.html:755
+#: templates/auth/profile.html:756
 msgid "Deseja excluir este evento do sistema?"
 msgstr "Do you want to delete this system event?"
 
-#: templates/auth/profile.html:758
+#: templates/auth/profile.html:759
 msgid "Excluir evento do sistema"
 msgstr "Delete system event"
 
-#: templates/auth/profile.html:769
+#: templates/auth/profile.html:770
 msgid "Nenhum evento de sistema registrado no momento."
 msgstr "No system events currently logged."
 
-#: templates/auth/profile.html:775
+#: templates/auth/profile.html:776
 msgid ""
 "A exclusão da sua conta é irreversível. Todos os seus dados financeiros e"
 " metas serão apagados permanentemente."
@@ -2463,36 +3138,36 @@ msgstr ""
 "Deleting your account is irreversible. All your financial data and goals "
 "will be permanently deleted."
 
-#: templates/auth/profile.html:777
+#: templates/auth/profile.html:778
 msgid "Excluir Minha Conta"
 msgstr "Delete My Account"
 
-#: templates/auth/profile.html:789
+#: templates/auth/profile.html:790
 msgid "Confirmar Exclusão"
 msgstr "Confirm Deletion"
 
-#: templates/auth/profile.html:793
+#: templates/auth/profile.html:794
 msgid "Tem certeza absoluta? Esta ação não pode ser desfeita."
 msgstr "Are you sure? This action cannot be undone."
 
-#: templates/auth/profile.html:794
+#: templates/auth/profile.html:795
 #, python-format
 msgid "Para confirmar, digite \"%(token)s\" na caixa abaixo:"
 msgstr "To confirm, type \"%(token)s\" in the box below:"
 
-#: templates/auth/profile.html:801
+#: templates/auth/profile.html:802
 msgid "Excluir Permanentemente"
 msgstr "Delete Permanently"
 
-#: templates/auth/profile.html:862 templates/auth/register_success.html:54
+#: templates/auth/profile.html:863 templates/auth/register_success.html:54
 msgid "Copiado!"
 msgstr "Copied!"
 
-#: templates/auth/profile.html:897
+#: templates/auth/profile.html:898
 msgid "Use pelo menos 3 caracteres."
 msgstr "Use at least 3 characters."
 
-#: templates/auth/profile.html:920
+#: templates/auth/profile.html:921
 msgid "Não foi possível verificar agora. A validação será repetida ao salvar."
 msgstr "Unable to check now. Validation will run again when you save."
 
@@ -2609,284 +3284,20 @@ msgstr "Account:"
 msgid "Este link expira em 1 hora por segurança."
 msgstr "This link expires in 1 hour for security."
 
-#~ msgid "Pronto"
-#~ msgstr "Ready"
+#~ msgid "Conta corrente"
+#~ msgstr "Checking account"
 
-#~ msgid "Encerrada por logout"
-#~ msgstr "Ended by logout"
+#~ msgid "Conta poupança"
+#~ msgstr "Savings account"
 
-#~ msgid "Encerrada por inatividade"
-#~ msgstr "Ended due to inactivity"
+#~ msgid "Carteira"
+#~ msgstr "Wallet"
 
-#~ msgid "Encerrada por exclusão de conta"
-#~ msgstr "Ended by account deletion"
+#~ msgid "Cartão de crédito"
+#~ msgstr "credit card"
 
-#~ msgid "Encerrada por reconciliação de sessão"
-#~ msgstr "Ended by session reconciliation"
+#~ msgid "Investimentos"
+#~ msgstr "Investments"
 
-#~ msgid "Informativo"
-#~ msgstr "Informational"
-
-#~ msgid "Atenção"
-#~ msgstr "Warning"
-
-#~ msgid "Erro"
-#~ msgstr "Error"
-
-#~ msgid "Recorrência"
-#~ msgstr "Recurrence"
-
-#~ msgid "Nome do arquivo"
-#~ msgstr "File name"
-
-#~ msgid "Origem do disparo"
-#~ msgstr "Trigger source"
-
-#~ msgid "Entrega"
-#~ msgstr "Delivery"
-
-#~ msgid "Lançamento"
-#~ msgstr "Entry"
-
-#~ msgid "Meta"
-#~ msgstr "Goal"
-
-#~ msgid "Orçamento"
-#~ msgstr "Budget"
-
-#~ msgid "Backup"
-#~ msgstr "Backup"
-
-#~ msgid "Pacote"
-#~ msgstr "Package"
-
-#~ msgid "Tempo de sessão"
-#~ msgstr "Session timeout"
-
-#~ msgid "Manual"
-#~ msgstr "Manual"
-
-#~ msgid "Cadastro"
-#~ msgstr "Registration"
-
-#~ msgid "Reenvio"
-#~ msgstr "Resend"
-
-#~ msgid "Regeneração"
-#~ msgstr "Regeneration"
-
-#~ msgid "Autenticação"
-#~ msgstr "Authentication"
-
-#~ msgid "Exportações"
-#~ msgstr "Exports"
-
-#~ msgid "Importações"
-#~ msgstr "Imports"
-
-#~ msgid "Backups"
-#~ msgstr "Backups"
-
-#~ msgid "Login realizado"
-#~ msgstr "Logged in"
-
-#~ msgid "Logout realizado"
-#~ msgstr "Logged out"
-
-#~ msgid "Perfil atualizado"
-#~ msgstr "Profile updated"
-
-#~ msgid "Senha alterada"
-#~ msgstr "Password changed"
-
-#~ msgid "Chave reenviada"
-#~ msgstr "Recovery key resent"
-
-#~ msgid "Chave regenerada"
-#~ msgstr "Recovery key regenerated"
-
-#~ msgid "Lançamento criado"
-#~ msgstr "Entry created"
-
-#~ msgid "Lançamento atualizado"
-#~ msgstr "Entry updated"
-
-#~ msgid "Lançamento excluído"
-#~ msgstr "Entry deleted"
-
-#~ msgid "Meta criada"
-#~ msgstr "Goal created"
-
-#~ msgid "Meta atualizada"
-#~ msgstr "Goal updated"
-
-#~ msgid "Meta excluída"
-#~ msgstr "Goal deleted"
-
-#~ msgid "Orçamento criado"
-#~ msgstr "Budget created"
-
-#~ msgid "Orçamento atualizado"
-#~ msgstr "Budget updated"
-
-#~ msgid "Orçamento excluído"
-#~ msgstr "Budget deleted"
-
-#~ msgid "Importação concluída"
-#~ msgstr "Import completed"
-
-#~ msgid "PDF exportado"
-#~ msgstr "PDF exported"
-
-#~ msgid "CSV exportado"
-#~ msgstr "CSV exported"
-
-#~ msgid "TXT exportado"
-#~ msgstr "TXT exported"
-
-#~ msgid "Backup gerado"
-#~ msgstr "Backup generated"
-
-#~ msgid "Backup excluído"
-#~ msgstr "Backup deleted"
-
-#~ msgid "Atualização aplicada"
-#~ msgstr "Update applied"
-
-#~ msgid "Atualização disponível"
-#~ msgstr "Update available"
-
-#~ msgid "Atualizado"
-#~ msgstr "Up to date"
-
-#~ msgid "Falha na atualização"
-#~ msgstr "Update failed"
-
-#~ msgid "Login realizado com sucesso."
-#~ msgstr "Login completed successfully."
-
-#~ msgid "Por favor, insira um endereço de email válido."
-#~ msgstr ""
-
-#~ msgid "Dashboard"
-#~ msgstr "Dashboard"
-
-#~ msgid "CSV ou Excel"
-#~ msgstr "CSV or Excel"
-
-#~ msgid "Email"
-#~ msgstr "Email"
-
-#~ msgid "Usuário não encontrado."
-#~ msgstr "User not found."
-
-#~ msgid ""
-#~ "Um link de recuperação foi enviado "
-#~ "para seu e-mail (Simulação: verifique o"
-#~ " console)."
-#~ msgstr ""
-#~ "A recovery link has been sent to"
-#~ " your email (Simulation: check the "
-#~ "console)."
-
-#~ msgid ""
-#~ "Funcionalidade de token ainda não "
-#~ "implementada (use a chave de "
-#~ "recuperação)."
-#~ msgstr "Token functionality not implemented yet (use recovery key)."
-
-#~ msgid "%(count)d lançamentos recorrentes foram gerados."
-#~ msgstr "%(count)d recurring releases were generated."
-
-#~ msgid "Valor inválido. Insira um número válido e positivo."
-#~ msgstr "Invalid value. Enter a valid, positive number."
-
-#~ msgid "Tipo de lançamento inválido."
-#~ msgstr "Invalid release type."
-
-#~ msgid "Status de lançamento inválido."
-#~ msgstr "Invalid launch status."
-
-#~ msgid "O valor atual não pode ser negativo."
-#~ msgstr "The current value cannot be negative."
-
-#~ msgid ""
-#~ "Um sistema financeiro pessoal com foco"
-#~ " em clareza, desempenho e segurança "
-#~ "local."
-#~ msgstr ""
-#~ "A personal financial system focused on"
-#~ " clarity, performance and local security."
-
-#~ msgid "Tem certeza?"
-#~ msgstr "Are you sure?"
-
-#~ msgid "Moradia"
-#~ msgstr "Housing"
-
-#~ msgid "Transporte"
-#~ msgstr "Transport"
-
-#~ msgid "Lazer"
-#~ msgstr "Leisure"
-
-#~ msgid "Saúde"
-#~ msgstr "Health"
-
-#~ msgid "Educação"
-#~ msgstr "Education"
-
-#~ msgid "Salário"
-#~ msgstr "Salary"
-
-#~ msgid "Investimento"
-#~ msgstr "Investment"
-
-#~ msgid "Total Pago (Desp)"
-#~ msgstr "Total Paid (Expense)"
-
-#~ msgid "Novo valor"
-#~ msgstr "New amount"
-
-#~ msgid "Editar Perfil"
-#~ msgstr "Edit Profile"
-
-#~ msgid "Usuário: "
-#~ msgstr "User: "
-
-#~ msgid ""
-#~ "Verifique a versão instalada, acompanhe "
-#~ "o canal atual e aplique atualizações "
-#~ "com backup prévio e migração segura "
-#~ "do banco de dados."
-#~ msgstr ""
-#~ "Check the installed version, monitor the"
-#~ " current channel, and apply updates "
-#~ "with a pre-update backup and safe"
-#~ " database migration."
-
-#~ msgid "A disponibilidade definitiva será confirmada ao concluir o cadastro."
-#~ msgstr "Final availability will be confirmed when you complete sign-up."
-
-#~ msgid ""
-#~ "Conta criada com sucesso! Sua chave "
-#~ "de recuperação é: %(key)s. Guarde-a em"
-#~ " local seguro!"
-#~ msgstr ""
-#~ "Account created successfully! Your recovery"
-#~ " key is: %(key)s. Keep it safe!"
-
-#~ msgid ""
-#~ "O envio por e-mail da chave de "
-#~ "recuperação não pôde ser concluído neste"
-#~ " momento."
-#~ msgstr "Emailing the recovery key could not be completed at this time."
-
-#~ msgid "O nome de usuário não pode ser alterado."
-#~ msgstr "The username cannot be changed."
-
-#~ msgid "Recomendamos uma senha forte."
-#~ msgstr "We recommend a strong password."
-
-#~ msgid "Digite uma senha para verificar a força."
-#~ msgstr "Enter a password to check its strength."
+#~ msgid "Outra conta"
+#~ msgstr "Another account"

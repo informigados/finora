@@ -77,6 +77,7 @@ def process_recurring_entries(user_id, commit=True):
                 due_date=entry.next_run_date,
                 payment_method=entry.payment_method,
                 user_id=entry.user_id,
+                account_id=entry.account_id,
                 observations=f"Gerado automaticamente (Recorrente: {entry.frequency})"
             )
             db.session.add(new_finance)

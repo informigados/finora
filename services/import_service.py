@@ -85,6 +85,7 @@ class ImportResult:
 def import_finances_from_file(
     uploaded_file: FileStorage,
     user_id: int,
+    account_id: int | None = None,
     max_rows: int = MAX_IMPORT_ROWS,
     max_file_size: int = MAX_IMPORT_FILE_SIZE_BYTES,
 ) -> ImportResult:
@@ -110,7 +111,7 @@ def import_finances_from_file(
             )
 
         try:
-            entry = _build_entry_from_row(raw_row, user_id)
+            entry = _build_entry_from_row(raw_row, user_id, account_id=account_id)
             entries.append(entry)
         except ImportValidationError as exc:
             errors.append(f"Linha {row_number}: {exc}")
@@ -221,7 +222,11 @@ def _read_xlsx_rows(uploaded_file: FileStorage) -> list[tuple[int, dict[str, Any
         workbook.close()
 
 
-def _build_entry_from_row(raw_row: dict[str, Any], user_id: int) -> Finance:
+def _build_entry_from_row(
+    raw_row: dict[str, Any],
+    user_id: int,
+    account_id: int | None = None,
+) -> Finance:
     canonical = _to_canonical_fields(raw_row)
 
     description = str(canonical.get("description") or "Lançamento importado").strip()
@@ -261,6 +266,7 @@ def _build_entry_from_row(raw_row: dict[str, Any], user_id: int) -> Finance:
         payment_method=payment_method,
         observations=observations_str,
         user_id=user_id,
+        account_id=account_id,
     )
 
 

@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Contas') }} | Finora{% endblock %}
+
+{% macro money(value) -%}
+R$ {{ "%.2f"|format(value|float) }}
+{%- endmacro %}
+
+{% block content %}
+<section class="accounts-workspace" id="accounts-overview">
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+      <div class="section-kicker"><i data-lucide="landmark" class="icon-sm"></i>{{ _('Visão consolidada') }}</div>
+      <h1 class="h3 mb-1">{{ _('Contas') }}</h1>
+      <p class="text-muted mb-0">{{ _('Bancos, carteiras, cartões, transferências e conciliação em um só lugar.') }}</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#transferModal" {% if active_accounts|length < 2 %}disabled{% endif %}>
+        <i data-lucide="arrow-left-right" class="icon-sm me-1"></i>{{ _('Transferir') }}
+      </button>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#accountModal">
+        <i data-lucide="plus" class="icon-sm me-1"></i>{{ _('Nova conta') }}
+      </button>
+    </div>
+  </div>
+
+  <div class="accounts-balance-hero mb-4">
+    <div>
+      <span>{{ _('Saldo consolidado') }}</span>
+      <strong class="{% if consolidated_balance < 0 %}amount-negative{% endif %}">{{ money(consolidated_balance) }}</strong>
+    </div>
+    <p>{{ _('Soma dos saldos das contas ativas, incluindo transferências internas sem duplicar receitas ou despesas.') }}</p>
+  </div>
+
+  {% if account_summaries %}
+  {% set account_color_classes = {'#2563EB': 'account-accent-blue', '#059669': 'account-accent-green', '#7C3AED': 'account-accent-violet', '#D97706': 'account-accent-amber', '#E11D48': 'account-accent-rose', '#475569': 'account-accent-slate'} %}
+  <div class="row g-3 mb-5">
+    {% for item in account_summaries %}
+    {% set account = item.account %}
+    <div class="col-12 col-md-6 col-xl-4">
+      <article class="account-surface h-100 {{ account_color_classes.get(account.color, 'account-accent-blue') }} {% if not account.is_active %}account-surface-archived{% endif %}">
+        <div class="d-flex justify-content-between align-items-start gap-3">
+          <div class="min-w-0">
+            <span class="account-type-label">{{ _(item.type_label) }}</span>
+            <h2 class="h5 account-name mb-1">{{ account.name }}</h2>
+            <p class="text-muted small mb-0 text-break-safe">
+              {{ account.institution or _('Sem instituição') }}{% if account.last_four %} · •••• {{ account.last_four }}{% endif %}
+            </p>
+          </div>
+          <span class="account-mark"><i data-lucide="{% if account.account_type == 'credit_card' %}credit-card{% elif account.account_type == 'wallet' %}wallet-cards{% elif account.account_type == 'investment' %}chart-no-axes-combined{% else %}landmark{% endif %}" class="icon-sm"></i></span>
+        </div>
+        <div class="account-balance mt-4">
+          <span>{{ _('Saldo atual') }}</span>
+          <strong class="{% if item.balance < 0 %}amount-negative{% endif %}">{{ money(item.balance) }}</strong>
+        </div>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
+          <a href="{{ url_for('accounts.index', account=account.id) }}#reconciliation" class="account-reconciliation-link">
+            <i data-lucide="scan-search" class="icon-xs"></i>
+            {{ _('%(count)d pendente(s)', count=item.unreconciled_count) }}
+          </a>
+          <div class="d-flex gap-1">
+            <button class="btn btn-sm btn-outline-secondary border-0" type="button" data-bs-toggle="collapse" data-bs-target="#accountEdit{{ account.id }}" aria-expanded="false" aria-controls="accountEdit{{ account.id }}" title="{{ _('Editar conta') }}">
+              <i data-lucide="pencil" class="icon-sm"></i>
+            </button>
+            <form action="{{ url_for('accounts.toggle_account', account_id=account.id) }}" method="POST" data-confirm="{{ _('Arquivar esta conta sem apagar o histórico?') if account.is_active else _('Reativar esta conta?') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm btn-outline-secondary border-0" type="submit" title="{{ _('Arquivar') if account.is_active else _('Reativar') }}">
+                <i data-lucide="{{ 'archive' if account.is_active else 'archive-restore' }}" class="icon-sm"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="collapse mt-3" id="accountEdit{{ account.id }}">
+          <form action="{{ url_for('accounts.edit_account', account_id=account.id) }}" method="POST" class="account-edit-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row g-2">
+              <div class="col-12"><input class="form-control form-control-sm" name="name" value="{{ account.name }}" maxlength="80" required aria-label="{{ _('Nome da conta') }}"></div>
+              <div class="col-6">
+                <select class="form-select form-select-sm" name="account_type" aria-label="{{ _('Tipo de conta') }}">
+                  {% for value, label in account_type_labels.items() %}<option value="{{ value }}" {% if account.account_type == value %}selected{% endif %}>{{ _(label) }}</option>{% endfor %}
+                </select>
+              </div>
+              <div class="col-6"><input class="form-control form-control-sm" name="initial_balance" type="number" step="0.01" value="{{ account.initial_balance }}" aria-label="{{ _('Saldo inicial') }}"></div>
+              <div class="col-8"><input class="form-control form-control-sm" name="institution" value="{{ account.institution or '' }}" maxlength="100" placeholder="{{ _('Instituição') }}"></div>
+              <div class="col-4"><input class="form-control form-control-sm" name="last_four" value="{{ account.last_four or '' }}" maxlength="4" inputmode="numeric" placeholder="{{ _('Final') }}"></div>
+              <div class="col-4"><select class="form-select form-select-sm" name="color" aria-label="{{ _('Cor') }}">{% for value, label in account_color_options %}<option value="{{ value }}" {% if account.color == value %}selected{% endif %}>{{ _(label) }}</option>{% endfor %}</select></div>
+              <div class="col-8"><button class="btn btn-sm btn-primary w-100" type="submit"><i data-lucide="save" class="icon-xs me-1"></i>{{ _('Salvar alterações') }}</button></div>
+            </div>
+          </form>
+        </div>
+      </article>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-operational-state mb-5">
+    <i data-lucide="landmark" class="icon-lg"></i>
+    <h2 class="h5">{{ _('Comece pela sua primeira conta') }}</h2>
+    <p>{{ _('Cadastre uma conta bancária, carteira ou cartão para acompanhar saldos e importar extratos.') }}</p>
+    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#accountModal">{{ _('Criar primeira conta') }}</button>
+  </div>
+  {% endif %}
+
+  <section class="accounts-section" id="transfers">
+    <div class="accounts-section-heading">
+      <div><span>{{ _('Movimentação interna') }}</span><h2>{{ _('Transferências entre contas') }}</h2></div>
+      <p>{{ _('Transferências apenas movem saldo e não entram como receita ou despesa.') }}</p>
+    </div>
+    {% if transfers_pagination.items %}
+    <div class="operational-list">
+      {% for transfer in transfers_pagination.items %}
+      <div class="operational-row">
+        <span class="operational-row-icon"><i data-lucide="arrow-left-right" class="icon-sm"></i></span>
+        <div class="operational-row-main">
+          <strong class="text-break-safe">{{ transfer.source_account.name }} <i data-lucide="arrow-right" class="icon-xs"></i> {{ transfer.destination_account.name }}</strong>
+          <span>{{ transfer.transfer_date|app_date }}{% if transfer.description %} · {{ transfer.description }}{% endif %}</span>
+        </div>
+        <strong class="operational-row-value">{{ money(transfer.amount) }}</strong>
+        <form action="{{ url_for('accounts.delete_transfer', transfer_id=transfer.id) }}" method="POST" data-confirm="{{ _('Excluir esta transferência?') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger border-0" type="submit" aria-label="{{ _('Excluir transferência') }}"><i data-lucide="trash-2" class="icon-sm"></i></button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% if transfers_pagination.pages > 1 %}
+    <nav class="mt-3" aria-label="{{ _('Paginação das transferências') }}"><ul class="pagination pagination-sm mb-0 justify-content-center"><li class="page-item {% if not transfers_pagination.has_prev %}disabled{% endif %}"><a class="page-link" href="{{ url_for('accounts.index', transfers_page=transfers_pagination.prev_num) if transfers_pagination.has_prev else '#' }}#transfers">{{ _('Anterior') }}</a></li><li class="page-item disabled"><span class="page-link">{{ transfers_pagination.page }} / {{ transfers_pagination.pages }}</span></li><li class="page-item {% if not transfers_pagination.has_next %}disabled{% endif %}"><a class="page-link" href="{{ url_for('accounts.index', transfers_page=transfers_pagination.next_num) if transfers_pagination.has_next else '#' }}#transfers">{{ _('Próxima') }}</a></li></ul></nav>
+    {% endif %}
+    {% else %}
+    <p class="text-muted">{{ _('Nenhuma transferência registrada.') }}</p>
+    {% endif %}
+  </section>
+
+  <section class="accounts-section" id="statement-import">
+    <div class="accounts-section-heading">
+      <div><span>{{ _('Entrada de dados') }}</span><h2>{{ _('Extratos e perfis de importação') }}</h2></div>
+      <p>{{ _('OFX funciona diretamente; CSV e XLSX usam um perfil de colunas reutilizável.') }}</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <form action="{{ url_for('accounts.import_statement') }}" method="POST" enctype="multipart/form-data" class="accounts-form-surface" data-loading-text="{{ _('Importando...') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <h3 class="h6 mb-3"><i data-lucide="file-up" class="icon-sm me-1"></i>{{ _('Importar extrato') }}</h3>
+          <label class="form-label" for="statementAccount">{{ _('Conta de destino') }}</label>
+          <select class="form-select mb-3" id="statementAccount" name="account_id" required>
+            <option value="">{{ _('Selecione a conta') }}</option>
+            {% for account in active_accounts %}<option value="{{ account.id }}">{{ account.name }}</option>{% endfor %}
+          </select>
+          <label class="form-label" for="statementFile">{{ _('Arquivo OFX, CSV ou XLSX') }}</label>
+          <input class="form-control mb-3" id="statementFile" name="file" type="file" accept=".ofx,.csv,.xlsx" required>
+          <label class="form-label" for="statementProfile">{{ _('Perfil para CSV/XLSX') }}</label>
+          <select class="form-select mb-3" id="statementProfile" name="profile_id">
+            <option value="">{{ _('Não necessário para OFX') }}</option>
+            {% for profile in import_profiles %}<option value="{{ profile.id }}">{{ profile.name }} · {{ profile.file_type|upper }}</option>{% endfor %}
+          </select>
+          <button class="btn btn-primary w-100" type="submit"><i data-lucide="upload" class="icon-sm me-1"></i>{{ _('Importar movimentações') }}</button>
+        </form>
+      </div>
+      <div class="col-lg-7">
+        <form action="{{ url_for('accounts.add_import_profile') }}" method="POST" class="accounts-form-surface">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="d-flex justify-content-between align-items-center gap-2 mb-3"><h3 class="h6 mb-0"><i data-lucide="columns-3-cog" class="icon-sm me-1"></i>{{ _('Novo perfil CSV/XLSX') }}</h3><span class="badge text-bg-light">{{ _('Reutilizável') }}</span></div>
+          <div class="row g-2">
+            <div class="col-md-7"><label class="form-label">{{ _('Nome do perfil') }}</label><input class="form-control" name="name" maxlength="80" required></div>
+            <div class="col-md-5"><label class="form-label">{{ _('Formato') }}</label><select class="form-select" name="file_type"><option value="csv">CSV</option><option value="xlsx">XLSX</option></select></div>
+            <div class="col-md-6"><label class="form-label">{{ _('Conta padrão') }}</label><select class="form-select" name="account_id"><option value="">{{ _('Qualquer conta') }}</option>{% for account in active_accounts %}<option value="{{ account.id }}">{{ account.name }}</option>{% endfor %}</select></div>
+            <div class="col-md-6"><label class="form-label">{{ _('Delimitador CSV') }}</label><select class="form-select" name="delimiter"><option value=";">;</option><option value=",">,</option><option value="|">|</option><option value="\t">Tab</option></select></div>
+            <div class="col-md-6"><label class="form-label">{{ _('Coluna da data') }}</label><input class="form-control" name="date_column" placeholder="Data" required></div>
+            <div class="col-md-6"><label class="form-label">{{ _('Coluna da descrição') }}</label><input class="form-control" name="description_column" placeholder="Descrição" required></div>
+            <div class="col-md-6"><label class="form-label">{{ _('Coluna do valor assinado') }}</label><input class="form-control" name="amount_column" placeholder="Valor" required></div>
+            <div class="col-md-6"><label class="form-label">{{ _('Coluna da referência (opcional)') }}</label><input class="form-control" name="reference_column" placeholder="ID"></div>
+          </div>
+          <button class="btn btn-outline-primary mt-3" type="submit"><i data-lucide="save" class="icon-sm me-1"></i>{{ _('Salvar perfil') }}</button>
+        </form>
+        {% if import_profiles %}
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          {% for profile in import_profiles %}
+          <form action="{{ url_for('accounts.delete_import_profile', profile_id=profile.id) }}" method="POST" class="profile-chip-form" data-confirm="{{ _('Excluir este perfil de importação?') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <span>{{ profile.name }} · {{ profile.file_type|upper }}</span><button type="submit" aria-label="{{ _('Excluir perfil') }}"><i data-lucide="x" class="icon-xs"></i></button>
+          </form>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <section class="accounts-section" id="reconciliation">
+    <div class="accounts-section-heading align-items-lg-center">
+      <div><span>{{ _('Conferência bancária') }}</span><h2>{{ _('Conciliação') }} <small>{{ pending_reconciliation_count }}</small></h2></div>
+      <form method="GET" action="{{ url_for('accounts.index') }}" class="d-flex flex-wrap gap-2">
+        <select class="form-select form-select-sm w-auto" name="account" aria-label="{{ _('Filtrar conta') }}"><option value="">{{ _('Todas as contas') }}</option>{% for item in account_summaries %}<option value="{{ item.account.id }}" {% if selected_account_id == item.account.id %}selected{% endif %}>{{ item.account.name }}</option>{% endfor %}</select>
+        <select class="form-select form-select-sm w-auto" name="reconciliation" aria-label="{{ _('Filtrar conciliação') }}"><option value="pending" {% if reconciliation_filter == 'pending' %}selected{% endif %}>{{ _('Pendentes') }}</option><option value="reconciled" {% if reconciliation_filter == 'reconciled' %}selected{% endif %}>{{ _('Conciliadas') }}</option><option value="all" {% if reconciliation_filter == 'all' %}selected{% endif %}>{{ _('Todas') }}</option></select>
+        <button class="btn btn-sm btn-outline-secondary" type="submit"><i data-lucide="filter" class="icon-xs me-1"></i>{{ _('Filtrar') }}</button>
+      </form>
+    </div>
+    {% if transactions_pagination.items %}
+    <div class="reconciliation-list">
+      {% for transaction in transactions_pagination.items %}
+      <article class="reconciliation-row">
+        <div class="reconciliation-amount {% if transaction.amount > 0 %}amount-positive{% else %}amount-negative{% endif %}">{{ '+' if transaction.amount > 0 else '−' }}{{ money(transaction.amount|abs) }}</div>
+        <div class="reconciliation-description min-w-0"><strong class="text-break-safe">{{ transaction.description }}</strong><span>{{ transaction.transaction_date|app_date }} · {{ transaction.account.name }} · {{ transaction.source|upper }}</span></div>
+        {% if transaction.reconciled_finance %}
+        <div class="reconciliation-match"><i data-lucide="circle-check" class="icon-sm"></i><span>{{ _('Conciliada com') }}<strong class="text-break-safe">{{ transaction.reconciled_finance.description }}</strong></span></div>
+        <form action="{{ url_for('accounts.undo_reconciliation', transaction_id=transaction.id) }}" method="POST"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-secondary" type="submit">{{ _('Desfazer') }}</button></form>
+        {% else %}
+        <div class="reconciliation-actions">
+          {% if candidates.get(transaction.id) %}
+          <form action="{{ url_for('accounts.match_transaction', transaction_id=transaction.id) }}" method="POST" class="d-flex gap-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select class="form-select form-select-sm" name="finance_id" required aria-label="{{ _('Lançamento compatível') }}"><option value="">{{ _('Selecionar lançamento') }}</option>{% for finance in candidates[transaction.id] %}<option value="{{ finance.id }}">{{ finance.due_date|app_date }} · {{ finance.description }}</option>{% endfor %}</select>
+            <button class="btn btn-sm btn-primary" type="submit">{{ _('Conciliar') }}</button>
+          </form>
+          {% endif %}
+          <form action="{{ url_for('accounts.create_reconciled_entry', transaction_id=transaction.id) }}" method="POST"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-primary" type="submit"><i data-lucide="file-plus-2" class="icon-xs me-1"></i>{{ _('Criar lançamento') }}</button></form>
+        </div>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+    {% if transactions_pagination.pages > 1 %}
+    <nav class="mt-3" aria-label="{{ _('Paginação da conciliação') }}"><ul class="pagination pagination-sm mb-0 justify-content-center"><li class="page-item {% if not transactions_pagination.has_prev %}disabled{% endif %}"><a class="page-link" href="{{ url_for('accounts.index', account=selected_account_id, reconciliation=reconciliation_filter, reconciliation_page=transactions_pagination.prev_num) if transactions_pagination.has_prev else '#' }}#reconciliation">{{ _('Anterior') }}</a></li><li class="page-item disabled"><span class="page-link">{{ transactions_pagination.page }} / {{ transactions_pagination.pages }}</span></li><li class="page-item {% if not transactions_pagination.has_next %}disabled{% endif %}"><a class="page-link" href="{{ url_for('accounts.index', account=selected_account_id, reconciliation=reconciliation_filter, reconciliation_page=transactions_pagination.next_num) if transactions_pagination.has_next else '#' }}#reconciliation">{{ _('Próxima') }}</a></li></ul></nav>
+    {% endif %}
+    {% else %}
+    <div class="empty-operational-state compact"><i data-lucide="scan-search" class="icon-lg"></i><h3 class="h6">{{ _('Nenhuma movimentação neste filtro') }}</h3><p>{{ _('Importe um extrato ou altere os filtros de conciliação.') }}</p></div>
+    {% endif %}
+  </section>
+</section>
+
+<div class="modal fade" id="accountModal" tabindex="-1" aria-labelledby="accountModalTitle" aria-hidden="true">
+  <div class="modal-dialog"><form action="{{ url_for('accounts.add_account') }}" method="POST" class="modal-content modal-content-premium"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="modal-header"><h2 class="modal-title h5" id="accountModalTitle">{{ _('Nova conta') }}</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar') }}"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">{{ _('Nome da conta') }}</label><input class="form-control" name="name" maxlength="80" required></div><div class="col-md-6"><label class="form-label">{{ _('Tipo') }}</label><select class="form-select" name="account_type">{% for value, label in account_type_labels.items() %}<option value="{{ value }}">{{ _(label) }}</option>{% endfor %}</select></div><div class="col-md-6"><label class="form-label">{{ _('Saldo inicial') }}</label><input class="form-control" name="initial_balance" type="number" step="0.01" value="0.00"></div><div class="col-md-8"><label class="form-label">{{ _('Instituição') }}</label><input class="form-control" name="institution" maxlength="100"></div><div class="col-md-4"><label class="form-label">{{ _('Últimos 4 dígitos') }}</label><input class="form-control" name="last_four" maxlength="4" inputmode="numeric"></div><div class="col-md-4"><label class="form-label">{{ _('Cor') }}</label><select class="form-select" name="color">{% for value, label in account_color_options %}<option value="{{ value }}">{{ _(label) }}</option>{% endfor %}</select></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i data-lucide="x" class="icon-sm me-1"></i>{{ _('Cancelar') }}</button><button type="submit" class="btn btn-primary"><i data-lucide="save" class="icon-sm me-1"></i>{{ _('Salvar conta') }}</button></div></form></div>
+</div>
+
+<div class="modal fade" id="transferModal" tabindex="-1" aria-labelledby="transferModalTitle" aria-hidden="true">
+  <div class="modal-dialog"><form action="{{ url_for('accounts.add_transfer') }}" method="POST" class="modal-content modal-content-premium"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="modal-header"><h2 class="modal-title h5" id="transferModalTitle">{{ _('Transferir entre contas') }}</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar') }}"></button></div><div class="modal-body"><div class="row g-3"><div class="col-md-6"><label class="form-label">{{ _('Origem') }}</label><select class="form-select" name="source_account_id" required>{% for account in active_accounts %}<option value="{{ account.id }}">{{ account.name }}</option>{% endfor %}</select></div><div class="col-md-6"><label class="form-label">{{ _('Destino') }}</label><select class="form-select" name="destination_account_id" required>{% for account in active_accounts %}<option value="{{ account.id }}">{{ account.name }}</option>{% endfor %}</select></div><div class="col-md-6"><label class="form-label">{{ _('Valor') }}</label><input class="form-control" name="amount" type="number" min="0.01" step="0.01" required></div><div class="col-md-6"><label class="form-label">{{ _('Data') }}</label><input class="form-control" name="transfer_date" type="date" value="{{ today.strftime('%Y-%m-%d') }}" required></div><div class="col-12"><label class="form-label">{{ _('Descrição opcional') }}</label><input class="form-control" name="description" maxlength="140"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button><button type="submit" class="btn btn-primary"><i data-lucide="arrow-left-right" class="icon-sm me-1"></i>{{ _('Registrar transferência') }}</button></div></form></div>
+</div>
+{% endblock %}

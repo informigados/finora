@@ -18,7 +18,7 @@ DEFAULT_UPDATE_MANIFEST_PATH = os.path.join(basedir, 'updates', 'manifest.json')
 DEFAULT_DESKTOP_UPDATE_MANIFEST_URL = (
     'https://github.com/informigados/finora/releases/latest/download/manifest.json'
 )
-DEFAULT_APP_VERSION = '1.4.3'
+DEFAULT_APP_VERSION = '1.4.4'
 
 
 def _desktop_data_root():

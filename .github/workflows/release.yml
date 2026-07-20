@@ -60,12 +60,12 @@ jobs:
 
           ### Highlights
 
-          - Corrected the visual overlay on the Sessions tab in the profile navigation.
-          - Made all four profile summary indicators accessible shortcuts to their corresponding areas.
-          - Added session totals, activity-type breakdowns, and system-failure counters and types.
-          - Added secure deletion for ended sessions, user-owned activities, and user-owned system events.
-          - Corrected compact-window navigation to eliminate horizontal page overflow.
-          - Preserved pagination, ownership boundaries, active-session protection, CSRF validation, and confirmation prompts.
+          - Added accounts, wallets, cards, consolidated balances, and neutral internal transfers.
+          - Added OFX import, reusable CSV/XLSX profiles, duplicate detection, and bank reconciliation.
+          - Reworked the dashboard with realized/projected balances, five operational indicators, and income/expense category charts.
+          - Added a persistent collapsible analytics rail and expanded monthly-entry workspace.
+          - Localized failure types and hardened long-content containment across operational surfaces.
+          - Added the v1.4.4 database migration and end-to-end regression coverage for the new financial-account domain.
 
           ### Verification
 
