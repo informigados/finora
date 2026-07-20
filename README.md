@@ -10,7 +10,7 @@
 Finora is a local-first personal finance application built with Flask.  
 It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, managed backups, profile observability, guided updates, and multilingual UI.
 
-Current stable version: `1.4.2`
+Current stable version: `1.4.3`
 
 ## 🧱 Tech Stack
 
@@ -106,7 +106,7 @@ Optional update and mail settings:
 
 ```ini
 # App metadata
-APP_VERSION=1.4.2
+APP_VERSION=1.4.3
 APP_BASE_URL=http://127.0.0.1:5000
 
 # Automatic update
@@ -343,6 +343,15 @@ Or:
 - Excluded transient WebView2 storage, instance locks, runtime state, and temporary files from pre-update backups while preserving the database, local mail settings, and profile images.
 - Added regression coverage that simulates a locked WebView2 file during the desktop update flow.
 - Documented the one-time manual installer path required for affected 1.4.0 and 1.4.1 installations.
+
+### 2026-07-20 (1.4.3)
+
+- Removed the visual overlay that could cover the Sessions tab icon in the horizontally scrollable profile navigation.
+- Made the backup, active-session, recent-activity, and open-alert indicators accessible shortcuts to their corresponding profile areas.
+- Added totals and breakdowns for sessions, activity types, and system failures while retaining pagination for all histories.
+- Added secure deletion of ended session records, user-owned activity records, and user-owned system events, with CSRF protection and confirmation prompts.
+- Corrected the navigation breakpoint to prevent horizontal page overflow on compact desktop and tablet-sized windows.
+- Expanded regression coverage for profile navigation, pagination, ownership boundaries, active-session protection, counters, and deletion flows.
 
 ## 👥 Authors
 

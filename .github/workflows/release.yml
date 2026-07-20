@@ -60,13 +60,12 @@ jobs:
 
           ### Highlights
 
-          - Fixed in-app updates failing when WebView2 keeps its runtime ``lockfile`` open.
-          - Excluded transient WebView2 storage, instance locks, runtime state, and temporary files from pre-update backups.
-          - Preserved the user database, local mail settings, profile images, and other persistent desktop data.
-          - Retained the compact-window entry modal fix introduced in 1.4.1.
-
-          > [!IMPORTANT]
-          > Finora 1.4.0 and 1.4.1 cannot repair their already-installed updater. If either reports ``Permission denied`` for ``webview\EBWebView\lockfile``, download and run this installer manually once. Existing data under ``%LOCALAPPDATA%\Finora`` is preserved. Future in-app updates will work normally after installing 1.4.2 or later.
+          - Corrected the visual overlay on the Sessions tab in the profile navigation.
+          - Made all four profile summary indicators accessible shortcuts to their corresponding areas.
+          - Added session totals, activity-type breakdowns, and system-failure counters and types.
+          - Added secure deletion for ended sessions, user-owned activities, and user-owned system events.
+          - Corrected compact-window navigation to eliminate horizontal page overflow.
+          - Preserved pagination, ownership boundaries, active-session protection, CSRF validation, and confirmation prompts.
 
           ### Verification
 

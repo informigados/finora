@@ -570,6 +570,50 @@ def end_user_session(user, session_store, reason):
         return None
 
 
+def delete_user_session_record(user, session_id):
+    session_entry = UserSession.query.filter_by(id=session_id, user_id=user.id).first()
+    if session_entry is None:
+        return 'not_found'
+    if session_entry.is_current:
+        return 'active_session'
+
+    try:
+        db.session.delete(session_entry)
+        db.session.commit()
+        return None
+    except Exception:
+        db.session.rollback()
+        return 'delete_failed'
+
+
+def delete_user_activity_record(user, activity_id):
+    activity = ActivityLog.query.filter_by(id=activity_id, user_id=user.id).first()
+    if activity is None:
+        return 'not_found'
+
+    try:
+        db.session.delete(activity)
+        db.session.commit()
+        return None
+    except Exception:
+        db.session.rollback()
+        return 'delete_failed'
+
+
+def delete_user_system_event_record(user, event_id):
+    system_event = SystemEvent.query.filter_by(id=event_id, user_id=user.id).first()
+    if system_event is None:
+        return 'not_found'
+
+    try:
+        db.session.delete(system_event)
+        db.session.commit()
+        return None
+    except Exception:
+        db.session.rollback()
+        return 'delete_failed'
+
+
 def build_support_mailto(user, app_version, subject, message_prefix):
     body = (
         f"{_('Usuário')}: {user.username}\n"
@@ -767,11 +811,11 @@ def get_profile_hub_context(
     backup_records_query = user.backup_records.order_by(BackupRecord.created_at.desc())
     login_sessions_query = user.login_sessions.order_by(UserSession.started_at.desc())
     activity_logs_query = user.activity_logs.order_by(ActivityLog.created_at.desc())
-    system_events_query = (
-        SystemEvent.query.filter(
-            (SystemEvent.user_id == user.id) | (SystemEvent.user_id.is_(None))
-        )
-        .order_by(SystemEvent.created_at.desc())
+    visible_system_events_filter = (
+        (SystemEvent.user_id == user.id) | (SystemEvent.user_id.is_(None))
+    )
+    system_events_query = SystemEvent.query.filter(visible_system_events_filter).order_by(
+        SystemEvent.created_at.desc()
     )
 
     backup_records_pagination = _paginate_query(
@@ -809,11 +853,35 @@ def get_profile_hub_context(
             func.sum(case((SystemEvent.resolved_at.is_(None), 1), else_=0)),
             0,
         ),
-    ).filter(
-        (SystemEvent.user_id == user.id) | (SystemEvent.user_id.is_(None))
-    ).one()
+    ).filter(visible_system_events_filter).one()
+    session_total = login_sessions_pagination['total']
     unresolved_system_events = int(system_event_counts[1] or 0)
     active_sessions_count = login_sessions_query.filter(UserSession.is_current.is_(True)).count()
+    activity_type_count = func.count(ActivityLog.id).label('activity_count')
+    activity_type_rows = (
+        db.session.query(ActivityLog.event_type, activity_type_count)
+        .filter(ActivityLog.user_id == user.id)
+        .group_by(ActivityLog.event_type)
+        .order_by(activity_type_count.desc(), ActivityLog.event_type.asc())
+        .all()
+    )
+    failure_type_key = func.coalesce(SystemEvent.event_code, SystemEvent.source)
+    failure_type_count = func.count(SystemEvent.id).label('failure_count')
+    failure_type_rows = (
+        db.session.query(failure_type_key, failure_type_count)
+        .filter(visible_system_events_filter, SystemEvent.severity == 'error')
+        .group_by(failure_type_key)
+        .order_by(failure_type_count.desc(), failure_type_key.asc())
+        .all()
+    )
+    system_failure_total = (
+        SystemEvent.query.filter(visible_system_events_filter, SystemEvent.severity == 'error').count()
+    )
+    system_failure_open = SystemEvent.query.filter(
+        visible_system_events_filter,
+        SystemEvent.severity == 'error',
+        SystemEvent.resolved_at.is_(None),
+    ).count()
     latest_backup = (
         backup_records[0]
         if backup_records and backup_records_pagination['page'] == 1
@@ -859,6 +927,29 @@ def get_profile_hub_context(
         }
         for event in system_events
     ]
+    activity_type_summary = [
+        {
+            'key': event_type,
+            'label': _(
+                ACTIVITY_TYPE_LABELS.get(event_type, _humanize_identifier(event_type))
+            ),
+            'count': int(count or 0),
+        }
+        for event_type, count in activity_type_rows
+    ]
+    system_failure_type_summary = [
+        {
+            'key': failure_type,
+            'label': _(
+                SYSTEM_SOURCE_LABELS.get(
+                    failure_type,
+                    _humanize_identifier(failure_type or 'erro_desconhecido'),
+                )
+            ),
+            'count': int(count or 0),
+        }
+        for failure_type, count in failure_type_rows
+    ]
     system_health = _build_system_health_summary(
         app_version,
         latest_backup,
@@ -882,6 +973,22 @@ def get_profile_hub_context(
         'activity_timeline': activity_timeline,
         'system_events': system_events,
         'system_event_timeline': system_event_timeline,
+        'session_metrics': {
+            'total': session_total,
+            'active': active_sessions_count,
+            'ended': max(session_total - active_sessions_count, 0),
+        },
+        'activity_metrics': {
+            'total': activity_logs_pagination['total'],
+            'types': activity_type_summary,
+        },
+        'system_event_metrics': {
+            'total': int(system_event_counts[0] or 0),
+            'failures': system_failure_total,
+            'open_failures': system_failure_open,
+            'resolved_failures': max(system_failure_total - system_failure_open, 0),
+            'failure_types': system_failure_type_summary,
+        },
         'backup_records_pagination': _build_pagination_links(
             backup_records_pagination,
             'backups_page',

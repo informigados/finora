@@ -47,7 +47,10 @@ from services.profile_service import (
     record_activity,
     record_system_event,
     change_user_password,
+    delete_user_activity_record,
     delete_user_account,
+    delete_user_session_record,
+    delete_user_system_event_record,
     start_user_session,
 )
 
@@ -683,6 +686,55 @@ def profile() -> ResponseReturnValue:
         desktop_mail_settings=get_mail_settings_summary(current_app),
         **profile_context,
     )
+
+
+def _profile_history_redirect(anchor, page_param):
+    try:
+        page = max(int(request.form.get('page', 1) or 1), 1)
+    except (TypeError, ValueError):
+        page = 1
+    return redirect(url_for('auth.profile', **{page_param: page}, _anchor=anchor))
+
+
+@auth_bp.route('/profile/sessions/<int:session_id>/delete', methods=['POST'])
+@login_required
+def delete_profile_session(session_id):
+    result = delete_user_session_record(current_user, session_id)
+    if result == 'active_session':
+        flash(_('Uma sessão ativa não pode ser excluída do histórico.'), 'warning')
+    elif result == 'not_found':
+        flash(_('Sessão não encontrada.'), 'warning')
+    elif result == 'delete_failed':
+        flash(_('Não foi possível excluir o registro da sessão.'), 'error')
+    else:
+        flash(_('Registro da sessão excluído com sucesso.'), 'success')
+    return _profile_history_redirect('sessions-pane', 'sessions_page')
+
+
+@auth_bp.route('/profile/activities/<int:activity_id>/delete', methods=['POST'])
+@login_required
+def delete_profile_activity(activity_id):
+    result = delete_user_activity_record(current_user, activity_id)
+    if result == 'not_found':
+        flash(_('Atividade não encontrada.'), 'warning')
+    elif result == 'delete_failed':
+        flash(_('Não foi possível excluir o registro da atividade.'), 'error')
+    else:
+        flash(_('Registro da atividade excluído com sucesso.'), 'success')
+    return _profile_history_redirect('activity-pane', 'activities_page')
+
+
+@auth_bp.route('/profile/system-events/<int:event_id>/delete', methods=['POST'])
+@login_required
+def delete_profile_system_event(event_id):
+    result = delete_user_system_event_record(current_user, event_id)
+    if result == 'not_found':
+        flash(_('Evento não encontrado ou não pode ser excluído.'), 'warning')
+    elif result == 'delete_failed':
+        flash(_('Não foi possível excluir o evento do sistema.'), 'error')
+    else:
+        flash(_('Evento do sistema excluído com sucesso.'), 'success')
+    return _profile_history_redirect('status-pane', 'events_page')
 
 
 @auth_bp.route('/session/refresh', methods=['POST'])

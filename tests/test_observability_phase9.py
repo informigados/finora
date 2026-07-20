@@ -139,6 +139,95 @@ def test_profile_hub_shows_session_labels_and_system_status_details(client, app)
     assert b'Forma de pagamento/recebimento' in response.data
     assert b'Lan\xc3\xa7amentos' in response.data
     assert b'disk full' in response.data
+    assert b'Total de sess' in response.data
+    assert b'Sess\xc3\xb5es encerradas' in response.data
+    assert b'Total de atividades' in response.data
+    assert b'Tipos de atividade' in response.data
+    assert b'Total de falhas' in response.data
+    assert b'Tipos de falha' in response.data
+    assert b'data-profile-tab-target="#sessions-pane"' in response.data
+    assert b'data-profile-tab-target="#activity-pane"' in response.data
+    assert b'data-profile-tab-target="#status-pane"' in response.data
+    assert b'navbar-expand-lg' in response.data
+
+
+def test_profile_history_deletion_is_scoped_and_preserves_active_or_global_records(client, app):
+    with app.app_context():
+        user = User(username='historyowner', email='historyowner@example.com', name='History Owner')
+        other = User(username='historyother', email='historyother@example.com', name='History Other')
+        user.set_password('Password123')
+        other.set_password('Password123')
+        db.session.add_all((user, other))
+        db.session.commit()
+
+        ended_session = UserSession(
+            user_id=user.id,
+            session_token_hash='ended-history-session',
+            is_current=False,
+            ended_reason='logout',
+        )
+        activity = ActivityLog(
+            user_id=user.id,
+            event_category='profile',
+            event_type='profile_updated',
+            message='Perfil atualizado.',
+        )
+        other_activity = ActivityLog(
+            user_id=other.id,
+            event_category='profile',
+            event_type='profile_updated',
+            message='Outro perfil atualizado.',
+        )
+        own_event = SystemEvent(
+            user_id=user.id,
+            severity='error',
+            source='profile',
+            event_code='profile_failure',
+            message='Falha do perfil.',
+        )
+        global_event = SystemEvent(
+            user_id=None,
+            severity='error',
+            source='system',
+            event_code='global_failure',
+            message='Falha global.',
+        )
+        db.session.add_all((ended_session, activity, other_activity, own_event, global_event))
+        db.session.commit()
+        ended_session_id = ended_session.id
+        activity_id = activity.id
+        other_activity_id = other_activity.id
+        own_event_id = own_event.id
+        global_event_id = global_event.id
+        user_id = user.id
+
+    _login(client, 'historyowner')
+
+    with app.app_context():
+        active_session_id = UserSession.query.filter_by(
+            user_id=user_id,
+            is_current=True,
+        ).first().id
+
+    active_response = client.post(
+        f'/profile/sessions/{active_session_id}/delete',
+        follow_redirects=True,
+    )
+    assert b'Uma sess\xc3\xa3o ativa n\xc3\xa3o pode ser exclu\xc3\xadda' in active_response.data
+
+    client.post(f'/profile/sessions/{ended_session_id}/delete', follow_redirects=True)
+    client.post(f'/profile/activities/{activity_id}/delete', follow_redirects=True)
+    client.post(f'/profile/activities/{other_activity_id}/delete', follow_redirects=True)
+    client.post(f'/profile/system-events/{own_event_id}/delete', follow_redirects=True)
+    client.post(f'/profile/system-events/{global_event_id}/delete', follow_redirects=True)
+
+    with app.app_context():
+        assert db.session.get(UserSession, active_session_id) is not None
+        assert db.session.get(UserSession, ended_session_id) is None
+        assert db.session.get(ActivityLog, activity_id) is None
+        assert db.session.get(ActivityLog, other_activity_id) is not None
+        assert db.session.get(SystemEvent, own_event_id) is None
+        assert db.session.get(SystemEvent, global_event_id) is not None
 
 
 def test_profile_bootstraps_active_session_for_authenticated_user_without_audit_token(client, app):
@@ -203,7 +292,9 @@ def test_profile_bootstrap_reconciles_duplicate_active_sessions_for_same_client(
 
 def test_profile_hub_paginates_backup_and_activity_history(client, app):
     app.config['PROFILE_BACKUPS_PAGE_SIZE'] = 2
+    app.config['PROFILE_SESSIONS_PAGE_SIZE'] = 2
     app.config['PROFILE_ACTIVITIES_PAGE_SIZE'] = 2
+    app.config['PROFILE_SYSTEM_EVENTS_PAGE_SIZE'] = 2
 
     with app.app_context():
         user = User(username='paginationhub', email='paginationhub@example.com', name='Pagination Hub')
@@ -233,12 +324,34 @@ def test_profile_hub_paginates_backup_and_activity_history(client, app):
                     created_at=datetime(2026, 3, 15, 11, index),
                 )
             )
+            db.session.add(
+                UserSession(
+                    user_id=user.id,
+                    session_token_hash=f'pagination-session-{index}',
+                    is_current=False,
+                    ended_reason='logout',
+                    started_at=datetime(2026, 3, 15, 12, index),
+                    last_seen_at=datetime(2026, 3, 15, 12, index),
+                )
+            )
+            db.session.add(
+                SystemEvent(
+                    user_id=user.id,
+                    severity='error',
+                    source='profile',
+                    event_code=f'pagination_failure_{index}',
+                    message=f'Falha paginada {index}',
+                    created_at=datetime(2026, 3, 15, 13, index),
+                )
+            )
         db.session.commit()
 
     _login(client, 'paginationhub')
 
     first_page = client.get('/profile')
-    second_page = client.get('/profile?backups_page=2&activities_page=2#activity-pane')
+    second_page = client.get(
+        '/profile?backups_page=2&sessions_page=2&activities_page=2&events_page=2#activity-pane'
+    )
 
     assert first_page.status_code == 200
     assert second_page.status_code == 200
@@ -253,3 +366,8 @@ def test_profile_hub_paginates_backup_and_activity_history(client, app):
     assert b'#backups-pane' in first_page.data
     assert b'activities_page=2' in first_page.data
     assert b'#activity-pane' in first_page.data
+    assert b'sessions_page=2' in first_page.data
+    assert b'#sessions-pane' in first_page.data
+    assert b'events_page=2' in first_page.data
+    assert b'#status-pane' in first_page.data
+    assert b'Falha paginada 0' in second_page.data

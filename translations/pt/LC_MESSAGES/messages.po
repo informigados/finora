@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-20 16:53-0300\n"
+"POT-Creation-Date: 2026-07-20 18:12-0300\n"
 "PO-Revision-Date: 2026-02-10 04:09-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: pt\n"
@@ -30,7 +30,7 @@ msgstr "Sessão expirada por inatividade. Faça login novamente."
 msgid "Idioma alterado com sucesso!"
 msgstr "Idioma alterado com sucesso!"
 
-#: routes/auth.py:71
+#: routes/auth.py:74
 msgid ""
 "Se existir uma conta correspondente, as instruções de recuperação foram "
 "processadas. Use o método escolhido para concluir a redefinição de senha."
@@ -38,7 +38,7 @@ msgstr ""
 "Se existir uma conta correspondente, as instruções de recuperação foram "
 "processadas. Use o método escolhido para concluir a redefinição de senha."
 
-#: routes/auth.py:78
+#: routes/auth.py:81
 msgid ""
 "Muitas tentativas de acesso foram detectadas. Aguarde alguns minutos "
 "antes de tentar novamente."
@@ -46,47 +46,47 @@ msgstr ""
 "Muitas tentativas de acesso foram detectadas. Aguarde alguns minutos "
 "antes de tentar novamente."
 
-#: routes/auth.py:89
+#: routes/auth.py:92
 msgid "Nome de usuário inválido."
 msgstr "Nome de usuário inválido."
 
-#: routes/auth.py:100
+#: routes/auth.py:103
 msgid "Nome de usuário disponível."
 msgstr "Nome de usuário disponível."
 
-#: routes/auth.py:100
+#: routes/auth.py:103
 msgid "Nome de usuário já está em uso."
 msgstr "Nome de usuário já está em uso."
 
-#: routes/auth.py:112
+#: routes/auth.py:115
 msgid "E-mail inválido."
 msgstr "E-mail inválido."
 
-#: routes/auth.py:123
+#: routes/auth.py:126
 msgid "E-mail disponível."
 msgstr "E-mail disponível."
 
-#: routes/auth.py:123
+#: routes/auth.py:126
 msgid "E-mail já está em uso."
 msgstr "E-mail já está em uso."
 
-#: routes/auth.py:141
+#: routes/auth.py:144
 msgid "Informe usuário/e-mail e senha para continuar."
 msgstr "Informe usuário/e-mail e senha para continuar."
 
-#: routes/auth.py:167
+#: routes/auth.py:170
 msgid "Por favor verifique seus dados de login e tente novamente."
 msgstr "Por favor verifique seus dados de login e tente novamente."
 
-#: routes/auth.py:204 routes/auth.py:415
+#: routes/auth.py:207 routes/auth.py:418
 msgid "Por favor, insira um endereço de e-mail válido."
 msgstr "Por favor, insira um endereço de e-mail válido."
 
-#: routes/auth.py:208 routes/auth.py:418
+#: routes/auth.py:211 routes/auth.py:421
 msgid "Nome de usuário deve ter pelo menos 3 caracteres."
 msgstr "Nome de usuário deve ter pelo menos 3 caracteres."
 
-#: routes/auth.py:214
+#: routes/auth.py:217
 #, python-format
 msgid ""
 "A senha deve ter ao menos %(length)d caracteres, incluindo letras "
@@ -95,19 +95,19 @@ msgstr ""
 "A senha deve ter ao menos %(length)d caracteres, incluindo letras "
 "maiúsculas, minúsculas e números."
 
-#: routes/auth.py:226
+#: routes/auth.py:229
 msgid "Endereço de e-mail ou nome de usuário já existe."
 msgstr "Endereço de e-mail ou nome de usuário já existe."
 
-#: routes/auth.py:239
+#: routes/auth.py:242
 msgid "Não foi possível concluir o cadastro. Verifique os dados informados."
 msgstr "Não foi possível concluir o cadastro. Verifique os dados informados."
 
-#: routes/auth.py:290
+#: routes/auth.py:293
 msgid "Método de recuperação inválido."
 msgstr "Método de recuperação inválido."
 
-#: routes/auth.py:299
+#: routes/auth.py:302
 msgid ""
 "O envio por e-mail ainda não está configurado neste Finora. Use a chave "
 "de recuperação offline ou configure o SMTP no perfil."
@@ -115,7 +115,7 @@ msgstr ""
 "O envio por e-mail ainda não está configurado neste Finora. Use a chave "
 "de recuperação offline ou configure o SMTP no perfil."
 
-#: routes/auth.py:333 routes/auth.py:374 routes/auth.py:481
+#: routes/auth.py:336 routes/auth.py:377 routes/auth.py:484
 #, python-format
 msgid ""
 "A nova senha deve ter ao menos %(length)d caracteres, incluindo letras "
@@ -124,15 +124,15 @@ msgstr ""
 "A nova senha deve ter ao menos %(length)d caracteres, incluindo letras "
 "maiúsculas, minúsculas e números."
 
-#: routes/auth.py:346 routes/auth.py:387
+#: routes/auth.py:349 routes/auth.py:390
 msgid "Sua senha foi atualizada com sucesso!"
 msgstr "Sua senha foi atualizada com sucesso!"
 
-#: routes/auth.py:350 routes/auth.py:391
+#: routes/auth.py:353 routes/auth.py:394
 msgid "Não foi possível atualizar a senha. Tente novamente."
 msgstr "Não foi possível atualizar a senha. Tente novamente."
 
-#: routes/auth.py:353
+#: routes/auth.py:356
 msgid ""
 "Dados de recuperação inválidos. Verifique as informações e tente "
 "novamente."
@@ -140,23 +140,23 @@ msgstr ""
 "Dados de recuperação inválidos. Verifique as informações e tente "
 "novamente."
 
-#: routes/auth.py:362
+#: routes/auth.py:365
 msgid "Este link de recuperação expirou. Solicite um novo link."
 msgstr "Este link de recuperação expirou. Solicite um novo link."
 
-#: routes/auth.py:365
+#: routes/auth.py:368
 msgid "Link de recuperação inválido."
 msgstr "Link de recuperação inválido."
 
-#: routes/auth.py:412
+#: routes/auth.py:415
 msgid "Tempo de sessão inválido."
 msgstr "Tempo de sessão inválido."
 
-#: routes/auth.py:421
+#: routes/auth.py:424
 msgid "Este nome de usuário já está em uso."
 msgstr "Este nome de usuário já está em uso."
 
-#: routes/auth.py:427
+#: routes/auth.py:430
 #, python-format
 msgid ""
 "O nome de usuário pode ser alterado a cada 90 dias. Nova alteração "
@@ -165,83 +165,83 @@ msgstr ""
 "O nome de usuário pode ser alterado a cada 90 dias. Nova alteração "
 "disponível em %(date)s."
 
-#: routes/auth.py:434
+#: routes/auth.py:437
 msgid "Este endereço de e-mail já está em uso."
 msgstr "Este endereço de e-mail já está em uso."
 
-#: routes/auth.py:437
+#: routes/auth.py:440
 msgid "A imagem excede o tamanho máximo permitido de 2 MB."
 msgstr "A imagem excede o tamanho máximo permitido de 2 MB."
 
-#: routes/auth.py:440
+#: routes/auth.py:443
 msgid "Nome de arquivo inválido para upload de imagem."
 msgstr "Nome de arquivo inválido para upload de imagem."
 
-#: routes/auth.py:443
+#: routes/auth.py:446
 msgid "Arquivo de imagem inválido. Formatos permitidos: JPG, PNG e GIF."
 msgstr "Arquivo de imagem inválido. Formatos permitidos: JPG, PNG e GIF."
 
-#: routes/auth.py:453
+#: routes/auth.py:456
 msgid "Não foi possível atualizar o perfil. Revise os dados e tente novamente."
 msgstr "Não foi possível atualizar o perfil. Revise os dados e tente novamente."
 
-#: routes/auth.py:468
+#: routes/auth.py:471
 msgid "Perfil atualizado com sucesso!"
 msgstr "Perfil atualizado com sucesso!"
 
-#: routes/auth.py:477
+#: routes/auth.py:480
 msgid "Senha atual incorreta."
 msgstr "Senha atual incorreta."
 
-#: routes/auth.py:494
+#: routes/auth.py:497
 msgid "Não foi possível alterar a senha. Tente novamente."
 msgstr "Não foi possível alterar a senha. Tente novamente."
 
-#: routes/auth.py:503
+#: routes/auth.py:506
 msgid "Senha alterada com sucesso!"
 msgstr "Senha alterada com sucesso!"
 
-#: routes/auth.py:508
+#: routes/auth.py:511
 msgid "Esta configuração está disponível somente no aplicativo desktop."
 msgstr "Esta configuração está disponível somente no aplicativo desktop."
 
-#: routes/auth.py:509
+#: routes/auth.py:512
 msgid "Informe um servidor SMTP válido."
 msgstr "Informe um servidor SMTP válido."
 
-#: routes/auth.py:510
+#: routes/auth.py:513
 msgid "Informe uma porta SMTP válida."
 msgstr "Informe uma porta SMTP válida."
 
-#: routes/auth.py:511
+#: routes/auth.py:514
 msgid "Selecione uma opção válida de segurança SMTP."
 msgstr "Selecione uma opção válida de segurança SMTP."
 
-#: routes/auth.py:512
+#: routes/auth.py:515
 msgid "Informe um endereço de remetente válido."
 msgstr "Informe um endereço de remetente válido."
 
-#: routes/auth.py:513
+#: routes/auth.py:516
 msgid "Informe a senha SMTP para autenticar este usuário."
 msgstr "Informe a senha SMTP para autenticar este usuário."
 
-#: routes/auth.py:514
+#: routes/auth.py:517
 msgid "O armazenamento local das configurações de e-mail não está disponível."
 msgstr "O armazenamento local das configurações de e-mail não está disponível."
 
-#: routes/auth.py:515
+#: routes/auth.py:518
 msgid "Não foi possível salvar as configurações de e-mail."
 msgstr "Não foi possível salvar as configurações de e-mail."
 
-#: routes/auth.py:521
+#: routes/auth.py:524
 msgid "Não foi possível validar as configurações de e-mail."
 msgstr "Não foi possível validar as configurações de e-mail."
 
-#: routes/auth.py:531
+#: routes/auth.py:534
 msgid "Finora - Teste de e-mail"
 msgstr "Finora - Teste de e-mail"
 
-#: routes/auth.py:533
+#: routes/auth.py:536
 msgid ""
 "Este é um e-mail de teste do Finora. Sua configuração SMTP está "
 "funcionando corretamente."
@@ -249,11 +249,11 @@ msgstr ""
 "Este é um e-mail de teste do Finora. Sua configuração SMTP está "
 "funcionando corretamente."
 
-#: routes/auth.py:537
+#: routes/auth.py:540
 msgid "Configurações salvas e e-mail de teste enviado com sucesso."
 msgstr "Configurações salvas e e-mail de teste enviado com sucesso."
 
-#: routes/auth.py:541
+#: routes/auth.py:544
 msgid ""
 "As configurações foram salvas, mas o e-mail de teste falhou. Revise "
 "servidor, porta, segurança, usuário e senha."
@@ -261,19 +261,19 @@ msgstr ""
 "As configurações foram salvas, mas o e-mail de teste falhou. Revise "
 "servidor, porta, segurança, usuário e senha."
 
-#: routes/auth.py:547
+#: routes/auth.py:550
 msgid "Configurações de e-mail salvas com segurança."
 msgstr "Configurações de e-mail salvas com segurança."
 
-#: routes/auth.py:561
+#: routes/auth.py:564
 msgid "Sua conta foi excluída permanentemente."
 msgstr "Sua conta foi excluída permanentemente."
 
-#: routes/auth.py:570
+#: routes/auth.py:573
 msgid "Não foi possível excluir a conta neste momento."
 msgstr "Não foi possível excluir a conta neste momento."
 
-#: routes/auth.py:575
+#: routes/auth.py:578
 #, python-format
 msgid ""
 "Confirmação incorreta para exclusão de conta. Digite %(token)s para "
@@ -282,7 +282,7 @@ msgstr ""
 "Confirmação incorreta para exclusão de conta. Digite %(token)s para "
 "confirmar."
 
-#: routes/auth.py:583
+#: routes/auth.py:586
 msgid ""
 "Sua chave atual não está disponível para reenvio. Gere uma nova chave "
 "para continuar."
@@ -290,30 +290,70 @@ msgstr ""
 "Sua chave atual não está disponível para reenvio. Gere uma nova chave "
 "para continuar."
 
-#: routes/auth.py:596
+#: routes/auth.py:599
 msgid "Chave de recuperação enviada para o seu e-mail."
 msgstr "Chave de recuperação enviada para o seu e-mail."
 
-#: routes/auth.py:605
+#: routes/auth.py:608
 msgid "Não foi possível enviar a chave de recuperação por e-mail."
 msgstr "Não foi possível enviar a chave de recuperação por e-mail."
 
-#: routes/auth.py:622
+#: routes/auth.py:625
 msgid "Não foi possível gerar uma nova chave de recuperação."
 msgstr "Não foi possível gerar uma nova chave de recuperação."
 
-#: routes/auth.py:636
+#: routes/auth.py:639
 #, python-format
 msgid "Nova chave de recuperação gerada com sucesso: %(key)s"
 msgstr "Nova chave de recuperação gerada com sucesso: %(key)s"
 
-#: routes/auth.py:642
+#: routes/auth.py:645
 msgid "A nova chave também foi enviada para o seu e-mail."
 msgstr "A nova chave também foi enviada para o seu e-mail."
 
-#: routes/auth.py:644
+#: routes/auth.py:647
 msgid "O envio por e-mail da nova chave não pôde ser concluído."
 msgstr "O envio por e-mail da nova chave não pôde ser concluído."
+
+#: routes/auth.py:704
+msgid "Uma sessão ativa não pode ser excluída do histórico."
+msgstr "Uma sessão ativa não pode ser excluída do histórico."
+
+#: routes/auth.py:706
+msgid "Sessão não encontrada."
+msgstr "Sessão não encontrada."
+
+#: routes/auth.py:708
+msgid "Não foi possível excluir o registro da sessão."
+msgstr "Não foi possível excluir o registro da sessão."
+
+#: routes/auth.py:710
+msgid "Registro da sessão excluído com sucesso."
+msgstr "Registro da sessão excluído com sucesso."
+
+#: routes/auth.py:719
+msgid "Atividade não encontrada."
+msgstr "Atividade não encontrada."
+
+#: routes/auth.py:721
+msgid "Não foi possível excluir o registro da atividade."
+msgstr "Não foi possível excluir o registro da atividade."
+
+#: routes/auth.py:723
+msgid "Registro da atividade excluído com sucesso."
+msgstr "Registro da atividade excluído com sucesso."
+
+#: routes/auth.py:732
+msgid "Evento não encontrado ou não pode ser excluído."
+msgstr "Evento não encontrado ou não pode ser excluído."
+
+#: routes/auth.py:734
+msgid "Não foi possível excluir o evento do sistema."
+msgstr "Não foi possível excluir o evento do sistema."
+
+#: routes/auth.py:736
+msgid "Evento do sistema excluído com sucesso."
+msgstr "Evento do sistema excluído com sucesso."
 
 #: routes/backup.py:38
 msgid "Erro ao gerar backup. Tente novamente."
@@ -719,7 +759,7 @@ msgstr "Sua chave de recuperação está disponível abaixo."
 msgid "Olá"
 msgstr "Olá"
 
-#: services/auth_service.py:67 services/profile_service.py:575
+#: services/auth_service.py:67 services/profile_service.py:619
 msgid "Usuário"
 msgstr "Usuário"
 
@@ -727,7 +767,7 @@ msgstr "Usuário"
 msgid "Chave de recuperação"
 msgstr "Chave de recuperação"
 
-#: services/auth_service.py:69 templates/auth/profile.html:245
+#: services/auth_service.py:69 templates/auth/profile.html:249
 msgid "Versão da chave"
 msgstr "Versão da chave"
 
@@ -784,8 +824,8 @@ msgstr "Atualização disponível"
 msgid "Atualizado"
 msgstr "Atualizado"
 
-#: services/profile_service.py:146 templates/auth/profile.html:312
-#: templates/auth/profile.html:625
+#: services/profile_service.py:146 templates/auth/profile.html:316
+#: templates/auth/profile.html:699
 msgid "Não configurado"
 msgstr "Não configurado"
 
@@ -805,48 +845,48 @@ msgstr "Falha na atualização"
 msgid "Desconhecido"
 msgstr "Desconhecido"
 
-#: services/profile_service.py:576 templates/auth/profile.html:129
-#: templates/auth/profile.html:178 templates/auth/register.html:32
+#: services/profile_service.py:620 templates/auth/profile.html:133
+#: templates/auth/profile.html:182 templates/auth/register.html:32
 msgid "E-mail"
 msgstr "E-mail"
 
-#: services/profile_service.py:577
+#: services/profile_service.py:621
 msgid "Versão"
 msgstr "Versão"
 
-#: services/profile_service.py:600 services/profile_service.py:608
+#: services/profile_service.py:644 services/profile_service.py:652
 msgid "Não informado"
 msgstr "Não informado"
 
-#: services/profile_service.py:602 templates/auth/profile.html:602
+#: services/profile_service.py:646 templates/auth/profile.html:676
 msgid "Sim"
 msgstr "Sim"
 
-#: services/profile_service.py:602 templates/auth/profile.html:602
+#: services/profile_service.py:646 templates/auth/profile.html:676
 msgid "Não"
 msgstr "Não"
 
-#: services/profile_service.py:628
+#: services/profile_service.py:672
 msgid "Item"
 msgstr "Item"
 
-#: services/profile_service.py:629
+#: services/profile_service.py:673
 msgid "Detalhe"
 msgstr "Detalhe"
 
-#: services/profile_service.py:926
+#: services/profile_service.py:1033
 msgid "Finora - Sugestão"
 msgstr "Finora - Sugestão"
 
-#: services/profile_service.py:927
+#: services/profile_service.py:1034
 msgid "Descreva sua sugestão abaixo:"
 msgstr "Descreva sua sugestão abaixo:"
 
-#: services/profile_service.py:932
+#: services/profile_service.py:1039
 msgid "Finora - Comunicar erro"
 msgstr "Finora - Comunicar erro"
 
-#: services/profile_service.py:933
+#: services/profile_service.py:1040
 msgid "Descreva o erro encontrado abaixo:"
 msgstr "Descreva o erro encontrado abaixo:"
 
@@ -1121,7 +1161,7 @@ msgstr "Foto de perfil"
 msgid "Meu Perfil"
 msgstr "Meu Perfil"
 
-#: templates/auth/profile.html:133 templates/auth/profile.html:375
+#: templates/auth/profile.html:137 templates/auth/profile.html:379
 #: templates/base.html:90
 msgid "Meus Backups"
 msgstr "Meus Backups"
@@ -1150,7 +1190,7 @@ msgstr "Tema"
 msgid "Notificação"
 msgstr "Notificação"
 
-#: templates/auth/profile.html:707 templates/base.html:143
+#: templates/auth/profile.html:790 templates/base.html:143
 #: templates/base.html:165 templates/budgets.html:90 templates/budgets.html:129
 #: templates/dashboard.html:302 templates/goals.html:92
 #: templates/goals.html:129
@@ -1177,7 +1217,7 @@ msgstr "Confirmar ação"
 msgid "Deseja continuar?"
 msgstr "Deseja continuar?"
 
-#: templates/auth/forgot_password.html:45 templates/auth/profile.html:717
+#: templates/auth/forgot_password.html:45 templates/auth/profile.html:800
 #: templates/auth/reset_password_offline.html:40
 #: templates/auth/reset_password_token.html:29 templates/base.html:171
 #: templates/budgets.html:113 templates/budgets.html:149
@@ -1219,7 +1259,7 @@ msgstr "Editar"
 msgid "Tem certeza que deseja excluir este orçamento?"
 msgstr "Tem certeza que deseja excluir este orçamento?"
 
-#: templates/auth/profile.html:504 templates/budgets.html:33
+#: templates/auth/profile.html:508 templates/budgets.html:33
 #: templates/dashboard.html:197 templates/goals.html:36
 msgid "Excluir"
 msgstr "Excluir"
@@ -1422,7 +1462,7 @@ msgstr "A busca filtra apenas os lançamentos visíveis nesta página."
 msgid "Dia"
 msgstr "Dia"
 
-#: templates/auth/profile.html:480 templates/dashboard.html:150
+#: templates/auth/profile.html:484 templates/dashboard.html:150
 msgid "Ações"
 msgstr "Ações"
 
@@ -1550,7 +1590,7 @@ msgstr "Selecione a forma"
 msgid "Repetir (Recorrência)"
 msgstr "Repetir (Recorrência)"
 
-#: templates/auth/profile.html:423 templates/dashboard.html:372
+#: templates/auth/profile.html:427 templates/dashboard.html:372
 msgid "Frequência"
 msgstr "Frequência"
 
@@ -1856,55 +1896,76 @@ msgstr "Enviar Sugestão"
 msgid "Comunicar Erro"
 msgstr "Comunicar Erro"
 
+#: templates/auth/profile.html:78
+msgid "Abrir Meus Backups"
+msgstr "Abrir Meus Backups"
+
 #: templates/auth/profile.html:82
 msgid "Backups salvos"
 msgstr "Backups salvos"
 
-#: templates/auth/profile.html:91
+#: templates/auth/profile.html:84 templates/auth/profile.html:94
+#: templates/auth/profile.html:104 templates/auth/profile.html:114
+msgid "Abrir"
+msgstr "Abrir"
+
+#: templates/auth/profile.html:88
+msgid "Abrir Sessões"
+msgstr "Abrir Sessões"
+
+#: templates/auth/profile.html:92 templates/auth/profile.html:532
 msgid "Sessões ativas"
 msgstr "Sessões ativas"
 
-#: templates/auth/profile.html:100
+#: templates/auth/profile.html:98
+msgid "Abrir Atividades"
+msgstr "Abrir Atividades"
+
+#: templates/auth/profile.html:102
 msgid "Atividades recentes"
 msgstr "Atividades recentes"
 
-#: templates/auth/profile.html:109
+#: templates/auth/profile.html:108
+msgid "Abrir Status do Sistema"
+msgstr "Abrir Status do Sistema"
+
+#: templates/auth/profile.html:112
 msgid "Alertas abertos"
 msgstr "Alertas abertos"
 
-#: templates/auth/profile.html:119
+#: templates/auth/profile.html:123
 msgid "Perfil"
 msgstr "Perfil"
 
-#: templates/auth/profile.html:122
+#: templates/auth/profile.html:126
 msgid "Alterar Senha"
 msgstr "Alterar Senha"
 
-#: templates/auth/profile.html:125
+#: templates/auth/profile.html:129
 msgid "Recuperação"
 msgstr "Recuperação"
 
-#: templates/auth/profile.html:136
+#: templates/auth/profile.html:140
 msgid "Sessões"
 msgstr "Sessões"
 
-#: templates/auth/profile.html:139
+#: templates/auth/profile.html:143
 msgid "Atividades"
 msgstr "Atividades"
 
-#: templates/auth/profile.html:142
+#: templates/auth/profile.html:146
 msgid "Status do Sistema"
 msgstr "Status do Sistema"
 
-#: templates/auth/profile.html:145
+#: templates/auth/profile.html:149
 msgid "Zona de Perigo"
 msgstr "Zona de Perigo"
 
-#: templates/auth/profile.html:157 templates/auth/register.html:22
+#: templates/auth/profile.html:161 templates/auth/register.html:22
 msgid "Nome de Usuário"
 msgstr "Nome de Usuário"
 
-#: templates/auth/profile.html:165
+#: templates/auth/profile.html:169
 msgid ""
 "Você pode alterar o nome de usuário agora. Depois de salvar, uma nova "
 "troca ficará disponível em 90 dias."
@@ -1912,20 +1973,20 @@ msgstr ""
 "Você pode alterar o nome de usuário agora. Depois de salvar, uma nova "
 "troca ficará disponível em 90 dias."
 
-#: templates/auth/profile.html:167
+#: templates/auth/profile.html:171
 #, python-format
 msgid "Próxima alteração disponível em %(date)s."
 msgstr "Próxima alteração disponível em %(date)s."
 
-#: templates/auth/profile.html:173 templates/auth/register.html:14
+#: templates/auth/profile.html:177 templates/auth/register.html:14
 msgid "Nome Completo"
 msgstr "Nome Completo"
 
-#: templates/auth/profile.html:183
+#: templates/auth/profile.html:187
 msgid "Foto de Perfil"
 msgstr "Foto de Perfil"
 
-#: templates/auth/profile.html:185
+#: templates/auth/profile.html:189
 msgid ""
 "Clique também na foto ao lado para escolher uma imagem. Formatos JPG, PNG"
 " ou GIF, até 2 MB."
@@ -1933,86 +1994,86 @@ msgstr ""
 "Clique também na foto ao lado para escolher uma imagem. Formatos JPG, PNG"
 " ou GIF, até 2 MB."
 
-#: templates/auth/profile.html:191
+#: templates/auth/profile.html:195
 msgid "Remover foto atual"
 msgstr "Remover foto atual"
 
-#: templates/auth/profile.html:200
+#: templates/auth/profile.html:204
 msgid "Tempo máximo de inatividade da sessão"
 msgstr "Tempo máximo de inatividade da sessão"
 
-#: templates/auth/profile.html:205
+#: templates/auth/profile.html:209
 msgid "Sessão aberta"
 msgstr "Sessão aberta"
 
-#: templates/auth/profile.html:207
+#: templates/auth/profile.html:211
 msgid "1 hora"
 msgstr "1 hora"
 
-#: templates/auth/profile.html:209
+#: templates/auth/profile.html:213
 #, python-format
 msgid "%(minutes)d minuto(s)"
 msgstr "%(minutes)d minuto(s)"
 
-#: templates/auth/profile.html:214
+#: templates/auth/profile.html:218
 msgid "Quando o tempo acabar por inatividade, você precisará entrar novamente."
 msgstr "Quando o tempo acabar por inatividade, você precisará entrar novamente."
 
-#: templates/auth/profile.html:217
+#: templates/auth/profile.html:221
 msgid "Salvar Alterações"
 msgstr "Salvar Alterações"
 
-#: templates/auth/profile.html:227
+#: templates/auth/profile.html:231
 msgid "Senha Atual"
 msgstr "Senha Atual"
 
-#: templates/auth/profile.html:232
+#: templates/auth/profile.html:236
 #: templates/auth/reset_password_offline.html:31
 #: templates/auth/reset_password_token.html:18
 msgid "Nova Senha"
 msgstr "Nova Senha"
 
-#: templates/auth/profile.html:234 templates/auth/register.html:50
+#: templates/auth/profile.html:238 templates/auth/register.html:50
 #: templates/auth/register.html:209 templates/auth/register.html:234
 #: templates/auth/reset_password_token.html:23
 msgid "Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números."
 msgstr "Use ao menos 8 caracteres com letras maiúsculas, minúsculas e números."
 
-#: templates/auth/profile.html:237 templates/auth/reset_password_token.html:28
+#: templates/auth/profile.html:241 templates/auth/reset_password_token.html:28
 msgid "Atualizar Senha"
 msgstr "Atualizar Senha"
 
-#: templates/auth/profile.html:251
+#: templates/auth/profile.html:255
 msgid "Última geração"
 msgstr "Última geração"
 
-#: templates/auth/profile.html:256
+#: templates/auth/profile.html:260
 msgid "Não registrada"
 msgstr "Não registrada"
 
-#: templates/auth/profile.html:263
+#: templates/auth/profile.html:267
 msgid "Chave atual"
 msgstr "Chave atual"
 
-#: templates/auth/profile.html:270
+#: templates/auth/profile.html:274
 msgid "Gere uma nova chave para disponibilizar a cópia nesta tela."
 msgstr "Gere uma nova chave para disponibilizar a cópia nesta tela."
 
-#: templates/auth/profile.html:274 templates/auth/profile.html:771
+#: templates/auth/profile.html:278 templates/auth/profile.html:865
 #: templates/auth/register_success.html:21
 #: templates/auth/register_success.html:57
 msgid "Copiar"
 msgstr "Copiar"
 
-#: templates/auth/profile.html:277
+#: templates/auth/profile.html:281
 msgid "Último envio por e-mail"
 msgstr "Último envio por e-mail"
 
-#: templates/auth/profile.html:282
+#: templates/auth/profile.html:286
 msgid "Nenhum envio registrado até o momento."
 msgstr "Nenhum envio registrado até o momento."
 
-#: templates/auth/profile.html:285
+#: templates/auth/profile.html:289
 msgid ""
 "Mantenha esta chave em local seguro. Se você suspeitar de "
 "comprometimento, gere uma nova chave imediatamente."
@@ -2020,11 +2081,11 @@ msgstr ""
 "Mantenha esta chave em local seguro. Se você suspeitar de "
 "comprometimento, gere uma nova chave imediatamente."
 
-#: templates/auth/profile.html:290
+#: templates/auth/profile.html:294
 msgid "Enviar por e-mail"
 msgstr "Enviar por e-mail"
 
-#: templates/auth/profile.html:292
+#: templates/auth/profile.html:296
 msgid ""
 "Deseja gerar uma nova chave de recuperação? A chave anterior deixará de "
 "valer imediatamente."
@@ -2032,19 +2093,19 @@ msgstr ""
 "Deseja gerar uma nova chave de recuperação? A chave anterior deixará de "
 "valer imediatamente."
 
-#: templates/auth/profile.html:295
+#: templates/auth/profile.html:299
 msgid "Gerar nova chave"
 msgstr "Gerar nova chave"
 
-#: templates/auth/profile.html:297
+#: templates/auth/profile.html:301
 msgid "Abrir fluxo de recuperação"
 msgstr "Abrir fluxo de recuperação"
 
-#: templates/auth/profile.html:308
+#: templates/auth/profile.html:312
 msgid "Envio de e-mails"
 msgstr "Envio de e-mails"
 
-#: templates/auth/profile.html:309
+#: templates/auth/profile.html:313
 msgid ""
 "Configure o SMTP usado para chaves de recuperação, redefinição de senha e"
 " avisos do Finora."
@@ -2052,59 +2113,59 @@ msgstr ""
 "Configure o SMTP usado para chaves de recuperação, redefinição de senha e"
 " avisos do Finora."
 
-#: templates/auth/profile.html:312 templates/auth/profile.html:625
+#: templates/auth/profile.html:316 templates/auth/profile.html:699
 msgid "Configurado"
 msgstr "Configurado"
 
-#: templates/auth/profile.html:320
+#: templates/auth/profile.html:324
 msgid "Servidor SMTP"
 msgstr "Servidor SMTP"
 
-#: templates/auth/profile.html:324
+#: templates/auth/profile.html:328
 msgid "Porta"
 msgstr "Porta"
 
-#: templates/auth/profile.html:328
+#: templates/auth/profile.html:332
 msgid "Segurança"
 msgstr "Segurança"
 
-#: templates/auth/profile.html:332
+#: templates/auth/profile.html:336
 msgid "Sem criptografia"
 msgstr "Sem criptografia"
 
-#: templates/auth/profile.html:336
+#: templates/auth/profile.html:340
 msgid "Usuário SMTP"
 msgstr "Usuário SMTP"
 
-#: templates/auth/profile.html:340
+#: templates/auth/profile.html:344
 msgid "Senha SMTP"
 msgstr "Senha SMTP"
 
-#: templates/auth/profile.html:344
+#: templates/auth/profile.html:348
 msgid "Uma senha criptografada já está salva. Deixe em branco para mantê-la."
 msgstr "Uma senha criptografada já está salva. Deixe em branco para mantê-la."
 
-#: templates/auth/profile.html:346
+#: templates/auth/profile.html:350
 msgid "A senha será criptografada e armazenada somente neste computador."
 msgstr "A senha será criptografada e armazenada somente neste computador."
 
-#: templates/auth/profile.html:351
+#: templates/auth/profile.html:355
 msgid "E-mail remetente"
 msgstr "E-mail remetente"
 
-#: templates/auth/profile.html:355
+#: templates/auth/profile.html:359
 msgid "Nome do remetente"
 msgstr "Nome do remetente"
 
-#: templates/auth/profile.html:362
+#: templates/auth/profile.html:366
 msgid "Salvar configurações"
 msgstr "Salvar configurações"
 
-#: templates/auth/profile.html:365
+#: templates/auth/profile.html:369
 msgid "Salvar e enviar teste"
 msgstr "Salvar e enviar teste"
 
-#: templates/auth/profile.html:376
+#: templates/auth/profile.html:380
 msgid ""
 "Centralize aqui os backups manuais, a rotina automática e o histórico "
 "salvo."
@@ -2112,230 +2173,303 @@ msgstr ""
 "Centralize aqui os backups manuais, a rotina automática e o histórico "
 "salvo."
 
-#: templates/auth/profile.html:378
+#: templates/auth/profile.html:382
 msgid "Gerar Backup Manual"
 msgstr "Gerar Backup Manual"
 
-#: templates/auth/profile.html:384
+#: templates/auth/profile.html:388
 msgid "Rotina automática"
 msgstr "Rotina automática"
 
-#: templates/auth/profile.html:385
+#: templates/auth/profile.html:389
 msgid "Ativada"
 msgstr "Ativada"
 
-#: templates/auth/profile.html:385
+#: templates/auth/profile.html:389
 msgid "Desativada"
 msgstr "Desativada"
 
-#: templates/auth/profile.html:386
+#: templates/auth/profile.html:390
 #, python-format
 msgid "Frequência: %(frequency)s"
 msgstr "Frequência: %(frequency)s"
 
-#: templates/auth/profile.html:387
+#: templates/auth/profile.html:391
 #, python-format
 msgid "Retenção: %(count)s backup(s)"
 msgstr "Retenção: %(count)s backup(s)"
 
-#: templates/auth/profile.html:388
+#: templates/auth/profile.html:392
 #, python-format
 msgid "Execuções por período: %(count)s"
 msgstr "Execuções por período: %(count)s"
 
-#: templates/auth/profile.html:393
+#: templates/auth/profile.html:397
 msgid "Próxima execução"
 msgstr "Próxima execução"
 
-#: templates/auth/profile.html:398
+#: templates/auth/profile.html:402
 msgid "Ainda não agendada"
 msgstr "Ainda não agendada"
 
-#: templates/auth/profile.html:403
+#: templates/auth/profile.html:407
 #, python-format
 msgid "Última execução em %(date)s"
 msgstr "Última execução em %(date)s"
 
-#: templates/auth/profile.html:405
+#: templates/auth/profile.html:409
 msgid "Nenhuma execução automática registrada."
 msgstr "Nenhuma execução automática registrada."
 
-#: templates/auth/profile.html:413
+#: templates/auth/profile.html:417
 msgid "Configurar rotina automática"
 msgstr "Configurar rotina automática"
 
-#: templates/auth/profile.html:418
+#: templates/auth/profile.html:422
 msgid "Ativar backups automáticos"
 msgstr "Ativar backups automáticos"
 
-#: templates/auth/profile.html:431
+#: templates/auth/profile.html:435
 msgid "Execuções por período"
 msgstr "Execuções por período"
 
-#: templates/auth/profile.html:439
+#: templates/auth/profile.html:443
 msgid "Dia da semana"
 msgstr "Dia da semana"
 
-#: templates/auth/profile.html:447
+#: templates/auth/profile.html:451
 msgid "Dia do mês"
 msgstr "Dia do mês"
 
-#: templates/auth/profile.html:451
+#: templates/auth/profile.html:455
 msgid "Hora inicial"
 msgstr "Hora inicial"
 
-#: templates/auth/profile.html:455
+#: templates/auth/profile.html:459
 msgid "Minuto"
 msgstr "Minuto"
 
-#: templates/auth/profile.html:459
+#: templates/auth/profile.html:463
 msgid "Retenção máxima"
 msgstr "Retenção máxima"
 
-#: templates/auth/profile.html:461
+#: templates/auth/profile.html:465
 msgid "Backups mais antigos acima deste limite serão removidos automaticamente."
 msgstr "Backups mais antigos acima deste limite serão removidos automaticamente."
 
-#: templates/auth/profile.html:466
+#: templates/auth/profile.html:470
 msgid "Salvar rotina"
 msgstr "Salvar rotina"
 
-#: templates/auth/profile.html:476
+#: templates/auth/profile.html:480
 msgid "Arquivo"
 msgstr "Arquivo"
 
-#: templates/auth/profile.html:477
+#: templates/auth/profile.html:481
 msgid "Origem"
 msgstr "Origem"
 
-#: templates/auth/profile.html:478
+#: templates/auth/profile.html:482
 msgid "Criado em"
 msgstr "Criado em"
 
-#: templates/auth/profile.html:479
+#: templates/auth/profile.html:483
 msgid "Tamanho"
 msgstr "Tamanho"
 
-#: templates/auth/profile.html:501
+#: templates/auth/profile.html:505
 msgid "Baixar"
 msgstr "Baixar"
 
-#: templates/auth/profile.html:502
+#: templates/auth/profile.html:506
 msgid "Deseja excluir este backup salvo?"
 msgstr "Deseja excluir este backup salvo?"
 
-#: templates/auth/profile.html:516
+#: templates/auth/profile.html:520
 msgid "Nenhum backup manual registrado ainda."
 msgstr "Nenhum backup manual registrado ainda."
 
-#: templates/auth/profile.html:532
+#: templates/auth/profile.html:526
+msgid "Resumo das sessões"
+msgstr "Resumo das sessões"
+
+#: templates/auth/profile.html:528
+msgid "Total de sessões"
+msgstr "Total de sessões"
+
+#: templates/auth/profile.html:536
+msgid "Sessões encerradas"
+msgstr "Sessões encerradas"
+
+#: templates/auth/profile.html:550
 msgid "Ativa"
 msgstr "Ativa"
 
-#: templates/auth/profile.html:537
+#: templates/auth/profile.html:555
 msgid "IP indisponível"
 msgstr "IP indisponível"
 
-#: templates/auth/profile.html:540
+#: templates/auth/profile.html:559
 #, python-format
 msgid "Início: %(date)s"
 msgstr "Início: %(date)s"
 
-#: templates/auth/profile.html:541
+#: templates/auth/profile.html:560
 #, python-format
 msgid "Última atividade: %(date)s"
 msgstr "Última atividade: %(date)s"
 
-#: templates/auth/profile.html:543
+#: templates/auth/profile.html:562
 #, python-format
 msgid "%(label)s em %(date)s"
 msgstr "%(label)s em %(date)s"
 
-#: templates/auth/profile.html:553
+#: templates/auth/profile.html:566
+msgid "Deseja excluir este registro de sessão?"
+msgstr "Deseja excluir este registro de sessão?"
+
+#: templates/auth/profile.html:569
+msgid "Excluir registro da sessão"
+msgstr "Excluir registro da sessão"
+
+#: templates/auth/profile.html:569 templates/auth/profile.html:624
+#: templates/auth/profile.html:758
+msgid "Excluir registro"
+msgstr "Excluir registro"
+
+#: templates/auth/profile.html:580
 msgid "Nenhuma sessão registrada até o momento."
 msgstr "Nenhuma sessão registrada até o momento."
 
-#: templates/auth/profile.html:584
+#: templates/auth/profile.html:586
+msgid "Resumo das atividades"
+msgstr "Resumo das atividades"
+
+#: templates/auth/profile.html:588
+msgid "Total de atividades"
+msgstr "Total de atividades"
+
+#: templates/auth/profile.html:594
+msgid "Tipos de atividade"
+msgstr "Tipos de atividade"
+
+#: templates/auth/profile.html:621
+msgid "Deseja excluir este registro de atividade?"
+msgstr "Deseja excluir este registro de atividade?"
+
+#: templates/auth/profile.html:624
+msgid "Excluir registro da atividade"
+msgstr "Excluir registro da atividade"
+
+#: templates/auth/profile.html:634
 msgid "Nenhuma atividade registrada ainda."
 msgstr "Nenhuma atividade registrada ainda."
 
-#: templates/auth/profile.html:593
+#: templates/auth/profile.html:640
+msgid "Resumo das falhas do sistema"
+msgstr "Resumo das falhas do sistema"
+
+#: templates/auth/profile.html:642
+msgid "Total de falhas"
+msgstr "Total de falhas"
+
+#: templates/auth/profile.html:646
+msgid "Falhas abertas"
+msgstr "Falhas abertas"
+
+#: templates/auth/profile.html:650
+msgid "Falhas resolvidas"
+msgstr "Falhas resolvidas"
+
+#: templates/auth/profile.html:656
+msgid "Tipos de falha"
+msgstr "Tipos de falha"
+
+#: templates/auth/profile.html:667
 msgid "Banco de dados"
 msgstr "Banco de dados"
 
-#: templates/auth/profile.html:595
+#: templates/auth/profile.html:669
 msgid "Conectividade em tempo real"
 msgstr "Conectividade em tempo real"
 
-#: templates/auth/profile.html:600
+#: templates/auth/profile.html:674
 msgid "Agendador de backups"
 msgstr "Agendador de backups"
 
-#: templates/auth/profile.html:601 templates/auth/profile.html:608
+#: templates/auth/profile.html:675 templates/auth/profile.html:682
 msgid "Ativo"
 msgstr "Ativo"
 
-#: templates/auth/profile.html:601 templates/auth/profile.html:608
+#: templates/auth/profile.html:675 templates/auth/profile.html:682
 msgid "Desativado"
 msgstr "Desativado"
 
-#: templates/auth/profile.html:602
+#: templates/auth/profile.html:676
 #, python-format
 msgid "Storage pronto: %(state)s"
 msgstr "Storage pronto: %(state)s"
 
-#: templates/auth/profile.html:607
+#: templates/auth/profile.html:681
 msgid "Agendador de recorrências"
 msgstr "Agendador de recorrências"
 
-#: templates/auth/profile.html:609
+#: templates/auth/profile.html:683
 msgid "Operação automática de lançamentos"
 msgstr "Operação automática de lançamentos"
 
-#: templates/auth/profile.html:614
+#: templates/auth/profile.html:688
 msgid "Atualizações"
 msgstr "Atualizações"
 
-#: templates/auth/profile.html:616
+#: templates/auth/profile.html:690
 #, python-format
 msgid "Status: %(status)s"
 msgstr "Status: %(status)s"
 
-#: templates/auth/profile.html:624
+#: templates/auth/profile.html:698
 msgid "Manifesto de atualização"
 msgstr "Manifesto de atualização"
 
-#: templates/auth/profile.html:628
+#: templates/auth/profile.html:702
 #, python-format
 msgid "Última verificação em %(date)s"
 msgstr "Última verificação em %(date)s"
 
-#: templates/auth/profile.html:630
+#: templates/auth/profile.html:704
 msgid "Nenhuma verificação de atualização registrada."
 msgstr "Nenhuma verificação de atualização registrada."
 
-#: templates/auth/profile.html:637
+#: templates/auth/profile.html:711
 msgid "Último backup salvo"
 msgstr "Último backup salvo"
 
-#: templates/auth/profile.html:642
+#: templates/auth/profile.html:716
 msgid "Nenhum backup salvo ainda"
 msgstr "Nenhum backup salvo ainda"
 
-#: templates/auth/profile.html:649
+#: templates/auth/profile.html:723
 msgid "Gere um backup manual ou automático para começar o histórico."
 msgstr "Gere um backup manual ou automático para começar o histórico."
 
-#: templates/auth/profile.html:676
+#: templates/auth/profile.html:751
 #, python-format
 msgid "Resolvido em %(date)s"
 msgstr "Resolvido em %(date)s"
 
-#: templates/auth/profile.html:686
+#: templates/auth/profile.html:755
+msgid "Deseja excluir este evento do sistema?"
+msgstr "Deseja excluir este evento do sistema?"
+
+#: templates/auth/profile.html:758
+msgid "Excluir evento do sistema"
+msgstr "Excluir evento do sistema"
+
+#: templates/auth/profile.html:769
 msgid "Nenhum evento de sistema registrado no momento."
 msgstr "Nenhum evento de sistema registrado no momento."
 
-#: templates/auth/profile.html:692
+#: templates/auth/profile.html:775
 msgid ""
 "A exclusão da sua conta é irreversível. Todos os seus dados financeiros e"
 " metas serão apagados permanentemente."
@@ -2343,36 +2477,36 @@ msgstr ""
 "A exclusão da sua conta é irreversível. Todos os seus dados financeiros e"
 " metas serão apagados permanentemente."
 
-#: templates/auth/profile.html:694
+#: templates/auth/profile.html:777
 msgid "Excluir Minha Conta"
 msgstr "Excluir Minha Conta"
 
-#: templates/auth/profile.html:706
+#: templates/auth/profile.html:789
 msgid "Confirmar Exclusão"
 msgstr "Confirmar Exclusão"
 
-#: templates/auth/profile.html:710
+#: templates/auth/profile.html:793
 msgid "Tem certeza absoluta? Esta ação não pode ser desfeita."
 msgstr "Tem certeza absoluta? Esta ação não pode ser desfeita."
 
-#: templates/auth/profile.html:711
+#: templates/auth/profile.html:794
 #, python-format
 msgid "Para confirmar, digite \"%(token)s\" na caixa abaixo:"
 msgstr "Para confirmar, digite \"%(token)s\" na caixa abaixo:"
 
-#: templates/auth/profile.html:718
+#: templates/auth/profile.html:801
 msgid "Excluir Permanentemente"
 msgstr "Excluir Permanentemente"
 
-#: templates/auth/profile.html:768 templates/auth/register_success.html:54
+#: templates/auth/profile.html:862 templates/auth/register_success.html:54
 msgid "Copiado!"
 msgstr "Copiado!"
 
-#: templates/auth/profile.html:803
+#: templates/auth/profile.html:897
 msgid "Use pelo menos 3 caracteres."
 msgstr "Use pelo menos 3 caracteres."
 
-#: templates/auth/profile.html:826
+#: templates/auth/profile.html:920
 msgid "Não foi possível verificar agora. A validação será repetida ao salvar."
 msgstr "Não foi possível verificar agora. A validação será repetida ao salvar."
 
