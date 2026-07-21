@@ -10,7 +10,7 @@
 Finora is a local-first personal finance application built with Flask.  
 It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, managed backups, profile observability, guided updates, and multilingual UI.
 
-Current stable version: `1.4.4`
+Current stable version: `1.4.5`
 
 ## 🧱 Tech Stack
 
@@ -106,7 +106,7 @@ Optional update and mail settings:
 
 ```ini
 # App metadata
-APP_VERSION=1.4.4
+APP_VERSION=1.4.5
 APP_BASE_URL=http://127.0.0.1:5000
 
 # Automatic update
@@ -114,7 +114,10 @@ UPDATE_CHANNEL=stable
 UPDATE_MANIFEST_URL=
 UPDATE_DOWNLOAD_DIR=updates
 UPDATE_TARGET_ROOT=.
-UPDATE_CHECK_TIMEOUT_SECONDS=10
+UPDATE_CHECK_TIMEOUT_SECONDS=20
+UPDATE_DOWNLOAD_TIMEOUT_SECONDS=60
+UPDATE_NETWORK_RETRY_ATTEMPTS=3
+UPDATE_NETWORK_RETRY_BACKOFF_SECONDS=2
 UPDATE_ALLOW_LOCAL_ASSETS=0
 
 # Backup automation
@@ -363,6 +366,14 @@ Or:
 - Added meaningful icons to the primary navigation and introduced Accounts immediately after Dashboard.
 - Localized system failure types and hardened long-content wrapping across cards, status panels, badges, lists, and operational surfaces.
 - Added an Alembic migration and regression coverage for account ownership, balances, transfers, imports, reconciliation, dashboard calculations, and responsive UI contracts.
+
+### 2026-07-21 (1.4.5)
+
+- Made automatic updates resilient to intermittent GitHub, SSL handshake, and read timeouts with separate download limits, controlled retries, and progressive backoff.
+- Downloads are now written to a temporary partial file and moved atomically only after completion; previously verified installers are reused safely through SHA-256 validation.
+- Replaced raw SSL diagnostics with clear, actionable connection guidance and corrected loading-state recovery around confirmed update actions.
+- Added a polished donation area to the About page with secure PayPal access, copyable PIX key, accessible feedback, recipient transparency, and visually normalized QR Codes.
+- Added regression coverage for transient timeouts, retry exhaustion, atomic installer downloads, partial-file cleanup, and donation security/accessibility contracts.
 
 ## 👥 Authors
 

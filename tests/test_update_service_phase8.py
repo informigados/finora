@@ -1,3 +1,5 @@
+import hashlib
+import io
 import json
 import os
 import zipfile
@@ -53,7 +55,7 @@ def test_check_for_updates_marks_state_as_available_when_newer_version_in_manife
         {
             'channels': {
                 'stable': {
-                    'version': '1.4.5',
+                    'version': '1.4.6',
                     'asset_url': str(unused_package),
                     'requires_migration': True,
                 }
@@ -71,7 +73,7 @@ def test_check_for_updates_marks_state_as_available_when_newer_version_in_manife
         assert result['update_available'] is True
         assert state.status == 'available'
         assert state.installed_version == DEFAULT_APP_VERSION
-        assert state.latest_known_version == '1.4.5'
+        assert state.latest_known_version == '1.4.6'
         assert state.last_checked_at is not None
 
 
@@ -89,7 +91,7 @@ def test_apply_update_installs_package_and_preserves_excluded_directories(app, t
     manifest_path = _write_manifest(
         tmp_path,
         {
-            'version': '1.4.5',
+            'version': '1.4.6',
             'asset_url': str(package_path),
             'requires_migration': True,
         },
@@ -119,7 +121,7 @@ def test_apply_update_installs_package_and_preserves_excluded_directories(app, t
 
         assert result['applied'] is True
         assert migration_calls == [True]
-        assert state.installed_version == '1.4.5'
+        assert state.installed_version == '1.4.6'
         assert state.status == 'applied'
         assert os.path.exists(result['backup_path'])
         assert os.path.exists(result['package_path'])
@@ -142,7 +144,7 @@ def test_apply_update_restores_backup_when_upgrade_fails(app, tmp_path, monkeypa
     manifest_path = _write_manifest(
         tmp_path,
         {
-            'version': '1.4.5',
+            'version': '1.4.6',
             'asset_url': str(package_path),
             'requires_migration': True,
         },
@@ -177,7 +179,7 @@ def test_about_routes_expose_update_section_and_check_flow(client, app, tmp_path
     manifest_path = _write_manifest(
         tmp_path,
         {
-            'version': '1.4.5',
+            'version': '1.4.6',
             'asset_url': str(unused_package),
             'requires_migration': True,
         },
@@ -202,7 +204,7 @@ def test_about_routes_expose_update_section_and_check_flow(client, app, tmp_path
 
     check_response = client.post('/about/check-update', follow_redirects=True)
     assert check_response.status_code == 200
-    assert 'Nova versão disponível: 1.4.5.' in check_response.get_data(as_text=True)
+    assert 'Nova versão disponível: 1.4.6.' in check_response.get_data(as_text=True)
 
     apply_requires_login = client.post('/about/apply-update', follow_redirects=False)
     assert apply_requires_login.status_code == 302
@@ -263,7 +265,7 @@ def test_check_for_updates_blocks_local_assets_from_local_manifest_by_default(ap
     manifest_path = _write_manifest(
         tmp_path,
         {
-            'version': '1.4.5',
+            'version': '1.4.6',
             'asset_url': str(package_path),
             'requires_migration': True,
         },
@@ -289,6 +291,85 @@ def test_open_source_stream_rejects_remote_insecure_schemes(app):
         with pytest.raises(ValueError, match='HTTPS'):
             stream = update_service._open_source_stream('file:///tmp/update.json', 5)
             stream.close()
+
+
+def test_manifest_request_retries_transient_timeout(monkeypatch):
+    attempts = []
+
+    def open_stream(_location, _timeout):
+        attempts.append(1)
+        if len(attempts) < 3:
+            raise TimeoutError('temporary timeout')
+        return io.BytesIO(b'{"version": "1.4.5"}')
+
+    monkeypatch.setattr(update_service, '_open_source_stream', open_stream)
+    monkeypatch.setattr(update_service.time, 'sleep', lambda _seconds: None)
+
+    payload = update_service._load_json_payload('https://example.com/manifest.json', 20, 3, 2)
+
+    assert payload == {'version': '1.4.5'}
+    assert len(attempts) == 3
+
+
+def test_manifest_request_exhaustion_hides_ssl_details(monkeypatch):
+    monkeypatch.setattr(
+        update_service,
+        '_open_source_stream',
+        lambda *_args: (_ for _ in ()).throw(TimeoutError('_ssl.c:1015 handshake timed out')),
+    )
+    monkeypatch.setattr(update_service.time, 'sleep', lambda _seconds: None)
+
+    with pytest.raises(update_service.UpdateNetworkError) as error:
+        update_service._load_json_payload('https://example.com/manifest.json', 20, 2, 0)
+
+    assert '2 tentativas' in str(error.value)
+    assert '_ssl.c' not in str(error.value)
+
+
+def test_desktop_download_retries_atomically_and_clears_partial_file(app, tmp_path, monkeypatch):
+    payload = b'validated installer'
+    attempts = []
+    app.config.update(
+        DESKTOP_MODE=True,
+        UPDATE_DOWNLOAD_DIR=str(tmp_path / 'updates'),
+        UPDATE_DOWNLOAD_TIMEOUT_SECONDS=60,
+        UPDATE_NETWORK_RETRY_ATTEMPTS=3,
+        UPDATE_NETWORK_RETRY_BACKOFF_SECONDS=0,
+    )
+
+    def open_stream(_location, _timeout):
+        attempts.append(1)
+        if len(attempts) == 1:
+            raise TimeoutError('read timed out')
+        return io.BytesIO(payload)
+
+    monkeypatch.setattr(update_service, '_open_source_stream', open_stream)
+    package_path = update_service._download_update_asset(
+        app,
+        {
+            'version': '1.4.5',
+            'asset_url': 'https://example.com/Finora_Setup_v1.4.5.exe',
+            'sha256': hashlib.sha256(payload).hexdigest(),
+        },
+    )
+
+    assert len(attempts) == 2
+    with open(package_path, 'rb') as downloaded_package:
+        assert downloaded_package.read() == payload
+    assert not os.path.exists(f'{package_path}.part')
+
+
+def test_about_page_exposes_accessible_donation_options(client):
+    response = client.get('/about')
+    html = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'H5Y4PRPVHWQ6L' in html
+    assert 'pix@informigados.com.br' in html
+    assert 'rel="noopener noreferrer external"' in html
+    assert 'images/donations/paypal-qr.png' in html
+    assert 'images/donations/pix-nubank-qr.png' in html
+    assert 'aria-live="polite"' in html
 
 
 def test_run_database_upgrade_uses_sanitized_environment(app, monkeypatch, tmp_path):

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-20 20:26-0300\n"
+"POT-Creation-Date: 2026-07-21 08:45-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -1291,8 +1291,8 @@ msgid "Verificar atualizações"
 msgstr "Check for updates"
 
 #: templates/about.html:45
-msgid "Preparando atualização"
-msgstr "Preparing update"
+msgid "Baixando e validando atualização"
+msgstr "Downloading and validating update"
 
 #: templates/about.html:45
 msgid ""
@@ -1364,15 +1364,104 @@ msgid ""
 "versão."
 msgstr "Configure UPDATE_MANIFEST_URL to enable automatic version checks."
 
-#: templates/about.html:119
+#: templates/about.html:122
+msgid "Apoie o projeto"
+msgstr "Support the project"
+
+#: templates/about.html:123
+msgid "Ajude o Finora a continuar evoluindo"
+msgstr "Help Finora keep evolving"
+
+#: templates/about.html:124
+msgid ""
+"Sua contribuição apoia a manutenção, a infraestrutura e o desenvolvimento"
+" de novos recursos. Escolha a forma mais conveniente para você."
+msgstr ""
+"Your contribution supports maintenance, infrastructure, and the development"
+" of new features. Choose the most convenient option for you."
+
+#: templates/about.html:132
+msgid "Internacional"
+msgstr "International"
+
+#: templates/about.html:134
+msgid ""
+"Doe com sua conta PayPal ou cartão. A contribuição será destinada ao "
+"autor Alex Brito."
+msgstr ""
+"Donate with your PayPal account or card. The contribution will go to "
+"author Alex Brito."
+
+#: templates/about.html:136
+msgid "Doar com PayPal"
+msgstr "Donate with PayPal"
+
+#: templates/about.html:138
+msgid "Beneficiário: Alex Henrique Pereira Brito"
+msgstr "Recipient: Alex Henrique Pereira Brito"
+
+#: templates/about.html:142
+msgid "QR Code para doação via PayPal"
+msgstr "QR Code for donation via PayPal"
+
+#: templates/about.html:144 templates/about.html:168
+msgid "Aponte a câmera para doar"
+msgstr "Scan with your camera to donate"
+
+#: templates/about.html:152
+msgid "Brasil"
+msgstr "Brazil"
+
+#: templates/about.html:154
+msgid ""
+"Faça uma transferência instantânea para a conta empresarial da "
+"INformigados no Nubank."
+msgstr ""
+"Make an instant transfer to INformigados' business account at Nubank."
+
+#: templates/about.html:155
+msgid "Chave PIX"
+msgstr "PIX key"
+
+#: templates/about.html:157
+msgid "Copiar chave PIX"
+msgstr "Copy PIX key"
+
+#: templates/about.html:157
+msgid "Chave copiada!"
+msgstr "Key copied!"
+
+#: templates/about.html:158 templates/about.html:239
+#: templates/auth/profile.html:279 templates/auth/profile.html:866
+#: templates/auth/register_success.html:21
+#: templates/auth/register_success.html:57
+msgid "Copiar"
+msgstr "Copy"
+
+#: templates/about.html:161
+msgid "Beneficiário: INformigados"
+msgstr "Recipient: INformigados"
+
+#: templates/about.html:166
+msgid "QR Code para doação via PIX"
+msgstr "QR Code for donation via PIX"
+
+#: templates/about.html:174
+msgid ""
+"Doações são voluntárias e não alteram o acesso gratuito aos recursos do "
+"Finora."
+msgstr ""
+"Donations are voluntary and do not change free access to Finora features."
+
+#: templates/about.html:178
 msgid "Autores"
 msgstr "Authors"
 
-#: templates/about.html:143
+#: templates/about.html:202
 msgid "Espaço para colaboradores"
 msgstr "Space for collaborators"
 
-#: templates/about.html:144
+#: templates/about.html:203
 msgid ""
 "Contribuições futuras poderão ser destacadas aqui com créditos e "
 "histórico de participação."
@@ -1380,7 +1469,7 @@ msgstr ""
 "Future contributions may be highlighted here with credits and "
 "participation history."
 
-#: templates/about.html:147
+#: templates/about.html:206
 msgid "Ver repositório"
 msgstr "View repository"
 
@@ -2726,12 +2815,6 @@ msgstr "Current key"
 msgid "Gere uma nova chave para disponibilizar a cópia nesta tela."
 msgstr "Generate a new key to make the copy available on this screen."
 
-#: templates/auth/profile.html:279 templates/auth/profile.html:866
-#: templates/auth/register_success.html:21
-#: templates/auth/register_success.html:57
-msgid "Copiar"
-msgstr "Copy"
-
 #: templates/auth/profile.html:282
 msgid "Último envio por e-mail"
 msgstr "Last email sent"
@@ -3301,3 +3384,6 @@ msgstr "This link expires in 1 hour for security."
 
 #~ msgid "Outra conta"
 #~ msgstr "Another account"
+
+#~ msgid "Preparando atualização"
+#~ msgstr "Preparing update"

@@ -60,12 +60,11 @@ jobs:
 
           ### Highlights
 
-          - Added accounts, wallets, cards, consolidated balances, and neutral internal transfers.
-          - Added OFX import, reusable CSV/XLSX profiles, duplicate detection, and bank reconciliation.
-          - Reworked the dashboard with realized/projected balances, five operational indicators, and income/expense category charts.
-          - Added a persistent collapsible analytics rail and expanded monthly-entry workspace.
-          - Localized failure types and hardened long-content containment across operational surfaces.
-          - Added the v1.4.4 database migration and end-to-end regression coverage for the new financial-account domain.
+          - Hardened automatic updates against intermittent SSL handshake and download read timeouts.
+          - Added controlled retries, progressive backoff, separate download timeouts, and atomic partial-file handling.
+          - Reused previously verified installers safely through SHA-256 validation and improved actionable error messaging.
+          - Added a polished PayPal and PIX donation area with accessible copy feedback and normalized QR Codes.
+          - Added regression coverage for updater resilience, partial-file cleanup, and donation security/accessibility.
 
           ### Verification
 

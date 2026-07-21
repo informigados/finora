@@ -257,6 +257,7 @@
 
       document.querySelectorAll("form[data-loading-text]").forEach((form) => {
         form.addEventListener("submit", () => {
+          if (form.dataset.confirm && form.dataset.confirmed !== "true") return;
           const submitButton = form.querySelector('button[type="submit"]');
           if (!submitButton || submitButton.disabled) return;
           submitButton.dataset.originalHtml = submitButton.innerHTML;
@@ -264,6 +265,17 @@
           submitButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span><span>${form.dataset.loadingText}</span>`;
         });
       });
+
+      function restoreLoadingForms() {
+        document.querySelectorAll("form[data-loading-text] button[type='submit']").forEach((button) => {
+          if (!button.dataset.originalHtml) return;
+          button.innerHTML = button.dataset.originalHtml;
+          button.disabled = false;
+          delete button.dataset.originalHtml;
+        });
+      }
+
+      window.addEventListener("pageshow", restoreLoadingForms);
 
       document.querySelectorAll("[data-progress-width]").forEach((element) => {
         const rawValue = Number(element.getAttribute("data-progress-width") || 0);

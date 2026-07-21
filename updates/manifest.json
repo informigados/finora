@@ -1,7 +1,7 @@
 {
   "channels": {
     "stable": {
-      "version": "1.4.4",
+      "version": "1.4.5",
       "asset_url": "",
       "notes": "Manifesto local padrão do Finora. Configure UPDATE_MANIFEST_URL para usar um canal remoto de atualização.",
       "requires_migration": true

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-20 20:26-0300\n"
+"POT-Creation-Date: 2026-07-21 08:45-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1254,7 +1254,7 @@ msgid "Verificar atualizações"
 msgstr ""
 
 #: templates/about.html:45
-msgid "Preparando atualização"
+msgid "Baixando e validando atualização"
 msgstr ""
 
 #: templates/about.html:45
@@ -1321,21 +1321,104 @@ msgid ""
 "versão."
 msgstr ""
 
-#: templates/about.html:119
+#: templates/about.html:122
+msgid "Apoie o projeto"
+msgstr ""
+
+#: templates/about.html:123
+msgid "Ajude o Finora a continuar evoluindo"
+msgstr ""
+
+#: templates/about.html:124
+msgid ""
+"Sua contribuição apoia a manutenção, a infraestrutura e o desenvolvimento"
+" de novos recursos. Escolha a forma mais conveniente para você."
+msgstr ""
+
+#: templates/about.html:132
+msgid "Internacional"
+msgstr ""
+
+#: templates/about.html:134
+msgid ""
+"Doe com sua conta PayPal ou cartão. A contribuição será destinada ao "
+"autor Alex Brito."
+msgstr ""
+
+#: templates/about.html:136
+msgid "Doar com PayPal"
+msgstr ""
+
+#: templates/about.html:138
+msgid "Beneficiário: Alex Henrique Pereira Brito"
+msgstr ""
+
+#: templates/about.html:142
+msgid "QR Code para doação via PayPal"
+msgstr ""
+
+#: templates/about.html:144 templates/about.html:168
+msgid "Aponte a câmera para doar"
+msgstr ""
+
+#: templates/about.html:152
+msgid "Brasil"
+msgstr ""
+
+#: templates/about.html:154
+msgid ""
+"Faça uma transferência instantânea para a conta empresarial da "
+"INformigados no Nubank."
+msgstr ""
+
+#: templates/about.html:155
+msgid "Chave PIX"
+msgstr ""
+
+#: templates/about.html:157
+msgid "Copiar chave PIX"
+msgstr ""
+
+#: templates/about.html:157
+msgid "Chave copiada!"
+msgstr ""
+
+#: templates/about.html:158 templates/about.html:239
+#: templates/auth/profile.html:279 templates/auth/profile.html:866
+#: templates/auth/register_success.html:21
+#: templates/auth/register_success.html:57
+msgid "Copiar"
+msgstr ""
+
+#: templates/about.html:161
+msgid "Beneficiário: INformigados"
+msgstr ""
+
+#: templates/about.html:166
+msgid "QR Code para doação via PIX"
+msgstr ""
+
+#: templates/about.html:174
+msgid ""
+"Doações são voluntárias e não alteram o acesso gratuito aos recursos do "
+"Finora."
+msgstr ""
+
+#: templates/about.html:178
 msgid "Autores"
 msgstr ""
 
-#: templates/about.html:143
+#: templates/about.html:202
 msgid "Espaço para colaboradores"
 msgstr ""
 
-#: templates/about.html:144
+#: templates/about.html:203
 msgid ""
 "Contribuições futuras poderão ser destacadas aqui com créditos e "
 "histórico de participação."
 msgstr ""
 
-#: templates/about.html:147
+#: templates/about.html:206
 msgid "Ver repositório"
 msgstr ""
 
@@ -2663,12 +2746,6 @@ msgstr ""
 
 #: templates/auth/profile.html:275
 msgid "Gere uma nova chave para disponibilizar a cópia nesta tela."
-msgstr ""
-
-#: templates/auth/profile.html:279 templates/auth/profile.html:866
-#: templates/auth/register_success.html:21
-#: templates/auth/register_success.html:57
-msgid "Copiar"
 msgstr ""
 
 #: templates/auth/profile.html:282

@@ -42,7 +42,7 @@
                 <button type="submit" class="btn btn-outline-primary d-inline-flex align-items-center gap-2"><i data-lucide="refresh-cw" class="icon-sm"></i><span>{{ _('Verificar atualizações') }}</span></button>
             </form>
             {% if current_user.is_authenticated and update_available %}
-            <form action="{{ url_for('public.about_apply_update') }}" method="POST" data-loading-text="{{ _('Preparando atualização') }}" data-confirm="{{ _('Deseja instalar esta atualização agora? O Finora validará o arquivo, fará um backup e será reiniciado.') }}">
+            <form action="{{ url_for('public.about_apply_update') }}" method="POST" data-loading-text="{{ _('Baixando e validando atualização') }}" data-confirm="{{ _('Deseja instalar esta atualização agora? O Finora validará o arquivo, fará um backup e será reiniciado.') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2"><i data-lucide="download" class="icon-sm"></i><span>{{ _('Atualizar agora') }}</span></button>
             </form>
@@ -115,6 +115,65 @@
     </div>
 </section>
 
+<section class="card card-premium donation-shell p-4 p-md-5 mb-4" aria-labelledby="donationTitle">
+    <div class="donation-heading">
+        <div class="donation-heading-icon" aria-hidden="true"><i data-lucide="hand-heart"></i></div>
+        <div>
+            <p class="donation-eyebrow mb-2">{{ _('Apoie o projeto') }}</p>
+            <h2 class="h3 mb-2" id="donationTitle">{{ _('Ajude o Finora a continuar evoluindo') }}</h2>
+            <p class="text-muted mb-0">{{ _('Sua contribuição apoia a manutenção, a infraestrutura e o desenvolvimento de novos recursos. Escolha a forma mais conveniente para você.') }}</p>
+        </div>
+    </div>
+
+    <div class="row g-4 donation-methods">
+        <div class="col-lg-6">
+            <article class="donation-method donation-method-paypal h-100">
+                <div class="donation-method-copy">
+                    <span class="donation-method-tag"><i data-lucide="globe-2" class="icon-xs"></i>{{ _('Internacional') }}</span>
+                    <h3 class="h4 mb-2">PayPal</h3>
+                    <p class="text-muted mb-3">{{ _('Doe com sua conta PayPal ou cartão. A contribuição será destinada ao autor Alex Brito.') }}</p>
+                    <a class="btn btn-primary donation-action d-inline-flex align-items-center justify-content-center gap-2" href="https://www.paypal.com/donate/?hosted_button_id=H5Y4PRPVHWQ6L" target="_blank" rel="noopener noreferrer external" referrerpolicy="no-referrer">
+                        <i data-lucide="external-link" class="icon-sm"></i><span>{{ _('Doar com PayPal') }}</span>
+                    </a>
+                    <p class="donation-recipient mb-0"><i data-lucide="user-round" class="icon-xs"></i>{{ _('Beneficiário: Alex Henrique Pereira Brito') }}</p>
+                </div>
+                <figure class="donation-qr-wrap mb-0">
+                    <div class="donation-qr-frame">
+                        <img class="donation-qr donation-qr-paypal" src="{{ url_for('static', filename='images/donations/paypal-qr.png') }}" alt="{{ _('QR Code para doação via PayPal') }}" width="162" height="162">
+                    </div>
+                    <figcaption>{{ _('Aponte a câmera para doar') }}</figcaption>
+                </figure>
+            </article>
+        </div>
+
+        <div class="col-lg-6">
+            <article class="donation-method donation-method-pix h-100">
+                <div class="donation-method-copy">
+                    <span class="donation-method-tag"><i data-lucide="map-pin" class="icon-xs"></i>{{ _('Brasil') }}</span>
+                    <h3 class="h4 mb-2">PIX</h3>
+                    <p class="text-muted mb-3">{{ _('Faça uma transferência instantânea para a conta empresarial da INformigados no Nubank.') }}</p>
+                    <div class="donation-pix-key" role="group" aria-label="{{ _('Chave PIX') }}">
+                        <span id="donationPixKey">pix@informigados.com.br</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="copyDonationPix" aria-label="{{ _('Copiar chave PIX') }}" data-copy-label="{{ _('Copiar chave PIX') }}" data-copied-label="{{ _('Chave copiada!') }}">
+                            <i data-lucide="copy" class="icon-sm"></i><span>{{ _('Copiar') }}</span>
+                        </button>
+                    </div>
+                    <p class="donation-recipient mb-0"><i data-lucide="building-2" class="icon-xs"></i>{{ _('Beneficiário: INformigados') }}</p>
+                    <span class="visually-hidden" id="donationCopyStatus" role="status" aria-live="polite"></span>
+                </div>
+                <figure class="donation-qr-wrap mb-0">
+                    <div class="donation-qr-frame">
+                        <img class="donation-qr donation-qr-pix" src="{{ url_for('static', filename='images/donations/pix-nubank-qr.png') }}" alt="{{ _('QR Code para doação via PIX') }}" width="176" height="176">
+                    </div>
+                    <figcaption>{{ _('Aponte a câmera para doar') }}</figcaption>
+                </figure>
+            </article>
+        </div>
+    </div>
+
+    <p class="donation-note mb-0"><i data-lucide="shield-check" class="icon-sm"></i>{{ _('Doações são voluntárias e não alteram o acesso gratuito aos recursos do Finora.') }}</p>
+</section>
+
 <section class="mb-4">
     <h2 class="h4 mb-3">{{ _('Autores') }}</h2>
     <div class="row g-3">
@@ -147,4 +206,41 @@
       <span>{{ _('Ver repositório') }}</span>
     </a>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+document.addEventListener('DOMContentLoaded', function () {
+  const copyButton = document.getElementById('copyDonationPix');
+  const pixKey = document.getElementById('donationPixKey');
+  const copyStatus = document.getElementById('donationCopyStatus');
+
+  copyButton?.addEventListener('click', async function () {
+    const value = pixKey?.textContent?.trim();
+    if (!value) return;
+
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch (_error) {
+      const fallbackInput = document.createElement('textarea');
+      fallbackInput.value = value;
+      fallbackInput.setAttribute('readonly', '');
+      fallbackInput.className = 'visually-hidden';
+      document.body.appendChild(fallbackInput);
+      fallbackInput.select();
+      document.execCommand('copy');
+      fallbackInput.remove();
+    }
+
+    copyButton.innerHTML = `<i data-lucide="check" class="icon-sm"></i><span>${copyButton.dataset.copiedLabel}</span>`;
+    if (copyStatus) copyStatus.textContent = copyButton.dataset.copiedLabel;
+    refreshLucideIcons(copyButton);
+    window.setTimeout(() => {
+      copyButton.innerHTML = `<i data-lucide="copy" class="icon-sm"></i><span>{{ _('Copiar') }}</span>`;
+      if (copyStatus) copyStatus.textContent = '';
+      refreshLucideIcons(copyButton);
+    }, 2200);
+  });
+});
+</script>
 {% endblock %}

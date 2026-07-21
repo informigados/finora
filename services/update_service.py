@@ -1,15 +1,19 @@
 import hashlib
 import json
 import os
+import socket
 import shutil
+import ssl
 import subprocess  # nosec B404
 import sys
 import tempfile
 import threading
+import time
 import zipfile
 from pathlib import Path
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 from sqlalchemy import inspect
 
@@ -47,6 +51,37 @@ PRE_UPDATE_FILE_EXCLUDES = UPDATE_FILE_EXCLUDES.union({
     'lockfile',
     'runtime.json',
 })
+TRANSIENT_HTTP_STATUS_CODES = frozenset({408, 425, 429, 500, 502, 503, 504})
+
+
+class UpdateNetworkError(RuntimeError):
+    """Falha transitória de rede apresentada ao usuário sem detalhes internos do SSL."""
+
+
+def _is_transient_network_error(exc):
+    if isinstance(exc, HTTPError):
+        return exc.code in TRANSIENT_HTTP_STATUS_CODES
+    return isinstance(exc, (URLError, TimeoutError, socket.timeout, ssl.SSLError, ConnectionError))
+
+
+def _run_with_network_retries(operation, attempts, backoff_seconds):
+    attempt_count = max(1, int(attempts or 1))
+    last_error = None
+
+    for attempt in range(1, attempt_count + 1):
+        try:
+            return operation()
+        except Exception as exc:
+            if not _is_transient_network_error(exc):
+                raise
+            last_error = exc
+            if attempt < attempt_count:
+                time.sleep(max(0, float(backoff_seconds or 0)) * attempt)
+
+    raise UpdateNetworkError(
+        'Não foi possível concluir a comunicação com o servidor de atualizações após '
+        f'{attempt_count} tentativas. Verifique sua conexão com a internet e tente novamente.'
+    ) from last_error
 
 
 def update_schema_is_ready() -> bool:
@@ -140,7 +175,14 @@ def _open_source_stream(location, timeout_seconds):
 
     parsed = urlparse(location)
     if parsed.scheme == 'https':
-        return urlopen(location, timeout=timeout_seconds)  # nosec B310
+        request = Request(  # nosec B310
+            location,
+            headers={
+                'Accept': 'application/octet-stream, application/json;q=0.9, */*;q=0.8',
+                'User-Agent': f'Finora-Desktop-Updater/{DEFAULT_APP_VERSION}',
+            },
+        )
+        return urlopen(request, timeout=timeout_seconds)  # nosec B310
     if parsed.scheme:
         raise ValueError('Atualizacoes remotas aceitam apenas URLs HTTPS seguras.')
     raise ValueError('Origem de atualizacao invalida ou indisponivel.')
@@ -155,9 +197,12 @@ def _is_local_update_source(location):
     return not parsed.scheme or parsed.scheme == 'file'
 
 
-def _load_json_payload(location, timeout_seconds):
-    with _open_source_stream(location, timeout_seconds) as payload_stream:
-        return json.load(payload_stream)
+def _load_json_payload(location, timeout_seconds, retry_attempts=1, retry_backoff_seconds=0):
+    def load_payload():
+        with _open_source_stream(location, timeout_seconds) as payload_stream:
+            return json.load(payload_stream)
+
+    return _run_with_network_retries(load_payload, retry_attempts, retry_backoff_seconds)
 
 
 def _extract_channel_payload(payload, channel):
@@ -183,7 +228,9 @@ def fetch_update_manifest(app, channel=None):
 
     payload = _load_json_payload(
         manifest_location,
-        int(app.config.get('UPDATE_CHECK_TIMEOUT_SECONDS', 10) or 10),
+        int(app.config.get('UPDATE_CHECK_TIMEOUT_SECONDS', 20) or 20),
+        int(app.config.get('UPDATE_NETWORK_RETRY_ATTEMPTS', 3) or 3),
+        float(app.config.get('UPDATE_NETWORK_RETRY_BACKOFF_SECONDS', 2) or 2),
     )
     channel_name = (channel or app.config.get('UPDATE_CHANNEL', 'stable') or 'stable').strip()
     update_payload = _extract_channel_payload(payload, channel_name)
@@ -334,15 +381,37 @@ def _download_update_asset(app, manifest):
         downloads_dir,
         _derive_asset_filename(asset_url, manifest['version'], desktop_mode=desktop_mode),
     )
-
-    with _open_source_stream(asset_url, int(app.config.get('UPDATE_CHECK_TIMEOUT_SECONDS', 10) or 10)) as source_stream:
-        with open(package_path, 'wb') as package_file:
-            shutil.copyfileobj(source_stream, package_file)
-
     expected_sha = manifest.get('sha256')
     if desktop_mode and not expected_sha:
-        os.remove(package_path)
         raise ValueError('Atualizações desktop exigem checksum SHA-256 no manifesto.')
+
+    if expected_sha and os.path.isfile(package_path):
+        if _calculate_sha256(package_path).lower() == expected_sha.lower():
+            return package_path
+        os.remove(package_path)
+
+    partial_path = f'{package_path}.part'
+
+    def download_package():
+        if os.path.exists(partial_path):
+            os.remove(partial_path)
+        try:
+            timeout_seconds = int(app.config.get('UPDATE_DOWNLOAD_TIMEOUT_SECONDS', 60) or 60)
+            with _open_source_stream(asset_url, timeout_seconds) as source_stream:
+                with open(partial_path, 'wb') as package_file:
+                    shutil.copyfileobj(source_stream, package_file, length=1024 * 1024)
+            os.replace(partial_path, package_path)
+        except Exception:
+            if os.path.exists(partial_path):
+                os.remove(partial_path)
+            raise
+
+    _run_with_network_retries(
+        download_package,
+        int(app.config.get('UPDATE_NETWORK_RETRY_ATTEMPTS', 3) or 3),
+        float(app.config.get('UPDATE_NETWORK_RETRY_BACKOFF_SECONDS', 2) or 2),
+    )
+
     if expected_sha:
         actual_sha = _calculate_sha256(package_path)
         if actual_sha.lower() != expected_sha.lower():
