@@ -10,7 +10,7 @@
 Finora is a local-first personal finance application built with Flask.  
 It provides expense/income tracking, recurring entries, budgets, goals, imports/exports, managed backups, profile observability, guided updates, and multilingual UI.
 
-Current stable version: `1.4.5`
+Current stable version: `1.4.6`
 
 ## 🧱 Tech Stack
 
@@ -106,7 +106,7 @@ Optional update and mail settings:
 
 ```ini
 # App metadata
-APP_VERSION=1.4.5
+APP_VERSION=1.4.6
 APP_BASE_URL=http://127.0.0.1:5000
 
 # Automatic update
@@ -374,6 +374,16 @@ Or:
 - Replaced raw SSL diagnostics with clear, actionable connection guidance and corrected loading-state recovery around confirmed update actions.
 - Added a polished donation area to the About page with secure PayPal access, copyable PIX key, accessible feedback, recipient transparency, and visually normalized QR Codes.
 - Added regression coverage for transient timeouts, retry exhaustion, atomic installer downloads, partial-file cleanup, and donation security/accessibility contracts.
+
+### 2026-11-03 (1.4.6)
+
+- Rejected non-finite and oversized monetary inputs and corrected international amount parsing in imports.
+- Restricted reconciliation to paid, compatible entries in the same account, prevented reuse, and reopened reconciliation after material entry edits.
+- Fixed fixed-position overlays affected by the page entrance transform and enabled internal scrolling across dialogs in compact windows.
+- Associated account form labels with their controls and improved accessible names for account editing and profile deletion.
+- Fitted PDF tables within page margins and bundled licensed Unicode fonts for offline financial reports.
+- Added controlled responses for invalid dashboard/export periods and updated dependencies flagged by security auditing.
+- Expanded regression coverage for validation, imports, reconciliation, period boundaries, and Unicode PDF exports.
 
 ## 👥 Authors
 

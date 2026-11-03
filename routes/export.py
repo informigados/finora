@@ -24,6 +24,8 @@ def _build_entries_query(year: int, month: int):
 @export_bp.route('/export/<type>/<int:year>/<int:month>')
 @login_required
 def export_data(type: str, year: int, month: int) -> ResponseReturnValue:
+    if not 1 <= year <= 9999 or not 1 <= month <= 12:
+        abort(404)
     entries_query = _build_entries_query(year, month)
     total_entries = entries_query.order_by(None).count()
     

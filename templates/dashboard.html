@@ -120,7 +120,7 @@
     <!-- Main Table -->
     <div class="dashboard-main-column">
         <div class="card card-premium h-100">
-            <div class="card-header card-header-premium dashboard-table-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+            <div class="card-header card-header-premium dashboard-table-header d-flex flex-column align-items-stretch gap-2">
                 <div class="d-flex align-items-center flex-wrap gap-2">
                     <i data-lucide="list" class="me-2 icon-sm d-inline-block align-text-bottom"></i>{{ _('Lançamentos do Mês') }}
                     <span class="badge bg-secondary ms-2" id="itemCount" aria-live="polite" data-total-count="{{ entries|length }}">{{ entries|length }} {{ _('item') if entries|length == 1 else _('itens') }}</span>
@@ -128,11 +128,11 @@
                         <i data-lucide="panel-right-close" class="icon-sm"></i><span>{{ _('Recolher lateral') }}</span>
                     </button>
                 </div>
-                <div class="position-relative search-container">
+                <div class="position-relative search-container w-100">
                     <i data-lucide="search" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted icon-sm"></i>
-                    <input type="text" id="searchInput" class="form-control form-control-sm ps-5 rounded-pill" placeholder="{{ _('Buscar lançamentos...') }}" aria-label="{{ _('Buscar lançamentos') }}">
+                    <input type="text" id="searchInput" class="form-control form-control-sm ps-5 rounded-pill" placeholder="{{ _('Buscar lançamentos...') }}" aria-label="{{ _('Buscar lançamentos') }}" aria-describedby="searchScopeHelp">
                 </div>
-                <div class="small text-muted">{{ _('A busca filtra apenas os lançamentos visíveis nesta página.') }}</div>
+                <div class="small text-muted" id="searchScopeHelp">{{ _('A busca filtra apenas os lançamentos visíveis nesta página.') }}</div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

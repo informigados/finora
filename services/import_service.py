@@ -307,18 +307,25 @@ def _parse_money(raw_value: Any) -> Decimal:
         raise ImportValidationError("Valor ausente.")
 
     if isinstance(raw_value, (int, float, Decimal)):
-        return Decimal(str(raw_value))
+        text = str(raw_value)
+    else:
+        text = str(raw_value).strip()
 
-    text = str(raw_value).strip()
     text = text.replace("R$", "").replace(" ", "")
 
     if "," in text and "." in text:
-        text = text.replace(".", "").replace(",", ".")
+        if text.rfind(',') > text.rfind('.'):
+            text = text.replace(".", "").replace(",", ".")
+        else:
+            text = text.replace(',', '')
     elif "," in text:
         text = text.replace(",", ".")
 
     try:
-        return Decimal(text)
+        value = Decimal(text)
+        if not value.is_finite() or value.copy_abs() > Decimal('999999999999.99'):
+            raise ImportValidationError("Valor inválido.")
+        return value
     except InvalidOperation as exc:
         raise ImportValidationError("Valor inválido.") from exc
 
@@ -342,7 +349,7 @@ def _parse_date(
         excel_origin = date(1899, 12, 30)
         try:
             return excel_origin + timedelta(days=int(raw_value))
-        except OverflowError as exc:
+        except (OverflowError, ValueError) as exc:
             raise ImportValidationError("Data inválida.") from exc
 
     text = str(raw_value).strip()

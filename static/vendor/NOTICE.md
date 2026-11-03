@@ -7,5 +7,6 @@ Finora bundles these assets so the desktop application remains fully functional 
 - Lucide 1.24.0
 - Inter 5.2.8 via Fontsource
 - Plus Jakarta Sans 5.2.8 via Fontsource
+- Noto Sans (Regular, Bold, Italic), SIL Open Font License, for offline Unicode PDF reports
 
 Their upstream license texts are preserved in `static/vendor/licenses/`.

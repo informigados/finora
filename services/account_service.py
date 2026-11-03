@@ -107,8 +107,13 @@ def parse_decimal(value: Any) -> Decimal:
         except InvalidOperation as exc:
             raise AccountValidationError(_('Informe um valor válido.')) from exc
         if negative_parentheses:
-            parsed = -parsed
-    return parsed.quantize(Decimal('0.01'))
+            parsed = parsed.copy_negate()
+    if not parsed.is_finite() or parsed.copy_abs() > Decimal('999999999999.99'):
+        raise AccountValidationError(_('Informe um valor válido.'))
+    try:
+        return parsed.quantize(Decimal('0.01'))
+    except InvalidOperation as exc:
+        raise AccountValidationError(_('Informe um valor válido.')) from exc
 
 
 def validate_account_payload(data) -> dict[str, Any]:
@@ -438,7 +443,10 @@ def _parse_statement_date(value: Any) -> date:
     if isinstance(value, date):
         return value
     if isinstance(value, (int, float)):
-        return date(1899, 12, 30) + timedelta(days=int(value))
+        try:
+            return date(1899, 12, 30) + timedelta(days=int(value))
+        except (OverflowError, ValueError) as exc:
+            raise AccountValidationError(_('Data inválida no extrato.')) from exc
     text = str(value or '').strip()
     for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y', '%m/%d/%Y'):
         try:
@@ -474,6 +482,8 @@ def get_reconciliation_candidates(
         Finance.user_id == user_id,
         Finance.type == expected_type,
         Finance.status == 'Pago',
+        (Finance.account_id.is_(None) | (Finance.account_id == transaction.account_id)),
+        ~Finance.bank_reconciliations.any(),
         Finance.value.between(float(expected_value - Decimal('0.005')), float(expected_value + Decimal('0.005'))),
         Finance.due_date.between(date_start, date_end),
     ).order_by(Finance.due_date.asc(), Finance.id.desc()).all()
@@ -492,8 +502,12 @@ def reconcile_transaction(
     transaction: BankTransaction,
     finance: Finance,
 ) -> None:
-    if transaction.user_id != finance.user_id:
+    if transaction.user_id != finance.user_id or finance.account_id not in (None, transaction.account_id):
         raise AccountValidationError(_('O lançamento selecionado não pertence a esta conta.'))
+    if transaction.reconciled_finance_id is not None or finance.bank_reconciliations.count():
+        raise AccountValidationError(_('A movimentação já foi conciliada ou não existe.'))
+    if finance.status != 'Pago':
+        raise AccountValidationError(_('Tipo ou valor incompatível com a movimentação bancária.'))
     expected_type = 'Receita' if Decimal(str(transaction.amount)) > 0 else 'Despesa'
     if finance.type != expected_type or abs(Decimal(str(transaction.amount))) != Decimal(str(finance.value)).quantize(Decimal('0.01')):
         raise AccountValidationError(_('Tipo ou valor incompatível com a movimentação bancária.'))

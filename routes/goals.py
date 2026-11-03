@@ -5,6 +5,7 @@ from flask_babel import gettext as _
 from models.goal import Goal
 from database.db import db
 from datetime import datetime
+from math import isfinite
 from services.ownership import get_owned_or_none
 from services.profile_service import record_activity, record_system_event
 
@@ -32,7 +33,8 @@ def add_goal() -> ResponseReturnValue:
         flash(_('Os valores da meta devem ser válidos e maiores que zero.'), 'error')
         return redirect(url_for('goals.index'))
 
-    if target_amount <= 0 or current_amount < 0:
+    if (not isfinite(target_amount) or not isfinite(current_amount)
+            or target_amount <= 0 or current_amount < 0):
         flash(_('Os valores da meta devem ser válidos e maiores que zero.'), 'error')
         return redirect(url_for('goals.index'))
 
@@ -127,7 +129,8 @@ def update_goal(id: int) -> ResponseReturnValue:
 
             target_amount = float(target_amount_raw) if target_amount_raw else float(goal.target_amount)
             current_amount = float(current_amount_raw) if current_amount_raw else float(goal.current_amount)
-            if target_amount <= 0 or current_amount < 0:
+            if (not isfinite(target_amount) or not isfinite(current_amount)
+                    or target_amount <= 0 or current_amount < 0):
                 raise ValueError
 
             deadline = goal.deadline

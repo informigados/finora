@@ -7,10 +7,13 @@ import zipfile
 import pytest
 
 from config import DEFAULT_APP_VERSION
+from packaging.version import Version
 from database.db import db
 from models.system import AppUpdateState
 from models.user import User
 from services import update_service
+
+NEXT_APP_VERSION = f'{Version(DEFAULT_APP_VERSION).major + 1}.0.0'
 
 
 def _write_manifest(tmp_path, payload):
@@ -55,7 +58,7 @@ def test_check_for_updates_marks_state_as_available_when_newer_version_in_manife
         {
             'channels': {
                 'stable': {
-                    'version': '1.4.6',
+                    'version': NEXT_APP_VERSION,
                     'asset_url': str(unused_package),
                     'requires_migration': True,
                 }
@@ -73,7 +76,7 @@ def test_check_for_updates_marks_state_as_available_when_newer_version_in_manife
         assert result['update_available'] is True
         assert state.status == 'available'
         assert state.installed_version == DEFAULT_APP_VERSION
-        assert state.latest_known_version == '1.4.6'
+        assert state.latest_known_version == NEXT_APP_VERSION
         assert state.last_checked_at is not None
 
 
@@ -91,7 +94,7 @@ def test_apply_update_installs_package_and_preserves_excluded_directories(app, t
     manifest_path = _write_manifest(
         tmp_path,
         {
-            'version': '1.4.6',
+            'version': NEXT_APP_VERSION,
             'asset_url': str(package_path),
             'requires_migration': True,
         },
@@ -121,7 +124,7 @@ def test_apply_update_installs_package_and_preserves_excluded_directories(app, t
 
         assert result['applied'] is True
         assert migration_calls == [True]
-        assert state.installed_version == '1.4.6'
+        assert state.installed_version == NEXT_APP_VERSION
         assert state.status == 'applied'
         assert os.path.exists(result['backup_path'])
         assert os.path.exists(result['package_path'])
@@ -144,7 +147,7 @@ def test_apply_update_restores_backup_when_upgrade_fails(app, tmp_path, monkeypa
     manifest_path = _write_manifest(
         tmp_path,
         {
-            'version': '1.4.6',
+            'version': NEXT_APP_VERSION,
             'asset_url': str(package_path),
             'requires_migration': True,
         },
@@ -179,7 +182,7 @@ def test_about_routes_expose_update_section_and_check_flow(client, app, tmp_path
     manifest_path = _write_manifest(
         tmp_path,
         {
-            'version': '1.4.6',
+            'version': NEXT_APP_VERSION,
             'asset_url': str(unused_package),
             'requires_migration': True,
         },
@@ -204,7 +207,7 @@ def test_about_routes_expose_update_section_and_check_flow(client, app, tmp_path
 
     check_response = client.post('/about/check-update', follow_redirects=True)
     assert check_response.status_code == 200
-    assert 'Nova versão disponível: 1.4.6.' in check_response.get_data(as_text=True)
+    assert f'Nova versão disponível: {NEXT_APP_VERSION}.' in check_response.get_data(as_text=True)
 
     apply_requires_login = client.post('/about/apply-update', follow_redirects=False)
     assert apply_requires_login.status_code == 302
@@ -265,7 +268,7 @@ def test_check_for_updates_blocks_local_assets_from_local_manifest_by_default(ap
     manifest_path = _write_manifest(
         tmp_path,
         {
-            'version': '1.4.6',
+            'version': NEXT_APP_VERSION,
             'asset_url': str(package_path),
             'requires_migration': True,
         },

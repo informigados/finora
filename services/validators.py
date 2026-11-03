@@ -1,4 +1,5 @@
 from datetime import datetime
+from math import isfinite
 
 from services.catalogs import (
     normalize_finance_category,
@@ -26,7 +27,9 @@ def validate_finance_data(data, require_description=True):
     else:
         try:
             value = float(raw_value)
-            if value <= 0:
+            if not isfinite(value) or value > 999999999999.99:
+                errors.append("Valor inválido. Insira um número válido e positivo.")
+            elif value <= 0:
                 errors.append("Valor deve ser maior que zero.")
         except (TypeError, ValueError):
             errors.append("Valor inválido. Insira um número válido e positivo.")

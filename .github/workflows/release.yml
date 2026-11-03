@@ -10,6 +10,9 @@ permissions:
   id-token: write
   attestations: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   release:
     runs-on: windows-latest
@@ -33,6 +36,8 @@ jobs:
       - name: Validate release gates
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
           $version = (Get-Content VERSION -Raw).Trim()
           if ($env:GITHUB_REF_NAME -ne "v$version") {
             throw "Tag $env:GITHUB_REF_NAME does not match VERSION $version."
@@ -55,17 +60,9 @@ jobs:
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
           $metadata = Get-Content dist_setup/release-metadata.json -Raw | ConvertFrom-Json
+          $notes = Get-Content RELEASE_NOTES.md -Raw
           @"
-          ## Finora $version
-
-          ### Highlights
-
-          - Hardened automatic updates against intermittent SSL handshake and download read timeouts.
-          - Added controlled retries, progressive backoff, separate download timeouts, and atomic partial-file handling.
-          - Reused previously verified installers safely through SHA-256 validation and improved actionable error messaging.
-          - Added a polished PayPal and PIX donation area with accessible copy feedback and normalized QR Codes.
-          - Added regression coverage for updater resilience, partial-file cleanup, and donation security/accessibility.
-
+          $notes
           ### Verification
 
           Download only from this official release and compare the installer with ``SHA256SUMS.txt``.

@@ -195,6 +195,15 @@ def edit_entry(id: int) -> ResponseReturnValue:
                 flash(_(validation_errors[0]), 'error')
                 return _redirect_dashboard_context(fallback_year=fallback_year, fallback_month=fallback_month)
 
+            account_id = _get_valid_account_id(data)
+            invalidates_reconciliation = any(
+                getattr(entry, field) != payload[field] for field in ('value', 'type', 'status')
+            ) or entry.account_id != account_id
+            reconciliations = entry.bank_reconciliations.all() if invalidates_reconciliation else []
+            for transaction in reconciliations:
+                transaction.reconciled_finance_id = None
+                transaction.reconciled_at = None
+
             entry.description = payload['description']
             entry.value = payload['value']
             entry.category = payload['category']
@@ -205,7 +214,7 @@ def edit_entry(id: int) -> ResponseReturnValue:
             entry.payment_date = payload['payment_date']
             entry.payment_method = payload['payment_method']
             entry.observations = payload['observations']
-            entry.account_id = _get_valid_account_id(data)
+            entry.account_id = account_id
             record_activity(
                 current_user,
                 'entries',
@@ -223,6 +232,8 @@ def edit_entry(id: int) -> ResponseReturnValue:
             )
             db.session.commit()
             flash(_('Lançamento atualizado com sucesso!'), 'success')
+            if reconciliations:
+                flash(_('Conciliação desfeita. O lançamento foi preservado.'), 'warning')
         except Exception:
             db.session.rollback()
             record_system_event(

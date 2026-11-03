@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
 from flask_login import login_required, current_user
 from flask.typing import ResponseReturnValue
 from flask_babel import gettext as _
@@ -21,6 +21,8 @@ def index() -> ResponseReturnValue:
 @dashboard_bp.route('/dashboard/<int:year>/<int:month>')
 @login_required
 def view_month(year: int, month: int) -> ResponseReturnValue:
+    if not 1 <= year <= 9999 or not 1 <= month <= 12:
+        abort(404)
     stats = get_monthly_stats(month, year, user_id=current_user.id)
     
     # Translate chart labels
@@ -70,6 +72,8 @@ def view_month(year: int, month: int) -> ResponseReturnValue:
 @dashboard_bp.route('/dashboard/<int:year>')
 @login_required
 def view_year(year: int) -> ResponseReturnValue:
+    if not 1 <= year <= 9999:
+        abort(404)
     yearly_stats = get_yearly_stats(year, user_id=current_user.id)
     monthly_data = []
 

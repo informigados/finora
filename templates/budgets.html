@@ -81,7 +81,7 @@
 
 <!-- Add Modal -->
 <div class="modal fade" id="budgetModal" tabindex="-1" aria-labelledby="budgetModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content modal-content-premium">
             <form action="{{ url_for('budgets.add_budget') }}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -120,7 +120,7 @@
 
 <!-- Edit Modal -->
 <div class="modal fade" id="editBudgetModal" tabindex="-1" aria-labelledby="editBudgetModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content modal-content-premium">
             <form action="" method="POST" id="editBudgetForm" data-edit-action-template="{{ url_for('budgets.edit_budget', id=0) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>

@@ -9,6 +9,7 @@ from services.ownership import get_owned_or_none
 from services.budget_service import get_budget_status
 from services.profile_service import record_activity, record_system_event
 from datetime import date
+from math import isfinite
 
 budgets_bp = Blueprint('budgets', __name__)
 VALID_BUDGET_PERIODS = {'Mensal', 'Anual'}
@@ -38,7 +39,7 @@ def add_budget() -> ResponseReturnValue:
         if not category:
             flash(_('Categoria inválida. Selecione uma categoria permitida.'), 'error')
             return redirect(url_for('budgets.index'))
-        if limit_amount <= 0:
+        if not isfinite(limit_amount) or limit_amount <= 0:
             flash(_('O limite do orçamento deve ser maior que zero.'), 'error')
             return redirect(url_for('budgets.index'))
         if data.get('period') not in VALID_BUDGET_PERIODS:
@@ -99,7 +100,7 @@ def edit_budget(id: int) -> ResponseReturnValue:
     if budget:
         try:
             limit_amount = float(request.form['limit_amount'])
-            if limit_amount <= 0:
+            if not isfinite(limit_amount) or limit_amount <= 0:
                 flash(_('O limite do orçamento deve ser maior que zero.'), 'error')
                 return redirect(url_for('budgets.index'))
             if request.form.get('period') not in VALID_BUDGET_PERIODS:

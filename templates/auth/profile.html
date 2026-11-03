@@ -784,7 +784,7 @@
 </div>
 
 <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-danger text-white">
         <h5 class="modal-title">{{ _('Confirmar Exclusão') }}</h5>
@@ -796,7 +796,7 @@
         <form action="{{ url_for('auth.profile') }}" method="POST">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <input type="hidden" name="action" value="delete_account" />
-          <input type="text" class="form-control mb-3" name="confirmation" placeholder="{{ delete_confirmation_token }}" required pattern="{{ delete_confirmation_token }}" />
+          <input type="text" class="form-control mb-3" name="confirmation" aria-label="{{ _('Confirmar Exclusão') }}" placeholder="{{ delete_confirmation_token }}" required pattern="{{ delete_confirmation_token }}" />
           <div class="d-flex justify-content-end gap-2">
             <button type="button" class="btn btn-secondary d-inline-flex align-items-center gap-2" data-bs-dismiss="modal"><i data-lucide="x" class="icon-sm"></i><span>{{ _('Cancelar') }}</span></button>
             <button type="submit" class="btn btn-danger d-inline-flex align-items-center gap-2"><i data-lucide="trash-2" class="icon-sm"></i><span>{{ _('Excluir Permanentemente') }}</span></button>
